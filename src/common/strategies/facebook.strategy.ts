@@ -9,7 +9,7 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
       clientID: process.env.FB_APP_ID,
       clientSecret: process.env.FB_APP_SECRET,
       callbackURL: 'http://localhost:3000/v1/auth/facebook/login',
-      profileFields: ['id', 'name', 'emails'],
+      profileFields: ['id', 'name'],
     });
   }
 
@@ -19,14 +19,13 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
     profile: Profile,
     done: (err: any, user: any, info?: any) => void,
   ): Promise<any> {
-    const { id, name, emails } = profile;
+    const { id, name } = profile;
 
     const { givenName: firstName, familyName: lastname } = name;
     const payload = {
       id,
       firstName,
       lastname,
-      email: emails[0].value,
       accessToken,
       refreshToken,
     };

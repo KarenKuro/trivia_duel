@@ -8,7 +8,6 @@ import { NodeEnv } from '@common/enums';
 import { ENV_CONST } from '@common/constants';
 import { ADMIN_VALIDATIONS } from '@common/validators';
 import { databaseConfiguration } from '@common/config';
-import { AuthModule } from '@api-resources/auth';
 
 const isProductionMode = process.env.NODE_ENV === NodeEnv.production;
 
@@ -18,7 +17,6 @@ const envFilePath = isProductionMode
 
 @Module({
   imports: [
-    AuthModule,
     ConfigModule.forRoot({
       envFilePath,
       isGlobal: true,
@@ -27,7 +25,7 @@ const envFilePath = isProductionMode
       load: [databaseConfiguration],
     }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule, AuthModule],
+      imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         return {

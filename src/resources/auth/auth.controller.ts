@@ -10,23 +10,35 @@ import {
 import { Request } from 'express';
 import axios from 'axios';
 import { AuthGuard } from '@nestjs/passport';
+import {
+  ApiBearerAuth,
+  ApiExcludeEndpoint,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
 import { AuthTokensDTO } from './dto';
 import { AuthToken } from '@common/decorators';
 
+@ApiTags('Authentication management')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly _authService: AuthService) {}
 
   @Get('facebook')
   @UseGuards(AuthGuard('facebook'))
+  @ApiOperation({
+    summary:
+      'This API registers a new user in the database using a Facebook account',
+  })
   async facebookLogin(): Promise<any> {
     return HttpStatus.OK;
   }
 
   @Get('facebook/login')
   @UseGuards(AuthGuard('facebook'))
+  @ApiExcludeEndpoint()
   async facebookLoginCallback(@Req() req): Promise<AuthTokensDTO> {
     try {
       const payload = await req.user;
@@ -57,12 +69,17 @@ export class AuthController {
 
   @Get('google')
   @UseGuards(AuthGuard('google'))
+  @ApiOperation({
+    summary:
+      'This API registers a new user in the database using a Google account',
+  })
   async googleLogin(@Req() req: Request) {
     console.log(req);
   }
 
   @Get('google/login')
   @UseGuards(AuthGuard('google'))
+  @ApiExcludeEndpoint()
   async googleLoginCallback(@Req() req): Promise<AuthTokensDTO> {
     try {
       const payload = await req.user;
@@ -95,6 +112,11 @@ export class AuthController {
   }
 
   @Post('refresh')
+  @ApiOperation({
+    summary:
+      'This API aimed to check the "refresh token" and refresh the "access token".',
+  })
+  @ApiBearerAuth()
   async refreshToken(
     @AuthToken() refreshToken: string,
   ): Promise<AuthTokensDTO> {

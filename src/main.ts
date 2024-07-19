@@ -64,7 +64,7 @@ async function bootstrap() {
       .setTitle('Trivia Duel APIs')
       .setDescription('The Trivia Duel API description')
       .setVersion('1.0')
-      // .addBearerAuth()
+      .addBearerAuth()
       .build();
 
     const document = SwaggerModule.createDocument(app, config);

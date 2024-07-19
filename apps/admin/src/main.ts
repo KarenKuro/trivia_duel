@@ -1,5 +1,5 @@
 import { NestFactory, Reflector } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { AdminModule } from './admin.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import {
   ClassSerializerInterceptor,
@@ -16,7 +16,7 @@ const PORT = process.env.PORT;
 process.env.TZ = 'Etc/UTC';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AdminModule);
 
   app.enableVersioning({
     type: VersioningType.URI,
@@ -61,8 +61,8 @@ async function bootstrap() {
 
   if (process.env.NODE_ENV === 'development') {
     const config = new DocumentBuilder()
-      .setTitle('Trivia Duel APIs')
-      .setDescription('The Trivia Duel API description')
+      .setTitle('Trivia Duel Admin APIs')
+      .setDescription('The Trivia Duel Admin API description')
       .setVersion('1.0')
       .addBearerAuth()
       .build();
@@ -71,7 +71,9 @@ async function bootstrap() {
     SwaggerModule.setup('api', app, document);
   }
 
-  await app.listen(PORT);
+  await app.listen(PORT, () => {
+    console.log(`ADMIN: ${PORT}`);
+  });
 }
 
 bootstrap();

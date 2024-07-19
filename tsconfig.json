@@ -18,9 +18,10 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@common/*": ["src/common/*"],
-      "@resources/*": ["src/resources/*"],
-      "@shared/*": ["src/shared/*"]
+      "@common/*": ["./common/*"],
+      "@api-resources/*": ["apps/api/src/resources/*"],
+      "@admin-resources/*": ["apps/admin/src/resources/*"],
+      "@shared/*": ["./shared/*"]
     }
   }
 }

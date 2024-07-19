@@ -1,23 +1,25 @@
 {
-  "name": "brain-duel",
+  "name": "api",
   "version": "0.0.1",
   "description": "",
   "author": "",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
+    "build": "NODE_OPTIONS='--max-old-space-size=8192' nest build api && NODE_OPTIONS='--max-old-space-size=8192' nest build admin",
+    "start": "concurrently \"npx nest start api\" \"npx nest start admin\"",
+    "start:api": "nest api start",
+    "start:admin": "nest admin start",
+    "start:dev": "concurrently \"npx nest start api --watch\" \"npx nest start admin --watch\"",
+    "start:api:dev": "nest start api --watch",
+    "start:admin:dev": "nest start admin --watch",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./apps/api/test/jest-e2e.json"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -32,6 +34,7 @@
     "axios": "^1.7.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
+    "concurrently": "^8.0.1",
     "dotenv": "^16.4.5",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
@@ -77,7 +80,7 @@
       "json",
       "ts"
     ],
-    "rootDir": "src",
+    "rootDir": ".",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
@@ -85,7 +88,10 @@
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "coverageDirectory": "./coverage",
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/apps/"
+    ]
   }
 }

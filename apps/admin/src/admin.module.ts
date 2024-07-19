@@ -2,19 +2,13 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { AdminController } from './admin.controller';
+import { AdminService } from './admin.service';
 import { NodeEnv } from '@common/enums';
 import { ENV_CONST } from '@common/constants';
-import validators from '@common/validators';
-import {
-  appConfig,
-  databaseConfiguration,
-  facebookConfig,
-  googleConfig,
-  jwtConfig,
-} from '@common/config';
-import { AuthModule } from '@resources/auth';
+import { ADMIN_VALIDATIONS } from '@common/validators';
+import { databaseConfiguration } from '@common/config';
+import { AuthModule } from '@api-resources/auth';
 
 const isProductionMode = process.env.NODE_ENV === NodeEnv.production;
 
@@ -29,14 +23,8 @@ const envFilePath = isProductionMode
       envFilePath,
       isGlobal: true,
       expandVariables: true,
-      validationSchema: validators,
-      load: [
-        appConfig,
-        databaseConfiguration,
-        facebookConfig,
-        jwtConfig,
-        googleConfig,
-      ],
+      validationSchema: ADMIN_VALIDATIONS,
+      load: [databaseConfiguration],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule, AuthModule],
@@ -65,7 +53,7 @@ const envFilePath = isProductionMode
       },
     }),
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AdminController],
+  providers: [AdminService],
 })
-export class AppModule {}
+export class AdminModule {}

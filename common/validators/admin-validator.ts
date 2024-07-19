@@ -1,10 +1,10 @@
 import * as Joi from 'joi';
 
-export default Joi.object({
+export const ADMIN_VALIDATIONS = Joi.object({
   NODE_ENV: Joi.string()
     .valid('development', 'production')
     .default('development'),
-  PORT: Joi.number().default(5000),
+  PORT: Joi.number().default(6000),
   ENVIRONMENT: Joi.string()
     .valid('development', 'staging', 'production')
     .default('development'),

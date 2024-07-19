@@ -59,9 +59,6 @@ async function bootstrap() {
     }),
   );
 
-  // add SanitizePipe
-  // app.useGlobalPipes()
-
   if (process.env.NODE_ENV === 'development') {
     const config = new DocumentBuilder()
       .setTitle('Trivia Duel APIs')

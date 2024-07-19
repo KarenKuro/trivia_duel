@@ -7,7 +7,14 @@ import { AppService } from './app.service';
 import { NodeEnv } from '@common/enums';
 import { ENV_CONST } from '@common/constants';
 import validators from '@common/validators';
-import { appConfig, databaseConfiguration } from '@common/config';
+import {
+  appConfig,
+  databaseConfiguration,
+  facebookConfig,
+  googleConfig,
+  jwtConfig,
+} from '@common/config';
+import { AuthModule } from '@resources/auth';
 
 const isProductionMode = process.env.NODE_ENV === NodeEnv.production;
 
@@ -17,15 +24,22 @@ const envFilePath = isProductionMode
 
 @Module({
   imports: [
+    AuthModule,
     ConfigModule.forRoot({
       envFilePath,
       isGlobal: true,
       expandVariables: true,
       validationSchema: validators,
-      load: [appConfig, databaseConfiguration],
+      load: [
+        appConfig,
+        databaseConfiguration,
+        facebookConfig,
+        jwtConfig,
+        googleConfig,
+      ],
     }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
+      imports: [ConfigModule, AuthModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         return {

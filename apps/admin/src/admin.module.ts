@@ -1,13 +1,15 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { AdminController } from './admin.controller';
-import { AdminService } from './admin.service';
-import { NodeEnv } from '@common/enums';
-import { ENV_CONST } from '@common/constants';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+
 import { ADMIN_VALIDATIONS } from '@common/validators';
-import { databaseConfiguration } from '@common/config';
+import { ENV_CONST } from '@common/constants';
+import { NodeEnv } from '@common/enums';
+import { AdminService } from './admin.service';
+import { AdminController } from './admin.controller';
+import { databaseConfiguration, jwtConfig } from '@common/config';
+import { AuthModule } from '@admin-resources/auth';
 
 const isProductionMode = process.env.NODE_ENV === NodeEnv.production;
 
@@ -17,15 +19,16 @@ const envFilePath = isProductionMode
 
 @Module({
   imports: [
+    AuthModule,
     ConfigModule.forRoot({
       envFilePath,
       isGlobal: true,
       expandVariables: true,
       validationSchema: ADMIN_VALIDATIONS,
-      load: [databaseConfiguration],
+      load: [databaseConfiguration, jwtConfig],
     }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
+      imports: [ConfigModule, AuthModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         return {

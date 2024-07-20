@@ -1,5 +1,4 @@
 import { NestFactory, Reflector } from '@nestjs/core';
-import { AdminModule } from './admin.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import {
   ClassSerializerInterceptor,
@@ -8,6 +7,8 @@ import {
   VersioningType,
 } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
+import { AdminModule } from './admin.module';
 import { IValidationErrors } from '@common/models';
 import { ResponseManager } from '@common/helpers';
 

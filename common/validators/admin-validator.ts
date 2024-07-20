@@ -16,6 +16,6 @@ export const ADMIN_VALIDATIONS = Joi.object({
   DATABASE_PASSWORD: Joi.string().required(),
   DATABASE_NAME: Joi.string().required(),
   DB_SYNC: Joi.boolean().default(false),
-  // JWT_SECRET: Joi.string().required(),
-  // JWT_EXPIRES_IN: Joi.string().required(),
+  JWT_SECRET: Joi.string().required(),
+  JWT_EXPIRES_IN: Joi.string().required(),
 });

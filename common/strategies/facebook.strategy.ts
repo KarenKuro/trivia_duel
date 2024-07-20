@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Profile, Strategy } from 'passport-facebook';
 
+import { IFacebookPayload } from '@common/models';
+
 @Injectable()
 export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
   constructor() {
@@ -21,11 +23,11 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
   ): Promise<any> {
     const { id, name } = profile;
 
-    const { givenName: firstName, familyName: lastname } = name;
-    const payload = {
+    const { givenName: firstName, familyName: lastName } = name;
+    const payload: IFacebookPayload = {
       id,
       firstName,
-      lastname,
+      lastName,
       accessToken,
       refreshToken,
     };

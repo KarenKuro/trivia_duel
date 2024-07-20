@@ -7,19 +7,19 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { Request } from 'express';
 import axios from 'axios';
 import { AuthGuard } from '@nestjs/passport';
-import {
-  ApiBearerAuth,
-  ApiExcludeEndpoint,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
 import { AuthTokensDTO } from './dto';
 import { AuthToken } from '@common/decorators';
+import {
+  IFacebookPayload,
+  IFacebookProfile,
+  IGooglePayload,
+  IGoogleProfile,
+} from '@common/models';
 
 @ApiTags('Authentication management')
 @Controller('auth')
@@ -30,7 +30,7 @@ export class AuthController {
   @UseGuards(AuthGuard('facebook'))
   @ApiOperation({
     summary:
-      'This API registers a new user in the database using a Facebook account',
+      'This API registers a new user in the database using a Facebook account. In case of success the request will be redirected to /facebook/login (See next endpoint)',
   })
   async facebookLogin(): Promise<any> {
     return HttpStatus.OK;
@@ -38,10 +38,9 @@ export class AuthController {
 
   @Get('facebook/login')
   @UseGuards(AuthGuard('facebook'))
-  @ApiExcludeEndpoint()
   async facebookLoginCallback(@Req() req): Promise<AuthTokensDTO> {
     try {
-      const payload = await req.user;
+      const payload: IFacebookPayload = await req.user;
 
       const { accessToken } = payload;
 
@@ -51,7 +50,7 @@ export class AuthController {
       );
 
       const { data: userData } = response;
-      const profile = {
+      const profile: IFacebookProfile = {
         id: userData.id,
         name: userData.name,
         email: userData.email,
@@ -71,18 +70,17 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   @ApiOperation({
     summary:
-      'This API registers a new user in the database using a Google account',
+      'This API registers a new user in the database using a Google account. In case of success the request will be redirected to /google/login (See next endpoint)',
   })
-  async googleLogin(@Req() req: Request) {
-    console.log(req);
+  async googleLogin() {
+    return HttpStatus.OK;
   }
 
   @Get('google/login')
   @UseGuards(AuthGuard('google'))
-  @ApiExcludeEndpoint()
   async googleLoginCallback(@Req() req): Promise<AuthTokensDTO> {
     try {
-      const payload = await req.user;
+      const payload: IGooglePayload = await req.user;
       const { accessToken } = payload;
 
       // Use access_token to fetch user profile
@@ -95,7 +93,7 @@ export class AuthController {
         },
       );
       const { data: userData } = response;
-      const profile = {
+      const profile: IGoogleProfile = {
         id: userData.id,
         name: userData.name,
         email: userData.email,

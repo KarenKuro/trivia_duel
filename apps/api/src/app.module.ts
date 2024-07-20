@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { NodeEnv } from '@common/enums';
-import { ENV_CONST } from '@common/constants';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+
 import { API_VALIDATIONS } from '@common/validators';
+import { ENV_CONST } from '@common/constants';
+import { NodeEnv } from '@common/enums';
+import { AppService } from './app.service';
+import { AppController } from './app.controller';
 import {
   appConfig,
   databaseConfiguration,

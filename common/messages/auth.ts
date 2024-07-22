@@ -11,4 +11,10 @@ export const AUTH_ERROR_MESSAGES = {
   USER_INVALID_PASSWORD: {
     message: 'err_user_invalid_password',
   },
+  ADMIN_NOT_EXISTS: {
+    message: 'err_admin_not_exists',
+  },
+  ADMIN_INVALID_PASSWORD: {
+    message: 'err_admin_invalid_password',
+  },
 };

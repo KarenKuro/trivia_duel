@@ -9,7 +9,12 @@ import {
 } from '@nestjs/common';
 import axios from 'axios';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
 import { AuthTokensDTO } from './dto';
@@ -113,6 +118,11 @@ export class AuthController {
   @ApiOperation({
     summary:
       'This API aimed to check the "refresh token" and refresh the "access token".',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Return "access and refresh tokens"',
+    type: AuthTokensDTO,
   })
   @ApiBearerAuth()
   async refreshToken(

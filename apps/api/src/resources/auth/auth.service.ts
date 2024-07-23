@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { v4 as uuid } from 'uuid';
@@ -6,12 +6,13 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 
 import { UserEntity } from '@common/database/entities';
-import { IAuthTokens, ISyncUser, ITokenPayload } from '@common/models';
-import { ResponseManager } from '@common/helpers';
-import { ERROR_MESSAGES } from '@common/messages';
+import { IAuthTokens, IJwt, ISyncUser, ITokenPayload } from '@common/models';
 
 @Injectable()
 export class AuthService {
+  private readonly jwtSecrets: IJwt =
+    this._configService.get<IJwt>('JWT_CONFIG');
+
   constructor(
     @InjectRepository(UserEntity)
     private _userRepository: Repository<UserEntity>,
@@ -57,44 +58,23 @@ export class AuthService {
     const refreshToken = uuid();
 
     return this._jwtService.sign(
-      { sub: id, jti: refreshToken },
-      { expiresIn: this._configService.get(`JWT_CONFIG.refreshExpiresIn`) },
+      { id, jti: refreshToken },
+      {
+        secret: this.jwtSecrets.refreshSecret,
+        expiresIn: this.jwtSecrets.refreshExpiresIn,
+      },
     );
   }
 
   // This method aimed to refresh the access token.
-  async refreshAccessToken(refreshToken: string): Promise<IAuthTokens> {
+  async refreshAccessToken(
+    id: number,
+    refreshToken: string,
+  ): Promise<IAuthTokens> {
     refreshToken = refreshToken?.replace('Bearer', '')?.trim();
-    // Will throw an exception in case of not valid refresh token
-    const { id } = await this.validateRefreshToken(refreshToken);
 
     const accessToken = await this.createAccessToken({ id });
 
     return { accessToken, refreshToken };
-  }
-
-  // This method aimed to validate the refresh token.
-  async validateRefreshToken(refreshToken: string): Promise<UserEntity> {
-    try {
-      await this._jwtService.verify(refreshToken);
-      const decoded = this._jwtService.decode(refreshToken);
-      // Check if the user associated with the token is still valid and has not been revoked
-      const user = await this._userRepository.findOneBy({
-        id: Number(decoded.sub),
-      });
-      if (!user) {
-        throw ResponseManager.buildError(
-          ERROR_MESSAGES.USER_UNAUTHORIZED,
-          HttpStatus.UNAUTHORIZED,
-        );
-      }
-
-      return user;
-    } catch (error) {
-      throw ResponseManager.buildError(
-        error?.response ?? ERROR_MESSAGES.USER_UNAUTHORIZED,
-        error?.status ?? HttpStatus.UNAUTHORIZED,
-      );
-    }
   }
 }

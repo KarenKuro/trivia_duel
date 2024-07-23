@@ -18,12 +18,13 @@ import {
 
 import { AuthService } from './auth.service';
 import { AuthTokensDTO } from './dto';
-import { AuthToken } from '@common/decorators';
+import { AuthToken, AuthUser } from '@common/decorators';
 import {
   IFacebookPayload,
   IFacebookProfile,
   IGooglePayload,
   IGoogleProfile,
+  IRefreshPayload,
 } from '@common/models';
 import { AuthUserGuard } from '@common/guards';
 import { TokenTypes } from '@common/enums';
@@ -130,7 +131,8 @@ export class AuthController {
   @UseGuards(AuthUserGuard(TokenTypes.REFRESH))
   async refreshToken(
     @AuthToken() refreshToken: string,
+    @AuthUser() user: IRefreshPayload,
   ): Promise<AuthTokensDTO> {
-    return this._authService.refreshAccessToken(refreshToken);
+    return this._authService.refreshAccessToken(user.id, refreshToken);
   }
 }

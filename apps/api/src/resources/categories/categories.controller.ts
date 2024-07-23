@@ -10,6 +10,8 @@ import {
 } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { AuthUserGuard } from '@common/guards';
+import { AuthUser } from '@common/decorators';
+import { ITokenPayload } from '@common/models';
 
 @Controller('categories')
 export class CategoriesController {
@@ -22,7 +24,9 @@ export class CategoriesController {
 
   @Get()
   @UseGuards(AuthUserGuard())
-  findAll() {
+  findAll(@AuthUser() user: ITokenPayload) {
+    console.log(user);
+
     return this.categoriesService.findAll();
   }
 

@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { v4 as uuid } from 'uuid';
 import { HttpStatus, Injectable } from '@nestjs/common';
+import * as bcrypt from 'bcryptjs';
 
 import { AdminEntity } from '@common/database/entities/admin.entity';
 import { IAdminLogin, IAuthTokens, IJwt, ITokenPayload } from '@common/models';
@@ -39,11 +40,8 @@ export class AuthService {
       );
     }
 
-    if (password !== admin.password) {
-      throw ResponseManager.buildError(
-        ERROR_MESSAGES.ADMIN_INVALID_PASSWORD,
-        HttpStatus.UNAUTHORIZED,
-      );
+    if (!bcrypt.compareSync(password, admin.password)) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.USER_INVALID_PASSWORD);
     }
 
     const payload = { id: admin.id };

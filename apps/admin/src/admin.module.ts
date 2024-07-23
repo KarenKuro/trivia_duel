@@ -10,6 +10,7 @@ import { AdminService } from './admin.service';
 import { AdminController } from './admin.controller';
 import { databaseConfiguration, jwtConfig } from '@common/config';
 import { AuthModule } from '@admin-resources/auth';
+import { CategoriesModule } from './resources/categories/categories.module';
 
 const isProductionMode = process.env.NODE_ENV === NodeEnv.production;
 
@@ -53,6 +54,7 @@ const envFilePath = isProductionMode
         return new DataSource(options);
       },
     }),
+    CategoriesModule,
   ],
   controllers: [AdminController],
   providers: [AdminService],

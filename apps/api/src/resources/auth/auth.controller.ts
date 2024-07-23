@@ -25,6 +25,8 @@ import {
   IGooglePayload,
   IGoogleProfile,
 } from '@common/models';
+import { AuthUserGuard } from '@common/guards';
+import { TokenTypes } from '@common/enums';
 
 @ApiTags('Authentication management')
 @Controller('auth')
@@ -125,6 +127,7 @@ export class AuthController {
     type: AuthTokensDTO,
   })
   @ApiBearerAuth()
+  @UseGuards(AuthUserGuard(TokenTypes.REFRESH))
   async refreshToken(
     @AuthToken() refreshToken: string,
   ): Promise<AuthTokensDTO> {

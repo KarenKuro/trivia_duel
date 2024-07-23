@@ -1,43 +1,67 @@
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
 import {
-  CanActivate,
   ExecutionContext,
-  HttpStatus,
+  CanActivate,
   Injectable,
+  HttpStatus,
+  mixin,
 } from '@nestjs/common';
+
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
-import { ITokenPayload } from '@common/models';
+import { TokenTypes } from '@common/enums/jwt-tokenTypes';
+import { IJwt, ITokenPayload } from '@common/models';
 
-@Injectable()
-export class AuthUserGuard implements CanActivate {
-  constructor(private readonly _jwtService: JwtService) {}
+export const AuthUserGuard = (tokenType: TokenTypes = TokenTypes.PRIMARY) => {
+  @Injectable()
+  class AuthUserGuard implements CanActivate {
+    constructor(
+      public readonly jwtService: JwtService,
+      public readonly configService: ConfigService,
+    ) {}
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<Request>();
-    const accessToken = request.headers?.authorization
-      ?.replace('Bearer', '')
-      ?.trim();
+    async canActivate(context: ExecutionContext): Promise<boolean> {
+      const request = context.switchToHttp().getRequest();
+      const secretKeys = this.configService.get<IJwt>('JWT_CONFIG');
 
-    if (!accessToken) {
-      throw ResponseManager.buildError(
-        ERROR_MESSAGES.USER_UNAUTHORIZED,
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
+      const tokenSecretKeys = {
+        [TokenTypes.PRIMARY]: secretKeys.secret,
+        [TokenTypes.REFRESH]: secretKeys.refreshSecret,
+      };
 
-    try {
-      await this._jwtService.verify(accessToken);
-      const payload = this._jwtService.decode(accessToken) as ITokenPayload;
+      const options = {
+        secret: tokenSecretKeys[tokenType],
+      };
 
-      request.user = payload;
-      return true;
-    } catch (e) {
-      throw ResponseManager.buildError(
-        ERROR_MESSAGES.USER_UNAUTHORIZED,
-        HttpStatus.UNAUTHORIZED,
-      );
+      const accessToken = (
+        request.headers?.authorization ?? request.query?.authorization
+      )
+        ?.replace('Bearer', '')
+        ?.trim();
+
+      if (!accessToken) {
+        throw ResponseManager.buildError(
+          ERROR_MESSAGES.USER_UNAUTHORIZED,
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+
+      try {
+        await this.jwtService.verify(accessToken, options);
+        const payload = this.jwtService.decode(accessToken) as ITokenPayload;
+
+        request.user = payload;
+        return true;
+      } catch (e) {
+        throw ResponseManager.buildError(
+          ERROR_MESSAGES.USER_UNAUTHORIZED,
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
     }
   }
-}
+
+  const guard = mixin(AuthUserGuard);
+  return guard;
+};

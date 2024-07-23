@@ -1,7 +1,6 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 
 import { AuthService } from './auth.service';
-import { AuthToken } from '@common/decorators';
 import { AuthTokensDTO, LoginDTO } from './dto';
 import {
   ApiBearerAuth,
@@ -9,6 +8,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { AuthUserGuard } from '@common/guards';
+import { TokenTypes } from '@common/enums/jwt-tokenTypes';
 
 @ApiTags('Authentication management')
 @Controller('auth')
@@ -26,10 +27,11 @@ export class AuthController {
     type: AuthTokensDTO,
   })
   @ApiBearerAuth()
-  async refreshToken(
-    @AuthToken() refreshToken: string,
-  ): Promise<AuthTokensDTO> {
-    return this._authService.refreshAccessToken(refreshToken);
+  @UseGuards(AuthUserGuard(TokenTypes.REFRESH))
+  async refreshToken(@Req() req: any): Promise<AuthTokensDTO> {
+    // Use decorator`bsdsssssssssssssssssssssssssssssss
+    console.log('req.user', req.user);
+    return this._authService.refreshAccessToken(req.user.id);
   }
 
   @Post('login')

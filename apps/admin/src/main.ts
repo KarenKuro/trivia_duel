@@ -12,7 +12,7 @@ import { AdminModule } from './admin.module';
 import { IValidationErrors } from '@common/models';
 import { ResponseManager } from '@common/helpers';
 
-const PORT = process.env.PORT;
+const PORT = process.env.ADMIN_PORT;
 
 process.env.TZ = 'Etc/UTC';
 

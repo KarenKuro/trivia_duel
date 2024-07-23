@@ -16,6 +16,7 @@ import {
   jwtConfig,
 } from '@common/config';
 import { AuthModule } from '@api-resources/auth';
+import { CategoriesModule } from '@api-resources/categories/categories.module';
 
 const isProductionMode = process.env.NODE_ENV === NodeEnv.production;
 
@@ -26,6 +27,7 @@ const envFilePath = isProductionMode
 @Module({
   imports: [
     AuthModule,
+    CategoriesModule,
     ConfigModule.forRoot({
       envFilePath,
       isGlobal: true,

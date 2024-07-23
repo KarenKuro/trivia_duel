@@ -33,7 +33,6 @@ export class AuthService {
     });
 
     if (!user) {
-      console.log('gonna create a new user');
       user = await this._userRepository.save({
         uid: String(data.id),
         name: data.name,

@@ -66,14 +66,12 @@ export class AuthService {
   }
 
   // This method aimed to refresh the access token.
-  async refreshAccessToken(refreshToken: string): Promise<IAuthTokens> {
-    refreshToken = refreshToken?.replace('Bearer', '')?.trim();
+  async refreshAccessToken(id: number): Promise<IAuthTokens> {
     // Will throw an exception in case of not valid refresh token
-    const { id } = await this.validateRefreshToken(refreshToken);
 
     const accessToken = await this.createAccessToken({ id });
 
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken: 'NEW REFRESH' };
   }
 
   // This method aimed to validate the refresh token.

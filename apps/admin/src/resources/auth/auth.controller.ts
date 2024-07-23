@@ -1,22 +1,24 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
-
-import { AuthService } from './auth.service';
-import { AuthTokensDTO, LoginDTO } from './dto';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+
+import { AuthService } from './auth.service';
+import { AuthTokensDTO, LoginDTO } from './dto';
 import { AuthUserGuard } from '@common/guards';
 import { TokenTypes } from '@common/enums/jwt-tokenTypes';
+import { AuthToken, AuthUser } from '@common/decorators';
+import { IRefreshPayload } from '@common/models';
 
 @ApiTags('Authentication management')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly _authService: AuthService) {}
 
-  @Post('/refresh')
+  @Post('refresh')
   @ApiOperation({
     summary:
       'This API aimed to check the "refresh token" and refresh the "access token".',
@@ -28,10 +30,11 @@ export class AuthController {
   })
   @ApiBearerAuth()
   @UseGuards(AuthUserGuard(TokenTypes.REFRESH))
-  async refreshToken(@Req() req: any): Promise<AuthTokensDTO> {
-    // Use decorator`bsdsssssssssssssssssssssssssssssss
-    console.log('req.user', req.user);
-    return this._authService.refreshAccessToken(req.user.id);
+  async refreshToken(
+    @AuthToken() refreshToken: string,
+    @AuthUser() user: IRefreshPayload,
+  ): Promise<AuthTokensDTO> {
+    return this._authService.refreshAccessToken(user.id, refreshToken);
   }
 
   @Post('login')

@@ -7,3 +7,4 @@ export * from './response';
 export * from './jwt';
 export * from './auth';
 export * from './google';
+export * from './category';

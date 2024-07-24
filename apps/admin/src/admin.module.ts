@@ -8,7 +8,7 @@ import { ENV_CONST } from '@common/constants';
 import { NodeEnv } from '@common/enums';
 import { AdminService } from './admin.service';
 import { AdminController } from './admin.controller';
-import { databaseConfiguration, jwtConfig } from '@common/config';
+import { appConfig, databaseConfiguration, jwtConfig } from '@common/config';
 import { AuthModule } from '@admin-resources/auth';
 import { CategoriesModule } from './resources/categories/categories.module';
 
@@ -21,15 +21,16 @@ const envFilePath = isProductionMode
 @Module({
   imports: [
     AuthModule,
+    CategoriesModule,
     ConfigModule.forRoot({
       envFilePath,
       isGlobal: true,
       expandVariables: true,
       validationSchema: ADMIN_VALIDATIONS,
-      load: [databaseConfiguration, jwtConfig],
+      load: [databaseConfiguration, jwtConfig, appConfig],
     }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule, AuthModule],
+      imports: [ConfigModule, AuthModule, CategoriesModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         return {
@@ -54,7 +55,6 @@ const envFilePath = isProductionMode
         return new DataSource(options);
       },
     }),
-    CategoriesModule,
   ],
   controllers: [AdminController],
   providers: [AdminService],

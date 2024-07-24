@@ -3,41 +3,96 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
-  Delete,
   UseGuards,
+  Query,
+  Patch,
+  Delete,
 } from '@nestjs/common';
+
 import { CategoriesService } from './categories.service';
 import { AuthUserGuard } from '@common/guards';
+import {
+  CategoryResponseDTO,
+  CreateCategoryDTO,
+  UpdateCategoryDTO,
+} from './dto';
+import { ResponseManager } from '@common/helpers';
+import { ERROR_MESSAGES } from '@common/messages';
+import { IdDTO, PaginationQueryDTO, SuccessDTO } from '@common/dtos';
 
+@UseGuards(AuthUserGuard())
 @Controller('categories')
 export class CategoriesController {
-  constructor(private readonly categoriesService: CategoriesService) {}
+  constructor(private readonly _categoriesService: CategoriesService) {}
 
   @Post()
-  create(@Body() body) {
-    return this.categoriesService.create(body);
+  async create(@Body() body: CreateCategoryDTO): Promise<CategoryResponseDTO> {
+    const existCategory = await this._categoriesService.findOne({
+      name: body.name,
+    });
+
+    if (existCategory) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORY_ALREADY_EXIST);
+    }
+
+    const category = await this._categoriesService.create(body);
+    return category;
   }
 
   @Get()
-  @UseGuards(AuthUserGuard())
-  findAll() {
-    return this.categoriesService.findAll();
+  async findAll(
+    @Query() pagination: PaginationQueryDTO,
+  ): Promise<CategoryResponseDTO[]> {
+    const categories = await this._categoriesService.findAll(pagination);
+
+    if (!categories.length) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORIES_NOT_EXISTS);
+    }
+    return categories;
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoriesService.findOne(+id);
+  async findOne(@Param() param: IdDTO): Promise<CategoryResponseDTO> {
+    const category = await this._categoriesService.findOne({ id: +param.id });
+
+    if (!category) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORY_NOT_EXIST);
+    }
+
+    return category;
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() body) {
-    return this.categoriesService.update(+id, body);
+  async update(
+    @Param() param: IdDTO,
+    @Body() body: UpdateCategoryDTO,
+  ): Promise<SuccessDTO> {
+    const category = await this._categoriesService.findOne({ id: +param.id });
+
+    if (!category) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORY_NOT_EXIST);
+    }
+
+    if (body.name) {
+      const existCategory = await this._categoriesService.findOne({
+        name: body.name,
+      });
+      if (existCategory && existCategory.id !== category.id) {
+        throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORY_ALREADY_EXIST);
+      }
+    }
+
+    return await this._categoriesService.update(category, body);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.categoriesService.remove(+id);
+  async remove(@Param() param: IdDTO): Promise<SuccessDTO> {
+    const category = await this._categoriesService.findOne({ id: +param.id });
+
+    if (!category) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORY_NOT_EXIST);
+    }
+    return await this._categoriesService.remove(category);
   }
 }

@@ -1,24 +1,58 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
+import { CategoryEntity } from '@common/database/entities';
+import {
+  ICategory,
+  ICreateCategory,
+  IMessageSuccess,
+  IPagination,
+} from '@common/models';
 
 @Injectable()
 export class CategoriesService {
-  create(body: any) {
-    return 'This action adds a new category';
+  constructor(
+    @InjectRepository(CategoryEntity)
+    private readonly _categoryRepository: Repository<CategoryEntity>,
+  ) {}
+
+  async create(body: ICreateCategory): Promise<ICategory> {
+    const category = await this._categoryRepository.save(body);
+
+    return category;
   }
 
-  findAll() {
-    return `This action returns all categories`;
+  async findAll(pagination: IPagination): Promise<ICategory[]> {
+    const { offset, limit } = pagination;
+    const categories = await this._categoryRepository.find({
+      skip: +offset,
+      take: +limit,
+    });
+
+    return categories;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
+  async findOne(query: Partial<ICategory>): Promise<ICategory> {
+    const category = await this._categoryRepository.findOne({
+      where: query,
+    });
+
+    return category;
   }
 
-  update(id: number, body: any) {
-    return `This action updates a #${id} category`;
+  async update(
+    category: ICategory,
+    body: Partial<ICreateCategory>,
+  ): Promise<IMessageSuccess> {
+    await this._categoryRepository.update(category.id, body);
+
+    return { success: true };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  async remove(category: ICategory): Promise<IMessageSuccess> {
+    await this._categoryRepository.delete(category.id);
+
+    return { success: true };
   }
 }

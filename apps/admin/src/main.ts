@@ -34,10 +34,8 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: false,
       stopAtFirstError: true,
-      transformOptions: {
-        enableImplicitConversion: true,
-      },
       exceptionFactory: (errors) => {
+        console.log('errors', errors);
         const errorResponce: IValidationErrors[] = [];
         errors.forEach((e) => {
           if (e.constraints) {

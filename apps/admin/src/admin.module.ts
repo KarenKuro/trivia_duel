@@ -9,8 +9,12 @@ import { NodeEnv } from '@common/enums';
 import { AdminService } from './admin.service';
 import { AdminController } from './admin.controller';
 import { appConfig, databaseConfiguration, jwtConfig } from '@common/config';
-import { AuthModule } from '@admin-resources/auth';
-import { CategoriesModule } from './resources/categories/categories.module';
+import {
+  AnswersModule,
+  AuthModule,
+  CategoriesModule,
+  QuestionsModule,
+} from './resources';
 
 const isProductionMode = process.env.NODE_ENV === NodeEnv.production;
 
@@ -22,6 +26,8 @@ const envFilePath = isProductionMode
   imports: [
     AuthModule,
     CategoriesModule,
+    QuestionsModule,
+    AnswersModule,
     ConfigModule.forRoot({
       envFilePath,
       isGlobal: true,

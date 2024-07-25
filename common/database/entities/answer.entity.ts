@@ -8,6 +8,8 @@ export class AnswerEntity extends BaseEntity {
   @Column()
   value: string;
 
-  @ManyToOne(() => QuestionEntity, (question) => question.answers)
+  @ManyToOne(() => QuestionEntity, (question) => question.answers, {
+    onDelete: 'CASCADE',
+  })
   question: QuestionEntity;
 }

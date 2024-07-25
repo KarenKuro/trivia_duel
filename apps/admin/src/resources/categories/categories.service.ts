@@ -33,9 +33,9 @@ export class CategoriesService {
     return categories;
   }
 
-  async findOne(query: Partial<ICategory>): Promise<ICategory> {
+  async findOne(param: Partial<ICategory>): Promise<ICategory> {
     const category = await this._categoryRepository.findOne({
-      where: query,
+      where: param,
     });
 
     return category;

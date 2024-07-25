@@ -9,6 +9,12 @@ import {
   Patch,
   Delete,
 } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { CategoriesService } from './categories.service';
 import { AuthUserGuard } from '@common/guards';
@@ -20,13 +26,22 @@ import {
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
 import { IdDTO, PaginationQueryDTO, SuccessDTO } from '@common/dtos';
+import { TokenTypes } from '@common/enums';
 
-@UseGuards(AuthUserGuard())
 @Controller('categories')
+@UseGuards(AuthUserGuard(TokenTypes.PRIMARY))
+@ApiTags('Categories')
+@ApiBearerAuth()
 export class CategoriesController {
   constructor(private readonly _categoriesService: CategoriesService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Create a new category' })
+  @ApiResponse({
+    status: 201,
+    description: 'Return created category',
+    type: CategoryResponseDTO,
+  })
   async create(@Body() body: CreateCategoryDTO): Promise<CategoryResponseDTO> {
     const existCategory = await this._categoriesService.findOne({
       name: body.name,
@@ -41,6 +56,7 @@ export class CategoriesController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all categories' })
   async findAll(
     @Query() pagination: PaginationQueryDTO,
   ): Promise<CategoryResponseDTO[]> {
@@ -53,6 +69,7 @@ export class CategoriesController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get a category by id' })
   async findOne(@Param() param: IdDTO): Promise<CategoryResponseDTO> {
     const category = await this._categoriesService.findOne({ id: +param.id });
 
@@ -64,6 +81,7 @@ export class CategoriesController {
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: 'Update a category by id' })
   async update(
     @Param() param: IdDTO,
     @Body() body: UpdateCategoryDTO,
@@ -87,6 +105,7 @@ export class CategoriesController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete a category by id' })
   async remove(@Param() param: IdDTO): Promise<SuccessDTO> {
     const category = await this._categoriesService.findOne({ id: +param.id });
 

@@ -17,10 +17,12 @@ export class QuestionEntity extends BaseEntity {
   @Column({ type: 'text' })
   question: string;
 
-  @OneToMany(() => AnswerEntity, (answer) => answer.question)
+  @OneToMany(() => AnswerEntity, (answer) => answer.question, {
+    onDelete: 'CASCADE',
+  })
   answers: AnswerEntity[];
 
-  @OneToOne(() => AnswerEntity)
+  @OneToOne(() => AnswerEntity, { onDelete: 'CASCADE' })
   @JoinColumn()
   correctAnswer: AnswerEntity;
 
@@ -31,6 +33,8 @@ export class QuestionEntity extends BaseEntity {
   })
   type: QuestionType;
 
-  @ManyToOne(() => CategoryEntity, (category) => category.questions)
+  @ManyToOne(() => CategoryEntity, (category) => category.questions, {
+    onDelete: 'CASCADE',
+  })
   category: CategoryEntity;
 }

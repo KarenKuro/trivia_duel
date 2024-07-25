@@ -13,6 +13,8 @@ export class CategoryEntity extends BaseEntity {
   @Column({ default: false })
   isExclusive: boolean;
 
-  @OneToMany(() => QuestionEntity, (question) => question.category)
+  @OneToMany(() => QuestionEntity, (question) => question.category, {
+    onDelete: 'CASCADE',
+  })
   questions: QuestionEntity[];
 }

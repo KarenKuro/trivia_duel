@@ -16,6 +16,7 @@ import {
   CategoriesModule,
   QuestionsModule,
 } from './resources';
+import { UserModule } from './resources/user/user.module';
 
 const isProductionMode = process.env.NODE_ENV === NodeEnv.production;
 
@@ -29,6 +30,7 @@ const envFilePath = isProductionMode
     CategoriesModule,
     QuestionsModule,
     AnswersModule,
+    UserModule,
     ConfigModule.forRoot({
       envFilePath,
       isGlobal: true,
@@ -37,7 +39,13 @@ const envFilePath = isProductionMode
       load: [databaseConfiguration, jwtConfig, appConfig],
     }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule, AuthModule, CategoriesModule],
+      imports: [
+        ConfigModule,
+        AuthModule,
+        CategoriesModule,
+        QuestionsModule,
+        UserModule,
+      ],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         return {

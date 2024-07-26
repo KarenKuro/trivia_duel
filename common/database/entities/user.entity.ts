@@ -1,6 +1,7 @@
 import { Column, Entity } from 'typeorm';
 
 import { BaseEntity } from '../base';
+import { UserStatus } from '@common/enums';
 
 @Entity({ name: 'users' })
 export class UserEntity extends BaseEntity {
@@ -12,4 +13,11 @@ export class UserEntity extends BaseEntity {
 
   @Column()
   email: string;
+
+  @Column({
+    type: 'enum',
+    enum: UserStatus,
+    default: UserStatus.ACTIVE,
+  })
+  status: UserStatus;
 }

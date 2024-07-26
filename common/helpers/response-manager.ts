@@ -2,9 +2,11 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { ValidationError } from 'class-validator';
 import {
   IMessageResponse,
+  IMetaResponse,
   IValidationErrors,
   IValidationErrorsResponse,
 } from '@common/models';
+import { round } from 'lodash';
 
 export class ResponseManager {
   static buildError(
@@ -33,5 +35,24 @@ export class ResponseManager {
       }
     }
     return errorResponse;
+  }
+
+  static generateMetaResponse(
+    offset: number,
+    limit: number,
+    totalCount: number,
+  ): IMetaResponse {
+    const pageCount = Math.ceil(totalCount / limit);
+    const currentPage = round(offset / limit + 1);
+
+    return {
+      limit,
+      total: totalCount,
+      offset,
+      currentPage,
+      hasPrev: currentPage > 1 || Boolean(offset),
+      hasNext: currentPage < pageCount,
+      pageCount,
+    };
   }
 }

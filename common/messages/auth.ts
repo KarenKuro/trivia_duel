@@ -11,6 +11,9 @@ export const AUTH_ERROR_MESSAGES = {
   USER_INVALID_PASSWORD: {
     message: 'err_user_invalid_password',
   },
+  USERS_NOT_EXISTS: {
+    message: 'err_users_not_exists',
+  },
   ADMIN_NOT_EXISTS: {
     message: 'err_admin_not_exists',
   },

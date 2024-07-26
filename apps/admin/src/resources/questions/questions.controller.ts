@@ -12,6 +12,7 @@ import {
 import {
   ApiBearerAuth,
   ApiOperation,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -64,6 +65,18 @@ export class QuestionsController {
 
   @Get()
   @ApiOperation({ summary: 'Get all questions' })
+  @ApiQuery({
+    name: 'offset',
+    required: false,
+    type: Number,
+    description: 'Number of records to skip',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Maximum number of records to return',
+  })
   async findAll(
     @Query() pagination: PaginationQueryDTO,
   ): Promise<QuestionResponseDTO[]> {

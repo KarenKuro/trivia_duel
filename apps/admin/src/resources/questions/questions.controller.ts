@@ -7,6 +7,7 @@ import {
   Query,
   UseGuards,
   Patch,
+  Delete,
 } from '@nestjs/common';
 import { QuestionsService } from './questions.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
@@ -112,5 +113,15 @@ export class QuestionsController {
     }
 
     return await this._questionsService.update(question, body);
+  }
+
+  @Delete(':id')
+  async remove(@Param() param: IdDTO): Promise<SuccessDTO> {
+    const question = await this._questionsService.findOne({ id: +param.id });
+
+    if (!question) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.QUESTION_NOT_EXIST);
+    }
+    return await this._questionsService.remove(question);
   }
 }

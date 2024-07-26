@@ -131,7 +131,9 @@ export class QuestionsService {
     return { success: true };
   }
 
-  remove(id: number) {
-    return this._questionRepository.delete(id);
+  async remove(question: IQuestion): Promise<IMessageSuccess> {
+    await this._questionRepository.delete(question.id);
+
+    return { success: true };
   }
 }

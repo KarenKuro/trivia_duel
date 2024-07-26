@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Transactional } from 'typeorm-transactional';
 
 import { CategoryEntity } from '@common/database/entities';
 import {
@@ -41,6 +42,7 @@ export class CategoriesService {
     return category;
   }
 
+  @Transactional()
   async update(
     category: ICategory,
     body: Partial<ICreateCategory>,
@@ -50,6 +52,7 @@ export class CategoriesService {
     return { success: true };
   }
 
+  @Transactional()
   async remove(category: ICategory): Promise<IMessageSuccess> {
     await this._categoryRepository.delete(category.id);
 

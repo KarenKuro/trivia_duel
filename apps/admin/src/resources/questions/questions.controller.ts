@@ -9,17 +9,26 @@ import {
   Patch,
   Delete,
 } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+
 import { QuestionsService } from './questions.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { CategoriesService } from '@admin-resources/categories';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
 import { IdDTO, PaginationQueryDTO, SuccessDTO } from '@common/dtos';
-import { QuestionResponseDTO, UpdateQuestionDTO } from './dto';
 import { AuthUserGuard } from '@common/guards';
+import { QuestionResponseDTO, UpdateQuestionDTO } from './dto';
 
 @Controller('questions')
 @UseGuards(AuthUserGuard())
+@ApiTags('Questions')
+@ApiBearerAuth()
 export class QuestionsController {
   constructor(
     private readonly _questionsService: QuestionsService,
@@ -27,6 +36,12 @@ export class QuestionsController {
   ) {}
 
   @Post()
+  @ApiOperation({ summary: 'Create a new question' })
+  @ApiResponse({
+    status: 201,
+    description: 'Return created question',
+    type: QuestionResponseDTO,
+  })
   async create(@Body() body: CreateQuestionDto): Promise<QuestionResponseDTO> {
     const { categoryId } = body;
     const { question: wordingOfQuestion } = body;
@@ -48,6 +63,7 @@ export class QuestionsController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all questions' })
   async findAll(
     @Query() pagination: PaginationQueryDTO,
   ): Promise<QuestionResponseDTO[]> {
@@ -55,6 +71,7 @@ export class QuestionsController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get a question by id' })
   async findOne(@Param() param: IdDTO): Promise<QuestionResponseDTO> {
     const question = this._questionsService.findOne({ id: +param.id });
 
@@ -66,6 +83,7 @@ export class QuestionsController {
   }
 
   @Get('category/:id')
+  @ApiOperation({ summary: 'Get all questions by category id' })
   async findAllByCategory(
     @Param() param: IdDTO,
   ): Promise<QuestionResponseDTO[]> {
@@ -86,6 +104,7 @@ export class QuestionsController {
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: 'Update a question by id' })
   async update(
     @Param() param: IdDTO,
     @Body() body: UpdateQuestionDTO,
@@ -116,6 +135,7 @@ export class QuestionsController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete a question by id' })
   async remove(@Param() param: IdDTO): Promise<SuccessDTO> {
     const question = await this._questionsService.findOne({ id: +param.id });
 

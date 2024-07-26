@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { addTransactionalDataSource } from 'typeorm-transactional';
 
 import { ADMIN_VALIDATIONS } from '@common/validators';
 import { ENV_CONST } from '@common/constants';
@@ -58,7 +59,7 @@ const envFilePath = isProductionMode
         if (!options) {
           throw new Error('Invalid options passed');
         }
-        return new DataSource(options);
+        return addTransactionalDataSource(new DataSource(options));
       },
     }),
   ],

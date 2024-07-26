@@ -2,6 +2,10 @@ import * as path from 'path';
 import * as dotenv from 'dotenv';
 import { DataSource } from 'typeorm';
 import { MysqlConnectionOptions } from 'typeorm/driver/mysql/MysqlConnectionOptions';
+import {
+  addTransactionalDataSource,
+  initializeTransactionalContext,
+} from 'typeorm-transactional';
 
 const envModeProduction: boolean = process.env.NODE_ENV === 'production';
 
@@ -25,3 +29,6 @@ const dbConfig: MysqlConnectionOptions = {
 };
 
 export const dataSource = new DataSource(dbConfig);
+
+initializeTransactionalContext();
+addTransactionalDataSource(dataSource);

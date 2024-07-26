@@ -5,6 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { v4 as uuid } from 'uuid';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
+import { Transactional } from 'typeorm-transactional';
 
 import { AdminEntity } from '@common/database/entities/admin.entity';
 import { IAdminLogin, IAuthTokens, IJwt, ITokenPayload } from '@common/models';
@@ -26,6 +27,7 @@ export class AuthService {
   ) {}
 
   //This method checks the user in the database and returns tokens
+  @Transactional()
   async login(body: IAdminLogin): Promise<IAuthTokens> {
     const { adminName, password } = body;
 

@@ -1,4 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { omit } from 'lodash';
+import { Transactional } from 'typeorm-transactional';
+
 import {
   ICategory,
   ICreateQuestion,
@@ -7,12 +12,9 @@ import {
   IQuestion,
   IUpdateQuestion,
 } from '@common/models';
-import { AnswersService } from '@admin-resources/answers';
 import { AnswerEntity, QuestionEntity } from '@common/database/entities';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { AnswersService } from '@admin-resources/answers';
 import { QuestionType } from '@common/enums';
-import { omit } from 'lodash';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
 
@@ -25,6 +27,7 @@ export class QuestionsService {
     private readonly _questionRepository: Repository<QuestionEntity>,
   ) {}
 
+  @Transactional()
   async create(body: ICreateQuestion): Promise<IQuestion> {
     const question = await this._questionRepository.save({
       question: body.question.trim(),
@@ -86,7 +89,7 @@ export class QuestionsService {
     return await this._questionRepository.findOneBy({ question });
   }
 
-  // @Transactional()
+  @Transactional()
   async update(
     question: IQuestion,
     body: IUpdateQuestion,
@@ -131,6 +134,7 @@ export class QuestionsService {
     return { success: true };
   }
 
+  @Transactional()
   async remove(question: IQuestion): Promise<IMessageSuccess> {
     await this._questionRepository.delete(question.id);
 

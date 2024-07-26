@@ -7,6 +7,7 @@ import {
   VersioningType,
 } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { initializeTransactionalContext } from 'typeorm-transactional';
 
 import { AdminModule } from './admin.module';
 import { IValidationErrors } from '@common/models';
@@ -17,6 +18,8 @@ const PORT = process.env.ADMIN_PORT;
 process.env.TZ = 'Etc/UTC';
 
 async function bootstrap() {
+  initializeTransactionalContext();
+
   const app = await NestFactory.create<NestExpressApplication>(AdminModule);
 
   app.enableVersioning({

@@ -1,12 +1,6 @@
 import { ICreateCategory } from '@common/models';
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsBoolean,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateCategoryDTO implements ICreateCategory {
   @IsNotEmpty()
@@ -19,8 +13,13 @@ export class CreateCategoryDTO implements ICreateCategory {
   @ApiProperty()
   price: number;
 
-  @IsBoolean()
+  @IsNumber()
   @IsOptional()
   @ApiProperty()
-  isExclusive?: boolean;
+  premiumPrice: number;
+
+  // @IsBoolean()
+  // @IsOptional()
+  // @ApiProperty()
+  // isExclusive?: boolean;
 }

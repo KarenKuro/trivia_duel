@@ -4,10 +4,11 @@ import { CategoriesController } from './categories.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CategoryEntity, UserEntity } from '@common/database/entities';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature(),
+    TypeOrmModule.forFeature([UserEntity, CategoryEntity]),
 
     JwtModule.registerAsync({
       imports: [ConfigModule],

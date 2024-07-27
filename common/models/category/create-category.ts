@@ -1,5 +1,6 @@
 export interface ICreateCategory {
   name: string;
   price: number;
-  isExclusive?: boolean;
+  premiumPrice: number;
+  // isExclusive?: boolean;
 }

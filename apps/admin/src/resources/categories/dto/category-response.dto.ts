@@ -11,7 +11,10 @@ export class CategoryResponseDTO {
   price: number;
 
   @ApiProperty()
-  isExclusive: boolean;
+  premiumPrice: number;
+
+  // @ApiProperty()
+  // isExclusive: boolean;
 
   @ApiProperty()
   createdAt: Date;

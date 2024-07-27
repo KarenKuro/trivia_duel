@@ -10,8 +10,11 @@ export class CategoryEntity extends BaseEntity {
   @Column({ default: 0 })
   price: number;
 
-  @Column({ default: false })
-  isExclusive: boolean;
+  // @Column({ default: false })
+  // isExclusive: boolean;
+
+  @Column({ default: 0 })
+  premiumPrice: number;
 
   @OneToMany(() => QuestionEntity, (question) => question.category, {
     onDelete: 'CASCADE',

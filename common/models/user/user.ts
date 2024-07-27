@@ -13,6 +13,7 @@ export interface IUser {
   subscription: boolean;
   level: number;
   points: number;
+  lives: number;
   createdAt: Date;
   updatedAt: Date;
 }

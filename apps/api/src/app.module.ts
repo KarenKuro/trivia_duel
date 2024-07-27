@@ -18,6 +18,7 @@ import {
 import { AuthModule } from '@api-resources/auth';
 import { CategoriesModule } from '@api-resources/categories/categories.module';
 import { addTransactionalDataSource } from 'typeorm-transactional';
+import { UserModule } from './resources/user/user.module';
 
 const isProductionMode = process.env.NODE_ENV === NodeEnv.production;
 
@@ -68,6 +69,7 @@ const envFilePath = isProductionMode
         return addTransactionalDataSource(new DataSource(options));
       },
     }),
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

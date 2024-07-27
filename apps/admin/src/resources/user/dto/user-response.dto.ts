@@ -38,6 +38,9 @@ export class UserResponseDTO implements IUser {
   points: number;
 
   @ApiProperty()
+  lives: number;
+
+  @ApiProperty()
   createdAt: Date;
 
   @ApiProperty()

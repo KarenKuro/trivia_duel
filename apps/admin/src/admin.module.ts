@@ -16,7 +16,7 @@ import {
   CategoriesModule,
   QuestionsModule,
 } from './resources';
-import { UserModule } from './resources/users/user.module';
+import { UserModule } from './resources/user/user.module';
 
 const isProductionMode = process.env.NODE_ENV === NodeEnv.production;
 

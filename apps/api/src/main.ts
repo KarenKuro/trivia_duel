@@ -6,6 +6,7 @@ import {
   ValidationPipe,
   VersioningType,
 } from '@nestjs/common';
+import { initializeTransactionalContext } from 'typeorm-transactional';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
@@ -17,6 +18,8 @@ const PORT = process.env.API_PORT;
 process.env.TZ = 'Etc/UTC';
 
 async function bootstrap() {
+  initializeTransactionalContext();
+
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.enableVersioning({

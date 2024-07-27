@@ -1,7 +1,8 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
 
 import { BaseEntity } from '../base';
 import { UserStatus } from '@common/enums';
+import { CategoryEntity } from './category.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity extends BaseEntity {
@@ -11,7 +12,7 @@ export class UserEntity extends BaseEntity {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   email: string;
 
   @Column({
@@ -20,4 +21,26 @@ export class UserEntity extends BaseEntity {
     default: UserStatus.ACTIVE,
   })
   status: UserStatus;
+
+  @ManyToMany(() => CategoryEntity)
+  @JoinTable()
+  categories: CategoryEntity[];
+
+  @Column({ default: 0 })
+  coins: number;
+
+  @Column({ default: 0 })
+  premiumCoins: number;
+
+  @Column({ default: false })
+  subscription: boolean;
+
+  // @Column({ nullable: true })       ????????????????????
+  // subscriptionEnding: Date;
+
+  @Column({ default: 1 })
+  level: number;
+
+  @Column({ default: 0 })
+  points: number;
 }

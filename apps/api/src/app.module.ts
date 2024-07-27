@@ -17,6 +17,7 @@ import {
 } from '@common/config';
 import { AuthModule } from '@api-resources/auth';
 import { CategoriesModule } from '@api-resources/categories/categories.module';
+import { addTransactionalDataSource } from 'typeorm-transactional';
 
 const isProductionMode = process.env.NODE_ENV === NodeEnv.production;
 
@@ -64,7 +65,7 @@ const envFilePath = isProductionMode
         if (!options) {
           throw new Error('Invalid options passed');
         }
-        return new DataSource(options);
+        return addTransactionalDataSource(new DataSource(options));
       },
     }),
   ],

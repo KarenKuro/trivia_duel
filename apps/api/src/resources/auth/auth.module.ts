@@ -6,12 +6,22 @@ import { JwtModule } from '@nestjs/jwt';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { UserEntity } from '@common/database/entities';
+import {
+  AnswerEntity,
+  CategoryEntity,
+  QuestionEntity,
+  UserEntity,
+} from '@common/database/entities';
 import { FacebookStrategy, GoogleStrategy } from '@common/strategies';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity]),
+    TypeOrmModule.forFeature([
+      UserEntity,
+      CategoryEntity,
+      QuestionEntity,
+      AnswerEntity,
+    ]),
 
     PassportModule.register({
       defaultStrategy: ['facebook', 'google'],

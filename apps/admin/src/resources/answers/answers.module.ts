@@ -12,7 +12,6 @@ import {
   imports: [
     TypeOrmModule.forFeature([CategoryEntity, QuestionEntity, AnswerEntity]),
   ],
-  //controllers: [AnswersController],
   providers: [AnswersService],
   exports: [AnswersService],
 })

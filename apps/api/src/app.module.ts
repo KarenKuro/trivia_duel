@@ -30,6 +30,7 @@ const envFilePath = isProductionMode
   imports: [
     AuthModule,
     CategoriesModule,
+    UserModule,
     ConfigModule.forRoot({
       envFilePath,
       isGlobal: true,
@@ -69,7 +70,6 @@ const envFilePath = isProductionMode
         return addTransactionalDataSource(new DataSource(options));
       },
     }),
-    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

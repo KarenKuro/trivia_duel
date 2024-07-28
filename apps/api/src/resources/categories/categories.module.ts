@@ -5,9 +5,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CategoryEntity, UserEntity } from '@common/database/entities';
+import { UserModule } from '@api-resources/user';
 
 @Module({
   imports: [
+    UserModule,
     TypeOrmModule.forFeature([UserEntity, CategoryEntity]),
 
     JwtModule.registerAsync({

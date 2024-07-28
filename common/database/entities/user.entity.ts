@@ -22,8 +22,8 @@ export class UserEntity extends BaseEntity {
   })
   status: UserStatus;
 
-  @ManyToMany(() => CategoryEntity)
-  @JoinTable()
+  @ManyToMany(() => CategoryEntity, (category) => category.users)
+  @JoinTable({ name: 'users_categories' })
   categories: CategoryEntity[];
 
   @Column({ default: 0 })

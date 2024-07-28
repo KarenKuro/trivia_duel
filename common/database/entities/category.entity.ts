@@ -1,6 +1,7 @@
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, ManyToMany, OneToMany } from 'typeorm';
 import { BaseEntity } from '../base';
 import { QuestionEntity } from './question.entity';
+import { UserEntity } from './user.entity';
 
 @Entity({ name: 'categories' })
 export class CategoryEntity extends BaseEntity {
@@ -20,4 +21,9 @@ export class CategoryEntity extends BaseEntity {
     onDelete: 'CASCADE',
   })
   questions: QuestionEntity[];
+
+  @ManyToMany(() => UserEntity, (user) => user.categories)
+  users: UserEntity[];
+
+  isActive?: boolean;
 }

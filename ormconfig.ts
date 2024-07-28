@@ -26,6 +26,7 @@ const dbConfig: MysqlConnectionOptions = {
   entities: [__dirname + '/**/**/entities/*.entity{.ts,.js}'],
   migrationsTableName: 'app_migrations',
   migrations: [__dirname + '/**/**/migrations/*.ts'],
+  bigNumberStrings: false,
 };
 
 export const dataSource = new DataSource(dbConfig);

@@ -2,12 +2,12 @@ import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { CategoriesService } from './categories.service';
-import { CategoryResponseDTO, CategoryWithIsActiveDTO } from './dto';
+import { CategoryWithIsActiveDTO } from './dto';
 import { AuthUserGuard } from '@common/guards';
 import { AuthUser } from '@common/decorators';
+import { TokenPayloadDTO } from '@common/dtos';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
-import { TokenPayloadDTO } from '@common/dtos';
 
 @Controller('categories')
 @UseGuards(AuthUserGuard())
@@ -25,22 +25,9 @@ export class CategoriesController {
       id: token.id,
     });
 
-    return categories;
-  }
-
-  @Get('available')
-  @ApiOperation({ summary: 'Get all categories that the user has' })
-  async findAllAvailible(
-    @AuthUser() token: TokenPayloadDTO,
-  ): Promise<CategoryResponseDTO[]> {
-    const categories = await this._categoriesService.findAllAvailable({
-      id: token.id,
-    });
-
     if (!categories.length) {
       throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORIES_NOT_EXISTS);
     }
-
     return categories;
   }
 }

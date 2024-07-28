@@ -45,7 +45,7 @@ const envFilePath = isProductionMode
       ],
     }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule, AuthModule],
+      imports: [ConfigModule, AuthModule, UserModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         return {

@@ -3,11 +3,15 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { UserEntity } from '@common/database/entities';
-import { IUser } from '@common/models';
+import { ICategory, IUser } from '@common/models';
+import { CategoriesService } from '@api-resources/categories';
+import { IUserId } from '@common/models/common/user-id';
 
 @Injectable()
 export class UserService {
   constructor(
+    private readonly _categoriesService: CategoriesService,
+
     @InjectRepository(UserEntity)
     private readonly _userRepository: Repository<UserEntity>,
   ) {}
@@ -21,11 +25,9 @@ export class UserService {
     return user;
   }
 
-  // findAll() {
-  //   return `This action returns all user`;
-  // }
+  async findAllAvailableCategory(userId: IUserId): Promise<ICategory[]> {
+    const userWithCategories = await this.findOne(userId.id);
 
-  // update(id: number, updateUserDto: UpdateUserDto) {
-  //   return `This action updates a #${id} user`;
-  // }
+    return userWithCategories.categories;
+  }
 }

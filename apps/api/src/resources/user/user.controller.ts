@@ -1,42 +1,39 @@
-// import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-// import { UserService } from './user.service';
-// import { CreateUserDto } from './dto/create-user.dto';
-// import { UpdateUserDto } from './dto/update-user.dto';
+import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+import { UserService } from './user.service';
+import { AuthUser } from '@common/decorators';
+import { IdDTO, TokenPayloadDTO } from '@common/dtos';
+import { CategoryResponseDTO } from '@api-resources/categories/dto';
+import { ApiOperation } from '@nestjs/swagger';
+import { ResponseManager } from '@common/helpers';
+import { ERROR_MESSAGES } from '@common/messages';
+import { AuthUserGuard } from '@common/guards';
 
-// @Controller('user')
-// export class UserController {
-//   constructor(private readonly userService: UserService) {}
+@Controller('users')
+@UseGuards(AuthUserGuard())
+export class UserController {
+  constructor(private readonly _userService: UserService) {}
 
-//   @Post()
-//   create(@Body() createUserDto: CreateUserDto) {
-//     return this.userService.create(createUserDto);
-//   }
+  @Get('categories')
+  @ApiOperation({ summary: 'Get all categories that the user has' })
+  async findAllAvailibleCategories(
+    @AuthUser() token: TokenPayloadDTO,
+  ): Promise<CategoryResponseDTO[]> {
+    const categories = await this._userService.findAllAvailableCategory({
+      id: token.id,
+    });
 
-//   @Get()
-//   findAll() {
-//     return this.userService.findAll();
-//   }
+    if (!categories.length) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORIES_NOT_EXISTS);
+    }
 
-//   @Get(':id')
-//   findOne(@Param('id') id: string) {
-//     return this.userService.findOne(+id);
-//   }
+    return categories;
+  }
 
-//   @Patch(':id')
-//   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-//     return this.userService.update(+id, updateUserDto);
-//   }
-
-//   @Delete(':id')
-//   remove(@Param('id') id: string) {
-//     return this.userService.remove(+id);
-//   }
-
-// @Post()
-// async addAfterRegistration(
-//   @AuthUser() token: TokenPayloadDTO,
-//   @Body() body: IdDTO,
-// ): Promise<UserResponseDTO> {
-//   return this._categoriesService.create(body);
-// }
-// }
+  // @Post()
+  // async addCategoryAfterRegistration(
+  //   @AuthUser() token: TokenPayloadDTO,
+  //   @Body() body: IdDTO,
+  // ): Promise<CategoryResponseDTO[]> {
+  //   return this._userService.create(body);
+  // }
+}

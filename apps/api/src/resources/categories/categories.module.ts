@@ -5,13 +5,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { CategoriesService } from './categories.service';
 import { CategoriesController } from './categories.controller';
-import { CategoryEntity, UserEntity } from '@common/database/entities';
-import { UserModule } from '@api-resources/user';
+import { CategoryEntity } from '@common/database/entities';
 
 @Module({
   imports: [
-    UserModule,
-    TypeOrmModule.forFeature([UserEntity, CategoryEntity]),
+    TypeOrmModule.forFeature([CategoryEntity]),
 
     JwtModule.registerAsync({
       imports: [ConfigModule],

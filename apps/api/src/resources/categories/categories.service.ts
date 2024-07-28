@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { UserService } from '@api-resources/user';
 import { CategoryEntity } from '@common/database/entities';
 import { IUserId } from '@common/models/common/user-id';
 import { ICategory } from '@common/models';
@@ -10,43 +9,24 @@ import { ICategory } from '@common/models';
 @Injectable()
 export class CategoriesService {
   constructor(
-    private readonly _userService: UserService,
+    // @Inject(forwardRef(() => UserService))
+    // private readonly _userService: UserService,
 
     @InjectRepository(CategoryEntity)
     private readonly _categoryRepository: Repository<CategoryEntity>,
   ) {}
 
   async findAllWithIsActive(userId: IUserId): Promise<ICategory[]> {
-    const user = await this._userService.findOne(userId.id);
+    const id = userId.id;
+    const allCategories = await this._categoryRepository
+      .createQueryBuilder('category')
+      .leftJoin('category.users', 'user', 'user.id = :id', { id })
+      .addSelect(
+        'CONVERT(CASE WHEN user.id IS NULL THEN 0 ELSE 1 END, SIGNED) AS category_isActive',
+      )
+      .getMany();
 
-    const categories = await this._categoryRepository.find();
-
-    const categoriesWithIsActive = categories.map((category) => ({
-      ...category,
-      isActive:
-        user.categories.some(
-          (userCategory) => userCategory.id === category.id,
-        ) || false,
-    }));
-
-    return categoriesWithIsActive;
-
-    // const id = userId.id;
-    // const allCategories = await this._categoryRepository
-    //   .createQueryBuilder('category')
-    //   .leftJoin('category.users', 'user', 'user.id = :id', { id })
-    //   .addSelect(
-    //     'CONVERT(CASE WHEN user.id IS NULL THEN 0 ELSE 1 END, SIGNED) AS category_isActive',
-    //   )
-    //   .getMany();
-
-    // return allCategories;
-  }
-
-  async findAllAvailable(userId: IUserId): Promise<ICategory[]> {
-    const userWithCategories = await this._userService.findOne(userId.id);
-
-    return userWithCategories.categories;
+    return allCategories;
   }
 
   async findOne(param: Partial<ICategory>): Promise<ICategory> {

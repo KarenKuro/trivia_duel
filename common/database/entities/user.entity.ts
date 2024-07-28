@@ -23,7 +23,11 @@ export class UserEntity extends BaseEntity {
   status: UserStatus;
 
   @ManyToMany(() => CategoryEntity, (category) => category.users)
-  @JoinTable({ name: 'users_categories' })
+  @JoinTable({
+    name: 'users_categories',
+    joinColumn: { name: 'user_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'category_id', referencedColumnName: 'id' },
+  })
   categories: CategoryEntity[];
 
   @Column({ default: 0 })

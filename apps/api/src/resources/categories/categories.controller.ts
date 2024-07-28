@@ -1,26 +1,35 @@
-import { Body, Controller, Get, Param, Put, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { CategoriesService } from './categories.service';
+import { CategoryResponseDTO, CategoryWithIsActiveDTO } from './dto';
 import { AuthUserGuard } from '@common/guards';
 import { AuthUser } from '@common/decorators';
-import { TokenPayloadDTO } from '@common/dtos';
-import { CategoryResponseDTO } from './dto';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
+import { TokenPayloadDTO } from '@common/dtos';
 
 @Controller('categories')
 @UseGuards(AuthUserGuard())
+@ApiTags('Categories')
+@ApiBearerAuth()
 export class CategoriesController {
   constructor(private readonly _categoriesService: CategoriesService) {}
 
   @Get()
-  async findAll(@AuthUser() token: TokenPayloadDTO) {
-    const categories = await this._categoriesService.findAll({ id: token.id });
+  @ApiOperation({ summary: 'Get all categories with the isActive field' })
+  async findAllWithIsActive(
+    @AuthUser() token: TokenPayloadDTO,
+  ): Promise<CategoryWithIsActiveDTO[]> {
+    const categories = await this._categoriesService.findAllWithIsActive({
+      id: token.id,
+    });
 
     return categories;
   }
 
   @Get('available')
+  @ApiOperation({ summary: 'Get all categories that the user has' })
   async findAllAvailible(
     @AuthUser() token: TokenPayloadDTO,
   ): Promise<CategoryResponseDTO[]> {
@@ -34,19 +43,4 @@ export class CategoriesController {
 
     return categories;
   }
-
-  // @Post()
-  // async addAfterRegistration(@Body() body) {
-  //   return this._categoriesService.create(body);
-  // }
-
-  @Put(':id')
-  async add(@Param('id') id: string, @Body() body) {
-    return this._categoriesService.update(+id, body);
-  }
-
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.categoriesService.findOne(+id);
-  // }
 }

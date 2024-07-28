@@ -6,4 +6,5 @@ export interface ICategory {
   // isExclusive: boolean;
   createdAt: Date;
   updatedAt: Date;
+  isActive?: boolean;
 }

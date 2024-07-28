@@ -16,21 +16,31 @@ export class CategoriesService {
     private readonly _categoryRepository: Repository<CategoryEntity>,
   ) {}
 
-  async findAll(userId: IUserId): Promise<ICategory[]> {
-    const id = userId.id;
-    const allCategories = await this._categoryRepository
-      .createQueryBuilder('categories')
-      .leftJoin(
-        'users_categories',
-        'uc',
-        'categories.id = uc.categoriesId AND uc.usersId = :id',
-        { id },
-      )
-      .addSelect(
-        'CASE WHEN usersId IS NULL THEN FALSE ELSE TRUE END',
-        'categories_isActive',
-      );
-    return allCategories.getRawMany();
+  async findAllWithIsActive(userId: IUserId): Promise<ICategory[]> {
+    const user = await this._userService.findOne(userId.id);
+
+    const categories = await this._categoryRepository.find();
+
+    const categoriesWithIsActive = categories.map((category) => ({
+      ...category,
+      isActive:
+        user.categories.some(
+          (userCategory) => userCategory.id === category.id,
+        ) || false,
+    }));
+
+    return categoriesWithIsActive;
+
+    // const id = userId.id;
+    // const allCategories = await this._categoryRepository
+    //   .createQueryBuilder('category')
+    //   .leftJoin('category.users', 'user', 'user.id = :id', { id })
+    //   .addSelect(
+    //     'CONVERT(CASE WHEN user.id IS NULL THEN 0 ELSE 1 END, SIGNED) AS category_isActive',
+    //   )
+    //   .getMany();
+
+    // return allCategories;
   }
 
   async findAllAvailable(userId: IUserId): Promise<ICategory[]> {
@@ -39,17 +49,42 @@ export class CategoriesService {
     return userWithCategories.categories;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
+  async findOne(param: Partial<ICategory>): Promise<ICategory> {
+    const category = await this._categoryRepository.findOne({ where: param });
+
+    return category;
   }
 
-  update(id: number, body: any) {
-    console.log(body);
+  async randomlySelectTwoCategories(userId: IUserId): Promise<ICategory[]> {
+    const id = userId.id;
+    const categoriesUserDoesNotHave = await this._categoryRepository
+      .createQueryBuilder('category')
+      .leftJoinAndSelect('category.users', 'user', 'user.id = :id', {
+        id,
+      })
+      .where('user.id IS NULL')
+      .getMany();
 
-    return `This action updates a #${id} category`;
-  }
+    const twoRandomCategory: ICategory[] = [];
+    const randomIndex1 = Math.floor(
+      Math.random() * categoriesUserDoesNotHave.length,
+    );
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+    let randomIndex2 = Math.floor(
+      Math.random() * categoriesUserDoesNotHave.length,
+    );
+
+    while (randomIndex1 === randomIndex2) {
+      randomIndex2 = Math.floor(
+        Math.random() * categoriesUserDoesNotHave.length,
+      );
+    }
+
+    twoRandomCategory.push(
+      categoriesUserDoesNotHave[randomIndex1],
+      categoriesUserDoesNotHave[randomIndex2],
+    );
+
+    return twoRandomCategory;
   }
 }

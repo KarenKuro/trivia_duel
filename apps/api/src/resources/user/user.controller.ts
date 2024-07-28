@@ -31,4 +31,12 @@
 //   remove(@Param('id') id: string) {
 //     return this.userService.remove(+id);
 //   }
+
+// @Post()
+// async addAfterRegistration(
+//   @AuthUser() token: TokenPayloadDTO,
+//   @Body() body: IdDTO,
+// ): Promise<UserResponseDTO> {
+//   return this._categoriesService.create(body);
+// }
 // }

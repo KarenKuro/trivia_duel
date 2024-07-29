@@ -25,6 +25,6 @@ export class CategoryEntity extends BaseEntity {
   @ManyToMany(() => UserEntity, (user) => user.categories)
   users: UserEntity[];
 
-  @Column()
-  isActive?: number;
+  // @Column()
+  isActive?: boolean;
 }

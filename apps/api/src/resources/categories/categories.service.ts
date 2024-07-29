@@ -21,9 +21,19 @@ export class CategoriesService {
       .addSelect(
         'CONVERT(CASE WHEN user.id IS NULL THEN 0 ELSE 1 END, SIGNED) AS category_isActive',
       )
-      .getMany();
+      .getRawMany();
 
-    return allCategories;
+    // return allCategories;
+
+    return allCategories.map((category) => ({
+      id: category.category_id,
+      name: category.category_name,
+      price: category.category_price,
+      premiumPrice: category.category_premiumPrice,
+      createdAt: category.category_created_at,
+      updatedAt: category.category_updated_at,
+      isActive: Boolean(Number(category.category_isActive)),
+    })) as ICategory[];
   }
 
   async findOne(param: Partial<ICategory>): Promise<ICategory> {

@@ -8,6 +8,7 @@ import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
 import { AuthUserGuard } from '@common/guards';
 import { CategoryResponseDTO } from '@api-resources/categories/dto';
+import { BuyCategoryDTO } from './dto';
 
 @Controller('users')
 @UseGuards(AuthUserGuard())
@@ -48,5 +49,15 @@ export class UserController {
     }
 
     return categories;
+  }
+
+  @Post('categories/buy')
+  async buyCategory(
+    @AuthUser() token: TokenPayloadDTO,
+    @Body() body: BuyCategoryDTO,
+  ): Promise<CategoryResponseDTO> {
+    const category = await this._userService.addCategory(token, body);
+
+    return category;
   }
 }

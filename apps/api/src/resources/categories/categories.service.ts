@@ -2,28 +2,35 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Not, Repository } from 'typeorm';
 
-import { CategoryEntity } from '@common/database/entities';
+import { CategoryEntity, UserEntity } from '@common/database/entities';
 import { IUserId } from '@common/models/common/user-id';
-import { ICategory } from '@common/models';
+import { ICategory, IQueryBuilderCategory } from '@common/models';
+import { Transactional } from 'typeorm-transactional';
+import { IBuyCategory } from '@common/models/category/buy-category';
+import { ResponseManager } from '@common/helpers';
+import { ERROR_MESSAGES } from '@common/messages';
+import { CurrencyTypes } from '@common/enums';
 
 @Injectable()
 export class CategoriesService {
   constructor(
+    @InjectRepository(UserEntity)
+    private readonly _userRepository: Repository<UserEntity>,
+
     @InjectRepository(CategoryEntity)
     private readonly _categoryRepository: Repository<CategoryEntity>,
   ) {}
 
   async findAllWithIsActive(userId: IUserId): Promise<ICategory[]> {
     const id = userId.id;
-    const allCategories = await this._categoryRepository
-      .createQueryBuilder('category')
-      .leftJoin('category.users', 'user', 'user.id = :id', { id })
-      .addSelect(
-        'CONVERT(CASE WHEN user.id IS NULL THEN 0 ELSE 1 END, SIGNED) AS category_isActive',
-      )
-      .getRawMany();
-
-    // return allCategories;
+    const allCategories: IQueryBuilderCategory[] =
+      await this._categoryRepository
+        .createQueryBuilder('category')
+        .leftJoin('category.users', 'user', 'user.id = :id', { id })
+        .addSelect(
+          'CONVERT(CASE WHEN user.id IS NULL THEN 0 ELSE 1 END, SIGNED) AS category_isActive',
+        )
+        .getRawMany();
 
     return allCategories.map((category) => ({
       id: category.category_id,
@@ -72,5 +79,50 @@ export class CategoriesService {
     );
 
     return twoRandomCategory;
+  }
+
+  @Transactional()
+  async addCategory(userPayload: IUserId, body: IBuyCategory) {
+    const category = (await this.findOne({ id: body.id })) as CategoryEntity;
+
+    if (!category) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORY_NOT_EXIST);
+    }
+
+    const user = await this._userRepository.findOne({
+      where: { id: userPayload.id },
+      relations: ['categories'],
+    });
+
+    const userCategoryExists = user.categories.some(
+      (category) => category.id === body.id,
+    );
+
+    if (userCategoryExists) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORY_ALREADY_EXIST);
+    }
+
+    let balance: number = user.coins;
+    let price: number = category.price;
+    let flag = true;
+    if (body.currencyType !== CurrencyTypes.coins) {
+      price = category.premiumPrice;
+      balance = user.premiumCoins;
+      flag = false;
+    }
+
+    if (price > balance) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.INSUFFICIENT_FUNDS);
+    }
+
+    if (flag) {
+      user.coins -= price;
+    } else {
+      user.premiumCoins -= price;
+    }
+    user.categories.push(category);
+    await this._userRepository.save(user);
+
+    return category;
   }
 }

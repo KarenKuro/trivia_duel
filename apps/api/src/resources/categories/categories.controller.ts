@@ -1,8 +1,12 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { CategoriesService } from './categories.service';
-import { CategoryWithIsActiveDTO } from './dto';
+import {
+  BuyCategoryDTO,
+  CategoryResponseDTO,
+  CategoryWithIsActiveDTO,
+} from './dto';
 import { AuthUserGuard } from '@common/guards';
 import { AuthUser } from '@common/decorators';
 import { TokenPayloadDTO } from '@common/dtos';
@@ -29,5 +33,16 @@ export class CategoriesController {
       throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORIES_NOT_EXISTS);
     }
     return categories;
+  }
+
+  @Post('buy')
+  @ApiOperation({ summary: 'Buy category' })
+  async buyCategory(
+    @AuthUser() token: TokenPayloadDTO,
+    @Body() body: BuyCategoryDTO,
+  ): Promise<CategoryResponseDTO> {
+    const category = await this._categoriesService.addCategory(token, body);
+
+    return category;
   }
 }

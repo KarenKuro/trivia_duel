@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 
 import { CategoryEntity } from '@common/database/entities';
 import { IUserId } from '@common/models/common/user-id';
@@ -35,11 +35,11 @@ export class CategoriesService {
   async randomlySelectTwoCategories(
     choosenCategoryId: number,
   ): Promise<ICategory[]> {
-    const allCategories = await this._categoryRepository.find();
-
-    const categoriesUserDoesNotHave = allCategories.filter(
-      (category) => category.id !== choosenCategoryId,
-    );
+    const categoriesUserDoesNotHave = await this._categoryRepository.find({
+      where: {
+        id: Not(choosenCategoryId),
+      },
+    });
 
     const twoRandomCategory: ICategory[] = [];
     const randomIndex1 = Math.floor(

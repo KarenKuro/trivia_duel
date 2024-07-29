@@ -34,9 +34,15 @@ export class UserService {
   }
 
   async addCategoriesAfterRegistration(
-    userId: IUserId,
+    userPayload: IUserId,
     categoryId: IId,
   ): Promise<ICategory[]> {
+    const user = await this.findOne(userPayload.id);
+
+    if (user.categories.length) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORY_ALREADY_EXIST);
+    }
+
     const choosenCategory = (await this._categoriesService.findOne({
       id: +categoryId.id,
     })) as CategoryEntity;
@@ -49,12 +55,6 @@ export class UserService {
       await this._categoriesService.randomlySelectTwoCategories(
         choosenCategory.id,
       );
-
-    const user = await this.findOne(userId.id);
-
-    if (user.categories.length) {
-      throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORY_ALREADY_EXIST);
-    }
 
     user.categories.push(choosenCategory, ...categories);
 

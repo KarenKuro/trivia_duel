@@ -8,4 +8,7 @@ export const CATEGORY_ERROR_MESSAGES = {
   CATEGORIES_NOT_EXISTS: {
     message: 'err_categories_not_exists',
   },
+  WRONG_CATEGORIES_COUNT: {
+    message: 'err_wrong_categories_count',
+  },
 };

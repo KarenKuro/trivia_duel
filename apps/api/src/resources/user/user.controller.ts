@@ -29,11 +29,20 @@ export class UserController {
     return categories;
   }
 
-  // @Post()
-  // async addCategoryAfterRegistration(
-  //   @AuthUser() token: TokenPayloadDTO,
-  //   @Body() body: IdDTO,
-  // ): Promise<CategoryResponseDTO[]> {
-  //   return this._userService.create(body);
-  // }
+  @Post()
+  async addCategoriesAfterRegistration(
+    @AuthUser() token: TokenPayloadDTO,
+    @Body() body: IdDTO,
+  ): Promise<CategoryResponseDTO[]> {
+    const categories = await this._userService.addCategoriesAfterRegistration(
+      { id: token.id },
+      body,
+    );
+
+    if (!(categories.length === 3)) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.WRONG_CATEGORIES_COUNT);
+    }
+
+    return categories;
+  }
 }

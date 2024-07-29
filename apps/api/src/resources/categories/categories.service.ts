@@ -39,7 +39,7 @@ export class CategoriesService {
     const id = userId.id;
     const categoriesUserDoesNotHave = await this._categoryRepository
       .createQueryBuilder('category')
-      .leftJoinAndSelect('category.users', 'user', 'user.id = :id', {
+      .leftJoin('category.users', 'user', 'user.id = :id', {
         id,
       })
       .where('user.id IS NULL')

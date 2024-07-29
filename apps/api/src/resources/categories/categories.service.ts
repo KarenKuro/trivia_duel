@@ -9,9 +9,6 @@ import { ICategory } from '@common/models';
 @Injectable()
 export class CategoriesService {
   constructor(
-    // @Inject(forwardRef(() => UserService))
-    // private readonly _userService: UserService,
-
     @InjectRepository(CategoryEntity)
     private readonly _categoryRepository: Repository<CategoryEntity>,
   ) {}
@@ -35,15 +32,14 @@ export class CategoriesService {
     return category;
   }
 
-  async randomlySelectTwoCategories(userId: IUserId): Promise<ICategory[]> {
-    const id = userId.id;
-    const categoriesUserDoesNotHave = await this._categoryRepository
-      .createQueryBuilder('category')
-      .leftJoin('category.users', 'user', 'user.id = :id', {
-        id,
-      })
-      .where('user.id IS NULL')
-      .getMany();
+  async randomlySelectTwoCategories(
+    choosenCategoryId: number,
+  ): Promise<ICategory[]> {
+    const allCategories = await this._categoryRepository.find();
+
+    const categoriesUserDoesNotHave = allCategories.filter(
+      (category) => category.id !== choosenCategoryId,
+    );
 
     const twoRandomCategory: ICategory[] = [];
     const randomIndex1 = Math.floor(

@@ -4,8 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { UserService } from './user.service';
-import { UserEntity } from '@common/database/entities';
 import { UserController } from './user.controller';
+import { UserEntity } from '@common/database/entities';
 import { CategoriesModule } from '@api-resources/categories';
 
 @Module({

@@ -4,10 +4,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { CategoryEntity, UserEntity } from '@common/database/entities';
 import { ICategory, IId, IUser } from '@common/models';
-import { CategoriesService } from '@api-resources/categories';
 import { IUserId } from '@common/models/common/user-id';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
+import { CategoriesService } from '@api-resources/categories';
 
 @Injectable()
 export class UserService {
@@ -45,22 +45,18 @@ export class UserService {
       throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORY_NOT_EXIST);
     }
 
+    const categories =
+      await this._categoriesService.randomlySelectTwoCategories(
+        choosenCategory.id,
+      );
+
     const user = await this.findOne(userId.id);
 
     if (user.categories.length) {
       throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORY_ALREADY_EXIST);
     }
 
-    user.categories.push(choosenCategory);
-
-    await this._userRepository.save(user);
-
-    const categories =
-      (await this._categoriesService.randomlySelectTwoCategories(
-        userId,
-      )) as CategoryEntity[];
-
-    user.categories.push(categories[0], categories[1]);
+    user.categories.push(choosenCategory, ...categories);
 
     await this._userRepository.save(user);
 

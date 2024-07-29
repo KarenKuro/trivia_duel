@@ -1,15 +1,18 @@
 import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+
 import { UserService } from './user.service';
 import { AuthUser } from '@common/decorators';
 import { IdDTO, TokenPayloadDTO } from '@common/dtos';
-import { CategoryResponseDTO } from '@api-resources/categories/dto';
-import { ApiOperation } from '@nestjs/swagger';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
 import { AuthUserGuard } from '@common/guards';
+import { CategoryResponseDTO } from '@api-resources/categories/dto';
 
 @Controller('users')
 @UseGuards(AuthUserGuard())
+@ApiTags('Users')
+@ApiBearerAuth()
 export class UserController {
   constructor(private readonly _userService: UserService) {}
 
@@ -29,7 +32,8 @@ export class UserController {
     return categories;
   }
 
-  @Post()
+  @Post('categories')
+  @ApiOperation({ summary: 'Add categories after user registration ' })
   async addCategoriesAfterRegistration(
     @AuthUser() token: TokenPayloadDTO,
     @Body() body: IdDTO,

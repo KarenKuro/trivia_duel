@@ -19,6 +19,7 @@ import { AuthModule } from '@api-resources/auth';
 import { CategoriesModule } from '@api-resources/categories/categories.module';
 import { addTransactionalDataSource } from 'typeorm-transactional';
 import { UserModule } from './resources/user/user.module';
+import { GatewayModule } from '@api-resources/gateway';
 
 const isProductionMode = process.env.NODE_ENV === NodeEnv.production;
 
@@ -31,6 +32,7 @@ const envFilePath = isProductionMode
     AuthModule,
     CategoriesModule,
     UserModule,
+    GatewayModule,
     ConfigModule.forRoot({
       envFilePath,
       isGlobal: true,

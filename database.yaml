@@ -1,0 +1,19 @@
+version: "3"
+
+volumes:
+  mysql_data:
+
+services:
+  db:
+    image: mysql:8.0
+    ports:
+      - 3306:3306
+    volumes:
+      - mysql_data:/var/lib/mysql_data/
+    env_file:
+      - docker.env
+    networks:
+      - mysql
+networks:
+  mysql:
+    driver: bridge

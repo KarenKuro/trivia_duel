@@ -7,7 +7,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { Transactional } from 'typeorm-transactional';
 
-import { AdminEntity } from '@common/database/entities/admin.entity';
+import { AdminEntity } from '@common/database/entities';
 import { IAdminLogin, IAuthTokens, IJwt, ITokenPayload } from '@common/models';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';

@@ -23,5 +23,6 @@
       "@admin-resources/*": ["apps/admin/src/resources/*"],
       "@shared/*": ["./shared/*"]
     }
-  }
+  },
+  // "exclude": ["node_modules"]
 }

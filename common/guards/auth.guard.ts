@@ -10,7 +10,7 @@ import {
 
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
-import { TokenTypes } from '@common/enums/jwt-tokenTypes';
+import { TokenTypes } from '@common/enums/jwt-token';
 import { IJwt, ITokenPayload } from '@common/models';
 
 export const AuthUserGuard = (tokenType: TokenTypes = TokenTypes.PRIMARY) => {

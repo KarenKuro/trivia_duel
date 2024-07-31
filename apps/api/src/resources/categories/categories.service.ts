@@ -82,7 +82,10 @@ export class CategoriesService {
   }
 
   @Transactional()
-  async addCategory(userPayload: IUserId, body: IBuyCategory) {
+  async addCategory(
+    userPayload: IUserId,
+    body: IBuyCategory,
+  ): Promise<ICategory> {
     const category = (await this.findOne({ id: body.id })) as CategoryEntity;
 
     if (!category) {

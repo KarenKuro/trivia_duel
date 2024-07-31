@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { addTransactionalDataSource } from 'typeorm-transactional';
 
 import { API_VALIDATIONS } from '@common/validators';
 import { ENV_CONST } from '@common/constants';
@@ -15,11 +16,17 @@ import {
   googleConfig,
   jwtConfig,
 } from '@common/config';
-import { AuthModule } from '@api-resources/auth';
-import { CategoriesModule } from '@api-resources/categories/categories.module';
-import { addTransactionalDataSource } from 'typeorm-transactional';
-import { UserModule } from './resources/user/user.module';
-import { GatewayModule } from '@api-resources/gateway';
+import {
+  AuthModule,
+  CategoriesModule,
+  MatchModule,
+  UserModule,
+} from './resources';
+import {
+  MatchEntity,
+  UserAnswerEntity,
+  UserCategoryEntity,
+} from '@common/database/entities';
 
 const isProductionMode = process.env.NODE_ENV === NodeEnv.production;
 
@@ -32,7 +39,7 @@ const envFilePath = isProductionMode
     AuthModule,
     CategoriesModule,
     UserModule,
-    GatewayModule,
+    MatchModule,
     ConfigModule.forRoot({
       envFilePath,
       isGlobal: true,
@@ -62,7 +69,7 @@ const envFilePath = isProductionMode
           // Do not use synchronize in production mode
           // https://docs.nestjs.com/techniques/database
           synchronize: configService.get<boolean>(`DB_CONFIG.sync`),
-          entities: [],
+          entities: [MatchEntity, UserAnswerEntity, UserCategoryEntity],
         };
       },
       async dataSourceFactory(options) {

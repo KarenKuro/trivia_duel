@@ -17,6 +17,7 @@ import {
   QuestionsModule,
 } from './resources';
 import { UserModule } from './resources/user/user.module';
+import { MatchEntity, UserAnswerEntity } from '@common/database/entities';
 
 const isProductionMode = process.env.NODE_ENV === NodeEnv.production;
 
@@ -60,7 +61,7 @@ const envFilePath = isProductionMode
           // Do not use synchronize in production mode
           // https://docs.nestjs.com/techniques/database
           synchronize: configService.get<boolean>(`DB_CONFIG.sync`),
-          entities: [],
+          entities: [MatchEntity, UserAnswerEntity],
         };
       },
       async dataSourceFactory(options) {

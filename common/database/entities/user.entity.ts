@@ -3,6 +3,8 @@ import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
 import { BaseEntity } from '../base';
 import { UserStatus } from '@common/enums';
 import { CategoryEntity } from './category.entity';
+import { MatchEntity } from './match.entity';
+import { ApiHideProperty } from '@nestjs/swagger';
 
 @Entity({ name: 'users' })
 export class UserEntity extends BaseEntity {
@@ -41,6 +43,9 @@ export class UserEntity extends BaseEntity {
 
   // @Column({ nullable: true })       ????????????????????
   // subscriptionEnding: Date;
+  @ManyToMany(() => MatchEntity, { cascade: true })
+  @ApiHideProperty()
+  matches: MatchEntity[];
 
   @Column({ default: 1 })
   level: number;

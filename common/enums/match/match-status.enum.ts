@@ -1,0 +1,6 @@
+export enum MatchStatusType {
+  PENDING = 'PENDING',
+  CATEGORE_CHOOSE = 'CATEGORY_CHOOSE',
+  IN_PROCESS = 'IN_PROCESS',
+  ENDED = 'ENDED',
+}

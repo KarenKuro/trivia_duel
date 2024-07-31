@@ -23,7 +23,7 @@ export class QuestionEntity extends BaseEntity {
   answers: AnswerEntity[];
 
   @OneToOne(() => AnswerEntity, { onDelete: 'CASCADE' })
-  @JoinColumn()
+  @JoinColumn({ name: 'correct_answer_id' })
   correctAnswer: AnswerEntity;
 
   @Column({

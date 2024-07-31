@@ -1,1 +1,1 @@
-export * from './question-type.enum';
+export * from './question-types.enum';

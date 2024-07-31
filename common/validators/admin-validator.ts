@@ -4,7 +4,7 @@ export const ADMIN_VALIDATIONS = Joi.object({
   NODE_ENV: Joi.string()
     .valid('development', 'production')
     .default('development'),
-  PORT: Joi.number().default(3008),
+  ADMIN_PORT: Joi.number().default(3007),
   ENVIRONMENT: Joi.string()
     .valid('development', 'staging', 'production')
     .default('development'),

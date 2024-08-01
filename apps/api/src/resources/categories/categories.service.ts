@@ -49,6 +49,12 @@ export class CategoriesService {
     return category;
   }
 
+  async findAll(): Promise<ICategory[]> {
+    const categories = await this._categoryRepository.find();
+
+    return categories;
+  }
+
   async randomlySelectTwoCategories(
     choosenCategoryId: number,
   ): Promise<ICategory[]> {

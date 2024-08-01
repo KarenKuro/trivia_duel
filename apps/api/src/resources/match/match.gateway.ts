@@ -27,7 +27,7 @@ export class MatchGateway
   server: Server;
 
   afterInit(server: Server) {
-    console.log('WebSocket Gateway initialized', server);
+    // console.log('WebSocket Gateway initialized', server);
   }
 
   async handleConnection(client: Socket) {

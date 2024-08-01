@@ -1,14 +1,14 @@
 import { AuthUser } from '@common/decorators';
-import { IdDTO, TokenPayloadDTO } from '@common/dtos';
+import { IdDTO, SuccessDTO, TokenPayloadDTO } from '@common/dtos';
 import { ITokenPayload } from '@common/models';
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { MatchService } from './match.service';
 import { AuthUserGuard } from '@common/guards';
-import { MatchResponseDTO } from './dto';
+import { CategoriesDTO, MatchResponseDTO } from './dto';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
 
-@Controller('match')
+@Controller('matches')
 @UseGuards(AuthUserGuard())
 export class MatchController {
   constructor(private readonly _matchService: MatchService) {}
@@ -26,7 +26,14 @@ export class MatchController {
   }
 
   @Post(':id/categories')
-  async selectCategories(@Param() param: IdDTO) {
+  async selectCategories(
+    @Param() match: IdDTO,
+    @Body() body: CategoriesDTO,
+    @AuthUser() userPayload: TokenPayloadDTO,
+  ): Promise<SuccessDTO> {
+    await this._matchService.selectCategories(+match.id, body, userPayload);
+
+    return { success: true };
     // categorynery kawelnan matchi mej // hamadzayn categoryi questionnery kkpnin matchin // u statusy kpoxe
   }
 

@@ -10,10 +10,9 @@ import {
   OneToOne,
 } from 'typeorm';
 import { UserEntity } from './user.entity';
-import { CategoryEntity } from './category.entity';
 import { QuestionEntity } from './question.entity';
 import { UserAnswerEntity } from './user-answer.entity';
-import { UserCategoryEntity } from './user-category.entity';
+import { MatchCategoryEntity } from './match-category.entity';
 
 @Entity({ name: 'matches' })
 export class MatchEntity extends BaseEntity {
@@ -32,14 +31,6 @@ export class MatchEntity extends BaseEntity {
   })
   users: UserEntity[];
 
-  @ManyToMany(() => CategoryEntity)
-  @JoinTable({
-    name: 'match_categories',
-    joinColumn: { name: 'match_id', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'category_id', referencedColumnName: 'id' },
-  })
-  categories: CategoryEntity[];
-
   @ManyToMany(() => QuestionEntity)
   @JoinTable({
     name: 'match_questions',
@@ -55,9 +46,6 @@ export class MatchEntity extends BaseEntity {
   @Column({ enum: MatchLevel, default: MatchLevel.BRONZE, type: 'enum' })
   matchLevel: MatchLevel;
 
-  @OneToMany(
-    () => UserCategoryEntity,
-    (choosenCategories) => choosenCategories.match,
-  )
-  choosenCategories: UserCategoryEntity[];
+  @OneToMany(() => MatchCategoryEntity, (categories) => categories.match)
+  categories: MatchCategoryEntity[];
 }

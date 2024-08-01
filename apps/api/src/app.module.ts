@@ -23,9 +23,10 @@ import {
   UserModule,
 } from './resources';
 import {
+  MatchCategoryEntity,
   MatchEntity,
   UserAnswerEntity,
-  UserCategoryEntity,
+  UserEntity,
 } from '@common/database/entities';
 
 const isProductionMode = process.env.NODE_ENV === NodeEnv.production;
@@ -69,7 +70,12 @@ const envFilePath = isProductionMode
           // Do not use synchronize in production mode
           // https://docs.nestjs.com/techniques/database
           synchronize: configService.get<boolean>(`DB_CONFIG.sync`),
-          entities: [MatchEntity, UserAnswerEntity, UserCategoryEntity],
+          entities: [
+            MatchEntity,
+            UserAnswerEntity,
+            MatchCategoryEntity,
+            UserEntity,
+          ],
         };
       },
       async dataSourceFactory(options) {

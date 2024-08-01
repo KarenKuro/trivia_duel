@@ -1,5 +1,6 @@
 import { UserStatus } from '@common/enums';
 import { ICategory } from '../category';
+import { IMatch } from '../match';
 
 export interface IUser {
   id: number;
@@ -16,4 +17,5 @@ export interface IUser {
   lives: number;
   createdAt: Date;
   updatedAt: Date;
+  matches?: IMatch[];
 }

@@ -6,6 +6,7 @@ import {
   CategoryEntity,
   MatchCategoryEntity,
   MatchEntity,
+  QuestionEntity,
   UserEntity,
 } from '@common/database/entities';
 import { JwtModule } from '@nestjs/jwt';
@@ -33,6 +34,7 @@ import { CategoriesModule, CategoriesService } from '@api-resources/categories';
       UserEntity,
       CategoryEntity,
       MatchCategoryEntity,
+      QuestionEntity,
     ]),
   ],
   controllers: [MatchController],

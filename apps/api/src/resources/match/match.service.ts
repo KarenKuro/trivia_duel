@@ -2,15 +2,16 @@ import {
   CategoryEntity,
   MatchCategoryEntity,
   MatchEntity,
+  QuestionEntity,
   UserEntity,
 } from '@common/database/entities';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { EntityManager, In, Repository } from 'typeorm';
 import { MatchGateway } from './match.gateway';
 import { IUserId } from '@common/models/common/user-id';
-import { ICategories, ICategory, IMatch } from '@common/models';
-import { MatchStatusType } from '@common/enums';
+import { ICategories, ICategory, IId, IMatch } from '@common/models';
+import { MatchLevel, MatchStatusType, QuestionType } from '@common/enums';
 import { MatchHelpers, ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
 import { UserService } from '@api-resources/user';
@@ -27,17 +28,19 @@ export class MatchService {
     @InjectRepository(MatchEntity)
     private readonly _matchRepository: Repository<MatchEntity>,
 
+    @InjectRepository(QuestionEntity)
+    private readonly _questionRepository: Repository<QuestionEntity>,
+
     @InjectRepository(MatchCategoryEntity)
     private readonly _matchCategoryRepository: Repository<MatchCategoryEntity>,
-
-    // @InjectRepository(MatchCategoryEntity)
-    // private readonly _matchCategoryRepository: Repository<MatchCategoryEntity>,
 
     private readonly _userService: UserService,
 
     private readonly _categoriesService: CategoriesService,
 
     private readonly _matchGateway: MatchGateway,
+
+    private readonly _entityManager: EntityManager,
   ) {}
 
   async createOrJoinMatch(userPayload: IUserId): Promise<IMatch> {
@@ -114,10 +117,7 @@ export class MatchService {
       throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_MAKING);
     }
 
-    console.log('match.users', match.users);
     const user = match.users.find((user) => user.id === userPayload.id);
-    console.log('userPayload.id', userPayload.id);
-    console.log('user', user);
 
     if (!user) {
       throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_ID);
@@ -141,8 +141,6 @@ export class MatchService {
     const userCategoryIds: number[] = user.categories.map(
       (category) => category.id,
     );
-
-    console.log('categoriesObj', categoriesObj);
 
     categoriesObj.categories.forEach((categoryId) => {
       if (!userCategoryIds.includes(categoryId)) {
@@ -211,11 +209,11 @@ export class MatchService {
         }
       }
 
-      // приклеить рандомный вопрос из каждой категории
+      const questions = await this.getRandomQuestionsByMatch(match);
+      match.questions = questions;
       match.status = MatchStatusType.IN_PROCESS;
       await this._matchRepository.save(match);
 
-      console.log('gonna broadcast');
       const matchData = await this.getMatchDataToSend(id);
       this._matchGateway.sendMessageToHandlers(matchData);
     }
@@ -245,5 +243,57 @@ export class MatchService {
     });
 
     return match;
+  }
+
+  async findOne(id: number): Promise<MatchEntity> {
+    return this._matchRepository.findOne({
+      where: { id },
+      relations: [
+        'users',
+        'lastAnswer',
+        'lastAnswer.user',
+        'lastAnswer.question',
+        'lastAnswer.answer',
+        'questions',
+        'questions.correctAnswer',
+        'questions.category',
+        'questions.answers',
+      ],
+    });
+  }
+
+  async getRandomQuestionsByMatch(
+    match: MatchEntity,
+  ): Promise<QuestionEntity[]> {
+    const categoryIdsString = match.categories
+      .map((category) => category.id)
+      .join(',');
+    const additionalCondition = [MatchLevel.BRONZE, MatchLevel.SILVER].includes(
+      match.matchLevel,
+    )
+      ? ` q.type != '${QuestionType.SINGLE}' `
+      : ' true ';
+
+    const queryString: string = `
+        SELECT q.id
+        FROM (
+            SELECT q.*, 
+                   ROW_NUMBER() OVER (PARTITION BY q.category_id ORDER BY RAND()) AS rn
+            FROM questions q WHERE q.category_id IN (${categoryIdsString}) AND ${additionalCondition}
+        ) q
+        WHERE q.rn = 1;
+    `;
+
+    const rawData: IId[] = await this._entityManager.query(queryString);
+
+    const questionIds = rawData.map((raw) => Number(raw.id));
+
+    const questions = await this._questionRepository.find({
+      where: {
+        id: In(questionIds),
+      },
+    });
+
+    return questions;
   }
 }

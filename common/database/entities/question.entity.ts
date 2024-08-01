@@ -36,5 +36,6 @@ export class QuestionEntity extends BaseEntity {
   @ManyToOne(() => CategoryEntity, (category) => category.questions, {
     onDelete: 'CASCADE',
   })
+  @JoinColumn({ name: 'category_id' })
   category: CategoryEntity;
 }

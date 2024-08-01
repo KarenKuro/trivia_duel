@@ -1,6 +1,5 @@
 import { AuthUser } from '@common/decorators';
 import { IdDTO, SuccessDTO, TokenPayloadDTO } from '@common/dtos';
-import { ITokenPayload } from '@common/models';
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { MatchService } from './match.service';
 import { AuthUserGuard } from '@common/guards';
@@ -40,15 +39,16 @@ export class MatchController {
   @Get(':id')
   async get(@Param() param: IdDTO) {
     // Matchi datan get kexni, neraryal, questionnery, usernery yew amen inch
+    return this._matchService.findOne(+param.id);
   }
 
-  @Post(':id/answer')
-  async asnwer(
-    @Param() param: IdDTO,
-    @AuthUser() user: ITokenPayload,
-    @Body() body: any,
-  ) {
-    await this._matchService.answer(+param.id, user.id, body);
-    return;
-  }
+  // @Post(':id/answer')
+  // async asnwer(
+  //   @Param() param: IdDTO,
+  //   @AuthUser() user: ITokenPayload,
+  //   @Body() body: any,
+  // ) {
+  //   await this._matchService.answer(+param.id, user.id, body);
+  //   return;
+  // }
 }

@@ -8,6 +8,7 @@ import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
 import { AuthUserGuard } from '@common/guards';
 import { CategoryResponseDTO } from '@api-resources/categories/dto';
+import { UserResponseDTO } from '@admin-resources/user/dto';
 
 @Controller('users')
 @UseGuards(AuthUserGuard())
@@ -30,6 +31,14 @@ export class UserController {
     }
 
     return categories;
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Get User' })
+  async findUser(@AuthUser() token: TokenPayloadDTO): Promise<UserResponseDTO> {
+    const user = await this._userService.findOne(token.id);
+
+    return user;
   }
 
   @Post('categories')

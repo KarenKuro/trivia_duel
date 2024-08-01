@@ -239,6 +239,10 @@ export class MatchService {
         'lastAnswer.user',
         'lastAnswer.question',
         'lastAnswer.answer',
+        'questions',
+        'questions.correctAnswer',
+        'questions.category',
+        'questions.answers',
       ],
     });
 

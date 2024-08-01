@@ -6,13 +6,19 @@ import { AuthUserGuard } from '@common/guards';
 import { CategoriesDTO, MatchResponseDTO } from './dto';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @Controller('matches')
 @UseGuards(AuthUserGuard())
+@ApiTags('Matches')
+@ApiBearerAuth()
 export class MatchController {
   constructor(private readonly _matchService: MatchService) {}
 
   @Post('start')
+  @ApiOperation({
+    summary: 'Join to match, if can find, or not - create new match',
+  })
   async createMatch(
     @AuthUser() token: TokenPayloadDTO,
   ): Promise<MatchResponseDTO> {
@@ -24,7 +30,11 @@ export class MatchController {
     return match;
   }
 
+  // categorynery kawelnan matchi mej // hamadzayn categoryi questionnery kkpnin matchin // u statusy kpoxe
   @Post(':id/categories')
+  @ApiOperation({
+    summary: 'Add categories and questions in match',
+  })
   async selectCategories(
     @Param() match: IdDTO,
     @Body() body: CategoriesDTO,
@@ -33,12 +43,14 @@ export class MatchController {
     await this._matchService.selectCategories(+match.id, body, userPayload);
 
     return { success: true };
-    // categorynery kawelnan matchi mej // hamadzayn categoryi questionnery kkpnin matchin // u statusy kpoxe
   }
 
+  // Matchi datan get kexni, neraryal, questionnery, usernery yew amen inch
   @Get(':id')
+  @ApiOperation({
+    summary: 'Get Match data by Match Id',
+  })
   async get(@Param() param: IdDTO) {
-    // Matchi datan get kexni, neraryal, questionnery, usernery yew amen inch
     return this._matchService.findOne(+param.id);
   }
 

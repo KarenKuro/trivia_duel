@@ -6,7 +6,13 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 
 import { UserEntity } from '@common/database/entities';
-import { IAuthTokens, IJwt, ISyncUser, ITokenPayload } from '@common/models';
+import {
+  IAuthTokens,
+  IJwt,
+  ISyncUser,
+  ITokenPayload,
+  IUser,
+} from '@common/models';
 
 @Injectable()
 export class AuthService {
@@ -76,5 +82,21 @@ export class AuthService {
     const accessToken = await this.createAccessToken({ id });
 
     return { accessToken, refreshToken };
+  }
+
+  // Only for mobile developers. Not use  this method in producnion mode
+  // Only for mobile developers. Not use  this method in producnion mode
+  // Only for mobile developers. Not use  this method in producnion mode
+  // Only for mobile developers. Not use  this method in producnion mode
+  // Only for mobile developers. Not use  this method in producnion mode
+
+  async update(updateUser: Partial<IUser>): Promise<IUser> {
+    const user = await this._userRepository.findOne({
+      where: { id: updateUser.id },
+    });
+
+    const updatedUser = { ...user, ...updateUser };
+
+    return await this._userRepository.save(updatedUser);
   }
 }

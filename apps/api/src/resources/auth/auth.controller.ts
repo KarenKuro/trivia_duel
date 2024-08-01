@@ -1,8 +1,10 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Get,
   HttpStatus,
+  Patch,
   Post,
   Req,
   UseGuards,
@@ -28,6 +30,8 @@ import {
 } from '@common/models';
 import { AuthUserGuard } from '@common/guards';
 import { TokenTypes } from '@common/enums';
+import { CreateUserDTO } from './dto/create-user.dto';
+import { UserResponseDTO } from '@admin-resources/user/dto';
 
 @ApiTags('Authentication management')
 @Controller('auth')
@@ -134,5 +138,46 @@ export class AuthController {
     @AuthUser() user: IRefreshPayload,
   ): Promise<AuthTokensDTO> {
     return this._authService.refreshAccessToken(user.id, refreshToken);
+  }
+
+  // Only for mobile developers. Not use this method in producnion mode
+  // Only for mobile developers. Not use this method in producnion mode
+  // Only for mobile developers. Not use this method in producnion mode
+  // Only for mobile developers. Not use this method in producnion mode
+  // Only for mobile developers. Not use this method in producnion mode
+
+  @Post('create')
+  @ApiOperation({
+    summary:
+      'Create user.ONLY FOR MOBILE DEVELOPERS. NOT USE THIS METHOD IN PRODUCNION',
+  })
+  async createUser(@Body() createUser: CreateUserDTO): Promise<AuthTokensDTO> {
+    const profile: IGoogleProfile = {
+      id: createUser.uid,
+      name: createUser.name,
+      email: createUser.email,
+    };
+
+    const tokens = await this._authService.syncUser(profile);
+    return tokens;
+  }
+
+  // Only for mobile developers. Not use  this method in producnion mode
+  // Only for mobile developers. Not use this method in producnion mode
+  // Only for mobile developers. Not use this method in producnion mode
+  // Only for mobile developers. Not use this method in producnion mode
+  // Only for mobile developers. Not use this method in producnion mode
+
+  @Patch('update')
+  @ApiOperation({
+    summary:
+      'Update user. ONLY FOR MOBILE DEVELOPERS. NOT USE THIS METHOD IN PRODUCNION',
+  })
+  async updateUser(
+    @Body() updateUser: Partial<UserResponseDTO>,
+  ): Promise<UserResponseDTO> {
+    const updatedUser = await this._authService.update(updateUser);
+
+    return updatedUser;
   }
 }

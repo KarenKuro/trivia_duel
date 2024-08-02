@@ -6,6 +6,7 @@ import {
   JoinColumn,
   JoinTable,
   ManyToMany,
+  ManyToOne,
   OneToMany,
   OneToOne,
 } from 'typeorm';
@@ -42,6 +43,10 @@ export class MatchEntity extends BaseEntity {
   @OneToOne(() => UserAnswerEntity)
   @JoinColumn({ name: 'last_answer_id' })
   lastAnswer: UserAnswerEntity;
+
+  @ManyToOne(() => UserEntity)
+  @JoinColumn({ name: 'winner_id' })
+  winner: UserEntity;
 
   @Column({ enum: MatchLevel, default: MatchLevel.BRONZE, type: 'enum' })
   matchLevel: MatchLevel;

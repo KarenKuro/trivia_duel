@@ -229,6 +229,7 @@ export class MatchService {
       }
 
       const questions = await this.getRandomQuestionsByMatch(match);
+      console.log('questions', questions);
       match.questions = questions;
       match.status = MatchStatusType.IN_PROCESS;
       await this._matchRepository.save(match);
@@ -307,6 +308,57 @@ export class MatchService {
 
     const matchData = await this.getMatchDataToSend(matchId);
     this._matchGateway.sendMessageToHandlers(matchData);
+
+    const questionsLength: number = match.questions.length;
+    const usersLength: number = match.users.length;
+
+    const [matchUserAnswers, matchUserAnswersLength] =
+      await this._userAnswerRepository.findAndCount({
+        where: {
+          match: { id: match.id },
+        },
+        relations: ['user'],
+      });
+
+    console.log('questionsLength * usersLength', questionsLength * usersLength);
+    console.log('matchUserAnswersLength', matchUserAnswersLength);
+    if (questionsLength * usersLength === matchUserAnswersLength) {
+      console.log('MATCH ENDED');
+      const [firstUser, secondUser] = match.users;
+
+      const firstUserCorrectAnswersCount = matchUserAnswers.filter(
+        (answer) => answer.isCorrect && answer.user.id === firstUser.id,
+      ).length;
+      console.log('firstUserCorrectAnswersCount', firstUserCorrectAnswersCount);
+
+      const secondUserCorrectAnswersCount = matchUserAnswers.filter(
+        (answer) => answer.isCorrect && answer.user.id === secondUser.id,
+      ).length;
+      console.log(
+        'secondUserCorrectAnswersCount',
+        secondUserCorrectAnswersCount,
+      );
+
+      let winner = null;
+
+      if (firstUserCorrectAnswersCount > secondUserCorrectAnswersCount) {
+        winner = { id: firstUser.id };
+      } else if (firstUserCorrectAnswersCount < secondUserCorrectAnswersCount) {
+        winner = { id: secondUser.id };
+      }
+      console.log('winner', winner);
+
+      await this._matchRepository.update(match.id, {
+        status: MatchStatusType.ENDED,
+        winner,
+      });
+
+      this._matchGateway.sendMessageToHandlers({
+        ...matchData,
+        status: MatchStatusType.ENDED,
+        winner,
+      });
+    }
   }
 
   async getMatchDataToSend(id: number): Promise<MatchEntity> {
@@ -347,7 +399,7 @@ export class MatchService {
     match: MatchEntity,
   ): Promise<QuestionEntity[]> {
     const categoryIdsString = match.categories
-      .map((category) => category.id)
+      .map((matchCategory) => matchCategory.category.id)
       .join(',');
     const additionalCondition = [MatchLevel.BRONZE, MatchLevel.SILVER].includes(
       match.matchLevel,
@@ -364,6 +416,8 @@ export class MatchService {
         ) q
         WHERE q.rn = 1;
     `;
+
+    console.log('queryString', queryString);
 
     const rawData: IId[] = await this._entityManager.query(queryString);
 

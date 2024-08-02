@@ -5,7 +5,6 @@ import { JwtService } from '@nestjs/jwt';
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
-  OnGatewayInit,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
@@ -13,9 +12,7 @@ import { omit } from 'lodash';
 import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway(3001)
-export class MatchGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
-{
+export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     public readonly jwtService: JwtService,
     public readonly configService: ConfigService,
@@ -25,10 +22,6 @@ export class MatchGateway
 
   @WebSocketServer()
   server: Server;
-
-  afterInit(server: Server) {
-    // console.log('WebSocket Gateway initialized', server);
-  }
 
   async handleConnection(client: Socket) {
     // let { token: accessToken } = client.handshake.auth;
@@ -67,6 +60,12 @@ export class MatchGateway
 
   async sendMessageToHandlers(match: MatchEntity): Promise<void> {
     try {
+      console.log(
+        'GONNA BROADCAST match',
+        match.id,
+        match.status,
+        match.lastAnswer?.id,
+      );
       let users = [];
       users = [...match.users];
 

@@ -1,4 +1,4 @@
-import { Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base';
 import { UserEntity } from './user.entity';
 import { MatchEntity } from './match.entity';
@@ -16,10 +16,19 @@ export class UserAnswerEntity extends BaseEntity {
   match: MatchEntity;
 
   @JoinColumn({ name: 'answer_id' })
-  @ManyToOne(() => AnswerEntity)
+  @ManyToOne(() => AnswerEntity, {
+    nullable: true,
+  })
   answer: AnswerEntity;
 
   @JoinColumn({ name: 'question_id' })
   @ManyToOne(() => QuestionEntity)
   question: QuestionEntity;
+
+  @Column({
+    type: 'boolean',
+    name: 'is_correct',
+    nullable: false,
+  })
+  isCorrect: boolean;
 }

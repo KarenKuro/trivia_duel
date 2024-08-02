@@ -1,7 +1,7 @@
 import { MatchLevel, MatchStatusType } from '@common/enums';
 import { IUser } from '../user';
 import { IQuestion } from '../question';
-import { IUserAnswer } from './user-answer';
+import { IUserAnswerData } from './user-answer-data';
 import { IMatchCategory } from './match-category';
 
 export interface IMatch {
@@ -10,7 +10,7 @@ export interface IMatch {
   users: IUser[];
   categories?: IMatchCategory[];
   questions: IQuestion[];
-  lastAnswer?: IUserAnswer;
+  lastAnswer?: IUserAnswerData;
   matchLevel: MatchLevel;
   createdAt: Date;
   updatedAt: Date;

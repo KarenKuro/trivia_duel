@@ -3,7 +3,7 @@ import { IdDTO, SuccessDTO, TokenPayloadDTO } from '@common/dtos';
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { MatchService } from './match.service';
 import { AuthUserGuard } from '@common/guards';
-import { CategoriesDTO, MatchResponseDTO } from './dto';
+import { CategoriesDTO, MatchResponseDTO, UserAnswerDTO } from './dto';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -50,17 +50,18 @@ export class MatchController {
   @ApiOperation({
     summary: 'Get Match data by Match Id',
   })
-  async get(@Param() param: IdDTO) {
-    return this._matchService.findOne(+param.id);
+  async get(@Param() param: IdDTO): Promise<MatchResponseDTO> {
+    return await this._matchService.findOne(+param.id);
   }
 
-  // @Post(':id/answer')
-  // async asnwer(
-  //   @Param() param: IdDTO,
-  //   @AuthUser() user: ITokenPayload,
-  //   @Body() body: any,
-  // ) {
-  //   await this._matchService.answer(+param.id, user.id, body);
-  //   return;
-  // }
+  @Post(':id/answer')
+  async asnwer(
+    @AuthUser() user: TokenPayloadDTO,
+    @Param() match: IdDTO,
+    @Body() body: UserAnswerDTO,
+  ) {
+    await this._matchService.answer(user, +match.id, body);
+
+    return { success: true };
+  }
 }

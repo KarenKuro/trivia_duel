@@ -3,14 +3,20 @@ import {
   MatchCategoryEntity,
   MatchEntity,
   QuestionEntity,
+  UserAnswerEntity,
   UserEntity,
 } from '@common/database/entities';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, In, Repository } from 'typeorm';
 import { MatchGateway } from './match.gateway';
-import { IUserId } from '@common/models/common/user-id';
-import { ICategories, ICategory, IId, IMatch } from '@common/models';
+import {
+  ICategories,
+  ICategory,
+  IId,
+  IUserAnswer,
+  IUserId,
+} from '@common/models';
 import { MatchLevel, MatchStatusType, QuestionType } from '@common/enums';
 import { MatchHelpers, ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
@@ -34,6 +40,9 @@ export class MatchService {
     @InjectRepository(MatchCategoryEntity)
     private readonly _matchCategoryRepository: Repository<MatchCategoryEntity>,
 
+    @InjectRepository(UserAnswerEntity)
+    private readonly _userAnswerRepository: Repository<UserAnswerEntity>,
+
     private readonly _userService: UserService,
 
     private readonly _categoriesService: CategoriesService,
@@ -43,7 +52,7 @@ export class MatchService {
     private readonly _entityManager: EntityManager,
   ) {}
 
-  async createOrJoinMatch(userPayload: IUserId): Promise<IMatch> {
+  async createOrJoinMatch(userPayload: IUserId): Promise<MatchEntity> {
     const user = await this._userService.findOne(userPayload.id);
 
     const currMatch = await this._matchRepository.findOne({
@@ -219,14 +228,76 @@ export class MatchService {
     }
   }
 
-  // async answer(id: number, userId: number, body: any) {
-  //   // Database kpahe useri answery
-  //   // lastAnswery kpoxe or exni weronshyal asnwery
-  //   // u socketow kjampe matchy(nerqewi gracy)
+  @Transactional()
+  async answer(userPayload: IUserId, matchId: number, body: IUserAnswer) {
+    const match = await this._matchRepository.findOne({
+      where: { id: matchId, status: MatchStatusType.IN_PROCESS },
+      relations: [
+        'users',
+        'questions',
+        'questions.correctAnswer',
+        'questions.answers',
+      ],
+    });
 
-  //   const match = await this.getMatchDataToSend(id);
-  //   this._matchGateway.sendMessageToHandlers(match);
-  // }
+    if (!match) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_ID);
+    }
+
+    const user = match.users.find((user) => user.id === userPayload.id);
+
+    if (!user) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_ID);
+    }
+
+    const question = match.questions.find(
+      (question) => question.id === body.questionId,
+    );
+
+    if (!question) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.QUESTION_NOT_EXIST);
+    }
+
+    if (body.answerId) {
+      const answer = question.answers.find((item) => item.id === body.answerId);
+      if (!answer) {
+        throw ResponseManager.buildError(ERROR_MESSAGES.ANSWER_NOT_EXISTS);
+      }
+    }
+
+    const userAnswerExists = await this._userAnswerRepository.findOne({
+      where: {
+        match: { id: match.id },
+        question: { id: question.id },
+        user: { id: user.id },
+      },
+    });
+
+    if (userAnswerExists) {
+      throw ResponseManager.buildError(
+        ERROR_MESSAGES.QUESTION_ALREADY_ANSWERED,
+      );
+    }
+
+    const userAnswer = body.answerId ? { id: body.answerId } : null;
+
+    const isCorrect = userAnswer && userAnswer.id === question.correctAnswer.id;
+
+    const lastAnswer = await this._userAnswerRepository.save({
+      user: { id: userPayload.id },
+      question: { id: question.id },
+      answer: userAnswer,
+      match: { id: matchId },
+      isCorrect,
+    });
+
+    await this._matchRepository.update(matchId, {
+      lastAnswer,
+    });
+
+    const matchData = await this.getMatchDataToSend(matchId);
+    this._matchGateway.sendMessageToHandlers(matchData);
+  }
 
   async getMatchDataToSend(id: number): Promise<MatchEntity> {
     const match = await this._matchRepository.findOne({
@@ -239,10 +310,6 @@ export class MatchService {
         'lastAnswer.user',
         'lastAnswer.question',
         'lastAnswer.answer',
-        'questions',
-        'questions.correctAnswer',
-        'questions.category',
-        'questions.answers',
       ],
     });
 

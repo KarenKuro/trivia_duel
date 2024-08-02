@@ -2,6 +2,9 @@ export const USER_ERROR_MESSAGES = {
   USER_ALREADY_IN_MATCH: {
     message: 'err_user_already_in_match',
   },
+  USER_DONT_HAVE_LIVE: {
+    message: 'err_user_dont_have_live',
+  },
   INCORRECT_MATCH_MAKING: {
     message: 'err_incorrect_match_making',
   },

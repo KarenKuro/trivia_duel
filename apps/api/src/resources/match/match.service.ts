@@ -52,8 +52,13 @@ export class MatchService {
     private readonly _entityManager: EntityManager,
   ) {}
 
+  @Transactional()
   async createOrJoinMatch(userPayload: IUserId): Promise<MatchEntity> {
     const user = await this._userService.findOne(userPayload.id);
+
+    if (user.tickets === 0) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.USER_DONT_HAVE_LIVE);
+    }
 
     const currMatch = await this._matchRepository.findOne({
       where: {
@@ -100,7 +105,12 @@ export class MatchService {
       });
     }
 
-    this._matchGateway.sendMessageToHandlers(newMatch);
+    const newTicketsValue = user.tickets--;
+    await this._userService.updateUser(user.id, {
+      tickets: newTicketsValue,
+    });
+
+    await this._matchGateway.sendMessageToHandlers(newMatch);
 
     return newMatch; //++++++++++++++++++++++++Крон джоб, чтобы юзер не ждал больше 10 секунд
   }

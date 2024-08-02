@@ -62,4 +62,11 @@ export class UserService {
 
     return user.categories;
   }
+
+  async updateUser(userId: number, newUserData: Partial<IUser>): Promise<void> {
+    const updatedUser = await this._userRepository.update(userId, newUserData);
+    if (updatedUser.affected === 0) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.USER_NOT_EXISTS);
+    }
+  }
 }

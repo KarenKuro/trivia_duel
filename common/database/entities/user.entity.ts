@@ -54,5 +54,5 @@ export class UserEntity extends BaseEntity {
   points: number;
 
   @Column({ default: 5 })
-  lives: number;
+  tickets: number;
 }

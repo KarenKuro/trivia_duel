@@ -14,7 +14,7 @@ export interface IUser {
   subscription: boolean;
   level: number;
   points: number;
-  lives: number;
+  tickets: number;
   createdAt: Date;
   updatedAt: Date;
   matches?: IMatch[];

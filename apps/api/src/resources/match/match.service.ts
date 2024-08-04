@@ -372,6 +372,10 @@ export class MatchService {
         'lastAnswer.user',
         'lastAnswer.question',
         'lastAnswer.answer',
+        'users.categories',
+        'questions',
+        'questions.correctAnswer',
+        'questions.answers',
       ],
     });
 

@@ -26,9 +26,14 @@ export class CategoriesService {
     const allCategories: IQueryBuilderCategory[] =
       await this._categoryRepository
         .createQueryBuilder('category')
-        .leftJoin('category.users', 'user', 'user.id = :id', { id })
+        .leftJoin(
+          'users_categories',
+          'uc',
+          'category.id = uc.category_id AND uc.user_id = :id',
+          { id },
+        )
         .addSelect(
-          'CONVERT(CASE WHEN user.id IS NULL THEN 0 ELSE 1 END, SIGNED) AS category_isActive',
+          'CASE WHEN uc.user_id IS NULL THEN 0 ELSE 1 END AS category_isActive',
         )
         .getRawMany();
 

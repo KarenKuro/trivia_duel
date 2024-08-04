@@ -92,6 +92,8 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   async googleLoginCallback(@Req() req): Promise<AuthTokensDTO> {
     try {
+      console.log(req.headers);
+
       const payload: IGooglePayload = await req.user;
       const { accessToken } = payload;
 

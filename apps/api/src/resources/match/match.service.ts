@@ -89,12 +89,8 @@ export class MatchService {
 
     let newMatch: MatchEntity;
     if (match && match.users.length !== 2) {
-      // const users = match.users;
-      // users.push(user as UserEntity);
-
-      // match.users = users;
-
       match.users.push(user as UserEntity);
+
       const newStatus = MatchStatusType.CATEGORY_CHOOSE;
       match.status = newStatus;
 
@@ -241,6 +237,43 @@ export class MatchService {
     }
   }
 
+  async getRandomQuestionsByMatch(
+    match: MatchEntity,
+  ): Promise<QuestionEntity[]> {
+    const categoryIdsString = match.categories
+      .map((matchCategory) => matchCategory.category.id)
+      .join(',');
+    const additionalCondition = [MatchLevel.BRONZE, MatchLevel.SILVER].includes(
+      match.matchLevel,
+    )
+      ? ` q.type != '${QuestionType.SINGLE}' `
+      : ' true ';
+
+    const queryString: string = `
+        SELECT q.id
+        FROM (
+            SELECT q.*, 
+                   ROW_NUMBER() OVER (PARTITION BY q.category_id ORDER BY RAND()) AS rn
+            FROM questions q WHERE q.category_id IN (${categoryIdsString}) AND ${additionalCondition}
+        ) q
+        WHERE q.rn = 1;
+    `;
+
+    console.log('queryString', queryString);
+
+    const rawData: IId[] = await this._entityManager.query(queryString);
+
+    const questionIds = rawData.map((raw) => Number(raw.id));
+
+    const questions = await this._questionRepository.find({
+      where: {
+        id: In(questionIds),
+      },
+    });
+
+    return questions;
+  }
+
   @Transactional()
   async answer(userPayload: IUserId, matchId: number, body: IUserAnswer) {
     const match = await this._matchRepository.findOne({
@@ -271,8 +304,7 @@ export class MatchService {
       throw ResponseManager.buildError(ERROR_MESSAGES.QUESTION_NOT_EXIST);
     }
 
-    // здесь нужно добавить иф на счет question type
-
+    // здесь нужно добавить иф на счет ques
     if (body.answerId) {
       const answer = question.answers.find((item) => item.id === body.answerId);
       if (!answer) {
@@ -294,9 +326,20 @@ export class MatchService {
       );
     }
 
+    let isSingleTypeAnswerCorrect: boolean = false;
+    if (body.answer) {
+      const validatedBodyAnswer = body.answer.trim().toLowerCase();
+
+      isSingleTypeAnswerCorrect = question.answers.some(
+        (item) => item.value.trim().toLowerCase() === validatedBodyAnswer,
+      );
+    }
+
     const userAnswer = body.answerId ? { id: body.answerId } : null;
 
-    const isCorrect = userAnswer && userAnswer.id === question.correctAnswer.id;
+    const isCorrect =
+      (userAnswer && userAnswer.id === question.correctAnswer.id) ||
+      isSingleTypeAnswerCorrect;
 
     const lastAnswer = await this._userAnswerRepository.save({
       user: { id: userPayload.id },
@@ -306,9 +349,7 @@ export class MatchService {
       isCorrect,
     });
 
-    await this._matchRepository.update(matchId, {
-      lastAnswer,
-    });
+    await this._matchRepository.update(matchId, { lastAnswer });
 
     const matchData = await this.getMatchDataToSend(matchId);
     this._matchGateway.sendMessageToHandlers(matchData);
@@ -355,43 +396,6 @@ export class MatchService {
         winner,
       });
     }
-  }
-
-  async getRandomQuestionsByMatch(
-    match: MatchEntity,
-  ): Promise<QuestionEntity[]> {
-    const categoryIdsString = match.categories
-      .map((matchCategory) => matchCategory.category.id)
-      .join(',');
-    const additionalCondition = [MatchLevel.BRONZE, MatchLevel.SILVER].includes(
-      match.matchLevel,
-    )
-      ? ` q.type != '${QuestionType.SINGLE}' `
-      : ' true ';
-
-    const queryString: string = `
-        SELECT q.id
-        FROM (
-            SELECT q.*, 
-                   ROW_NUMBER() OVER (PARTITION BY q.category_id ORDER BY RAND()) AS rn
-            FROM questions q WHERE q.category_id IN (${categoryIdsString}) AND ${additionalCondition}
-        ) q
-        WHERE q.rn = 1;
-    `;
-
-    console.log('queryString', queryString);
-
-    const rawData: IId[] = await this._entityManager.query(queryString);
-
-    const questionIds = rawData.map((raw) => Number(raw.id));
-
-    const questions = await this._questionRepository.find({
-      where: {
-        id: In(questionIds),
-      },
-    });
-
-    return questions;
   }
 
   async getMatchDataToSend(id: number): Promise<MatchEntity> {

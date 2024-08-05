@@ -1,4 +1,5 @@
 export interface IUserAnswer {
   questionId: number;
-  answerId: number;
+  answerId?: number;
+  answer?: string;
 }

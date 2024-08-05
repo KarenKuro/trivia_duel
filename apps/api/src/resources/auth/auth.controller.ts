@@ -24,7 +24,6 @@ import { AuthToken, AuthUser } from '@common/decorators';
 import {
   IFacebookPayload,
   IFacebookProfile,
-  IGooglePayload,
   IGoogleProfile,
   IRefreshPayload,
 } from '@common/models';
@@ -89,12 +88,13 @@ export class AuthController {
   }
 
   @Get('google/login')
-  @UseGuards(AuthGuard('google'))
+  // @UseGuards(AuthGuard('google'))
   async googleLoginCallback(@Req() req): Promise<AuthTokensDTO> {
     try {
       console.log(req.headers);
 
-      const payload: IGooglePayload = await req.user;
+      // const payload: IGooglePayload = await req.user;
+      const payload = await req.user;
       const { accessToken } = payload;
 
       // Use access_token to fetch user profile

@@ -83,6 +83,7 @@ export class MatchService {
       where: {
         matchLevel,
         status: MatchStatusType.PENDING,
+        previousMatch: null,
       },
       relations: ['users'],
     });
@@ -398,7 +399,7 @@ export class MatchService {
     }
   }
 
-  async getMatchDataToSend(id: number): Promise<MatchEntity> {
+  async findOne(id: number): Promise<MatchEntity> {
     const match = await this._matchRepository.findOne({
       where: { id },
       relations: [
@@ -412,9 +413,85 @@ export class MatchService {
         'questions.correctAnswer',
         'questions.category',
         'questions.answers',
+        'nextMatch',
       ],
     });
 
     return match;
+  }
+
+  async getMatchDataToSend(id: number): Promise<MatchEntity> {
+    const match = await this._matchRepository.findOne({
+      where: { id },
+      relations: [
+        'users',
+        'lastAnswer',
+        'lastAnswer.user',
+        'lastAnswer.question',
+        'lastAnswer.answer',
+        'nextMatch',
+      ],
+    });
+
+    return match;
+  }
+
+  @Transactional()
+  async startNewMatchWithSameOpponent(userPayload: IUserId, matchId: number) {
+    const previousMatch = await this._matchRepository.findOne({
+      where: { id: matchId },
+      relations: ['users', 'nextMatch'],
+    });
+
+    // TODO: Add Conditions
+    // is ended
+    // is not played bot
+    // Check the user access
+
+    const nextMatch = previousMatch.nextMatch;
+    if (nextMatch) {
+      // TODO: Add condition
+      // is next match canceled
+
+      nextMatch.status = MatchStatusType.CATEGORY_CHOOSE;
+      await this._matchRepository.save(nextMatch);
+      const previousMatchData = await this.getMatchDataToSend(previousMatch.id);
+      this._matchGateway.sendMessageToHandlers(previousMatchData);
+    } else {
+      await this._matchRepository.save({
+        previousMatch: { id: previousMatch.id },
+        users: previousMatch.users,
+      });
+
+      const previousMatchData = await this.getMatchDataToSend(previousMatch.id);
+      this._matchGateway.sendMessageToHandlers(previousMatchData);
+    }
+  }
+
+  @Transactional()
+  async cancelRestart(userPayload: IUserId, matchId: number) {
+    const previousMatch = await this._matchRepository.findOne({
+      where: { id: matchId },
+      relations: ['users', 'nextMatch'],
+    });
+
+    // TODO: Add Conditions
+    // is ended
+    // is not played bot
+    // Check the user access
+
+    let nextMatch = previousMatch.nextMatch;
+    if (nextMatch) {
+      nextMatch.status = MatchStatusType.CANCELED;
+      await this._matchRepository.save(nextMatch);
+    } else {
+      nextMatch = await this._matchRepository.save({
+        previousMatch: { id: previousMatch.id },
+        users: previousMatch.users,
+        status: MatchStatusType.CANCELED,
+      });
+    }
+    const previousMatchData = await this.getMatchDataToSend(matchId);
+    this._matchGateway.sendMessageToHandlers(previousMatchData);
   }
 }

@@ -56,7 +56,7 @@ export class MatchController {
   async get(@Param() param: IdDTO): Promise<MatchResponseDTO> {
     console.log(param);
 
-    return await this._matchService.getMatchDataToSend(+param.id);
+    return await this._matchService.findOne(+param.id);
   }
 
   @Post(':id/answer')
@@ -68,6 +68,27 @@ export class MatchController {
     @Body() body: UserAnswerDTO,
   ) {
     await this._matchService.answer(user, +match.id, body);
+
+    return { success: true };
+  }
+
+  @Post(':id/restart')
+  @ApiOperation({ summary: 'Restart match' })
+  @ApiParam({ name: 'id', description: 'Match Id' })
+  async restart(@AuthUser() user: TokenPayloadDTO, @Param() match: IdDTO) {
+    await this._matchService.startNewMatchWithSameOpponent(user, +match.id);
+
+    return { success: true };
+  }
+
+  @Post(':id/cancel')
+  @ApiOperation({ summary: 'Restart match' })
+  @ApiParam({ name: 'id', description: 'Match Id' })
+  async cancelRestart(
+    @AuthUser() user: TokenPayloadDTO,
+    @Param() match: IdDTO,
+  ) {
+    await this._matchService.cancelRestart(user, +match.id);
 
     return { success: true };
   }

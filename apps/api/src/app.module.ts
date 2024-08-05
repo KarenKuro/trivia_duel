@@ -28,6 +28,8 @@ import {
   UserAnswerEntity,
   UserEntity,
 } from '@common/database/entities';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TasksModule } from '@shared/tasks';
 
 const isProductionMode = process.env.NODE_ENV === NodeEnv.production;
 
@@ -41,6 +43,8 @@ const envFilePath = isProductionMode
     CategoriesModule,
     UserModule,
     MatchModule,
+    TasksModule,
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       envFilePath,
       isGlobal: true,

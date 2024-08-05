@@ -14,6 +14,7 @@ import { UserEntity } from './user.entity';
 import { QuestionEntity } from './question.entity';
 import { UserAnswerEntity } from './user-answer.entity';
 import { MatchCategoryEntity } from './match-category.entity';
+import { ApiHideProperty } from '@nestjs/swagger';
 
 @Entity({ name: 'matches' })
 export class MatchEntity extends BaseEntity {
@@ -54,6 +55,14 @@ export class MatchEntity extends BaseEntity {
   @OneToMany(() => MatchCategoryEntity, (categories) => categories.match)
   categories: MatchCategoryEntity[];
 
-  @Column({ default: false })
+  @OneToOne(() => MatchEntity, (match) => match.nextMatch)
+  @ApiHideProperty()
+  previousMatch: MatchEntity;
+
+  @OneToOne(() => MatchEntity, { cascade: true })
+  @JoinColumn({ name: 'next_match_id' })
+  nextMatch: MatchEntity;
+
+  @Column({ default: false, name: 'against_bot' })
   againstBot: boolean;
 }

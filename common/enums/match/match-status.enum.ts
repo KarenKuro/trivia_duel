@@ -3,4 +3,5 @@ export enum MatchStatusType {
   CATEGORY_CHOOSE = 'CATEGORY_CHOOSE',
   IN_PROCESS = 'IN_PROCESS',
   ENDED = 'ENDED',
+  CANCELED = 'CANCELED',
 }

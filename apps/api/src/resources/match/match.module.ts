@@ -14,7 +14,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MatchController } from './match.controller';
 import { UserModule } from '@api-resources/user';
-import { CategoriesModule, CategoriesService } from '@api-resources/categories';
+import { CategoriesModule } from '@api-resources/categories';
 
 @Module({
   imports: [
@@ -40,7 +40,7 @@ import { CategoriesModule, CategoriesService } from '@api-resources/categories';
     ]),
   ],
   controllers: [MatchController],
-  providers: [MatchGateway, MatchService, CategoriesService],
-  exports: [MatchService],
+  providers: [MatchGateway, MatchService],
+  exports: [MatchService, MatchGateway],
 })
 export class MatchModule {}

@@ -31,6 +31,7 @@ import { AuthUserGuard } from '@common/guards';
 import { TokenTypes } from '@common/enums';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UserResponseDTO } from '@admin-resources/user/dto';
+import { Request } from 'express';
 
 @ApiTags('Authentication management')
 @Controller('auth')
@@ -77,25 +78,22 @@ export class AuthController {
     }
   }
 
-  @Get('google')
-  @UseGuards(AuthGuard('google'))
-  @ApiOperation({
-    summary:
-      'This API registers a new user in the database using a Google account. In case of success the request will be redirected to /google/login (See next endpoint)',
-  })
-  async googleLogin() {
-    return HttpStatus.OK;
-  }
+  // @Get('google')
+  // @UseGuards(AuthGuard('google'))
+  // @ApiOperation({
+  //   summary:
+  //     'This API registers a new user in the database using a Google account. In case of success the request will be redirected to /google/login (See next endpoint)',
+  // })
+  // async googleLogin() {
+  //   return HttpStatus.OK;
+  // }
 
   @Get('google/login')
   // @UseGuards(AuthGuard('google'))
-  async googleLoginCallback(@Req() req): Promise<AuthTokensDTO> {
+  async googleLoginCallback(@Req() req: Request): Promise<AuthTokensDTO> {
     try {
-      console.log(req.headers);
-
       // const payload: IGooglePayload = await req.user;
-      const payload = await req.user;
-      const { accessToken } = payload;
+      const accessToken = req.headers.user;
 
       // Use access_token to fetch user profile
       const response = await axios.get(

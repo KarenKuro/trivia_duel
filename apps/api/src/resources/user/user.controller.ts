@@ -42,7 +42,7 @@ export class UserController {
   }
 
   @Post('categories')
-  @ApiOperation({ summary: 'Add categories after user registration ' })
+  @ApiOperation({ summary: 'Add categories after registration ' })
   async addCategoriesAfterRegistration(
     @AuthUser() token: TokenPayloadDTO,
     @Body() body: IdDTO,

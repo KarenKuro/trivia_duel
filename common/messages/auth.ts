@@ -20,4 +20,7 @@ export const AUTH_ERROR_MESSAGES = {
   ADMIN_INVALID_PASSWORD: {
     message: 'err_admin_invalid_password',
   },
+  USER_ARE_BLOCKED: {
+    message: 'err_users_are_blocked',
+  },
 };

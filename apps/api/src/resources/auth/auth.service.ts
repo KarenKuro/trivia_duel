@@ -13,6 +13,9 @@ import {
   ITokenPayload,
   IUser,
 } from '@common/models';
+import { UserStatus } from '@common/enums';
+import { ResponseManager } from '@common/helpers';
+import { ERROR_MESSAGES } from '@common/messages';
 
 @Injectable()
 export class AuthService {
@@ -46,6 +49,11 @@ export class AuthService {
         email: data.email,
       });
     }
+
+    if (user.status === UserStatus.LOCKED) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.USER_ARE_BLOCKED);
+    }
+
     const payload: ITokenPayload = { id: user.id };
 
     const accessToken = await this.createAccessToken(payload);

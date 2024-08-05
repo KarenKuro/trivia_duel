@@ -53,4 +53,7 @@ export class MatchEntity extends BaseEntity {
 
   @OneToMany(() => MatchCategoryEntity, (categories) => categories.match)
   categories: MatchCategoryEntity[];
+
+  @Column({ default: false })
+  againstBot: boolean;
 }

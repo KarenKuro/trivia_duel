@@ -1,5 +1,5 @@
 import { MatchEntity } from '@common/database/entities';
-import { ITokenPayload } from '@common/models';
+import { ITokenPayload, IUser } from '@common/models';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import {
@@ -9,6 +9,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { omit } from 'lodash';
+// import { omit } from 'lodash';
 import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway(3001)
@@ -38,11 +39,9 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const payload = this.jwtService.decode(accessToken) as ITokenPayload;
 
       const userId = payload.id;
-
       console.log('userId', userId);
 
       client.join(userId.toString());
-      // console.log(client);
 
       this.clients.add(client);
 
@@ -66,11 +65,13 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
         match.status,
         match.lastAnswer?.id,
       );
-      let users = [];
+      let users: IUser[] = [];
       users = [...match.users];
 
+      console.log(users);
+
       match = omit(match, ['users']) as MatchEntity;
-      users.forEach((user) => {
+      users.map((user) => {
         this.server.to(user.id.toString()).emit('message', match);
       });
     } catch (e) {

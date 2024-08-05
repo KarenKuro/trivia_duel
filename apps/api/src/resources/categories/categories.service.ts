@@ -9,7 +9,7 @@ import { Transactional } from 'typeorm-transactional';
 import { IBuyCategory } from '@common/models/category/buy-category';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
-import { CurrencyTypes } from '@common/enums';
+import { CurrencyTypes, UserStatus } from '@common/enums';
 
 @Injectable()
 export class CategoriesService {
@@ -107,6 +107,10 @@ export class CategoriesService {
       where: { id: userPayload.id },
       relations: ['categories'],
     });
+
+    if (user.status === UserStatus.LOCKED) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.USER_ARE_BLOCKED);
+    }
 
     const userCategoryExists = user.categories.some(
       (category) => category.id === body.id,

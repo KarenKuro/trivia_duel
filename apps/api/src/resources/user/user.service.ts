@@ -8,6 +8,7 @@ import { IUserId } from '@common/models/common/user-id';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
 import { CategoriesService } from '@api-resources/categories';
+import { UserStatus } from '@common/enums';
 
 @Injectable()
 export class UserService {
@@ -23,6 +24,10 @@ export class UserService {
       where: { id },
       relations: ['categories'],
     });
+
+    if (user.status === UserStatus.LOCKED) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.USER_ARE_BLOCKED);
+    }
 
     return user;
   }

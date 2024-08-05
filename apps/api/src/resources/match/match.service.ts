@@ -89,23 +89,25 @@ export class MatchService {
 
     let newMatch: MatchEntity;
     if (match && match.users.length !== 2) {
-      const users = match.users;
-      users.push(user as UserEntity);
+      // const users = match.users;
+      // users.push(user as UserEntity);
 
-      match.users = users;
+      // match.users = users;
 
+      match.users.push(user as UserEntity);
       const newStatus = MatchStatusType.CATEGORY_CHOOSE;
       match.status = newStatus;
 
       newMatch = await this._matchRepository.save(match);
     } else {
       newMatch = await this._matchRepository.save({
-        users: [user],
+        users: [user as UserEntity],
         matchLevel,
       });
     }
 
-    const newTicketsValue = user.tickets--;
+    const newTicketsValue = --user.tickets;
+
     await this._userService.updateUser(user.id, {
       tickets: newTicketsValue,
     });
@@ -113,7 +115,7 @@ export class MatchService {
     await this._matchGateway.sendMessageToHandlers(newMatch);
 
     return newMatch; //++++++++++++++++++++++++Крон джоб, чтобы юзер не ждал больше 10 секунд
-  }
+  } //крон джоб чтобы каждые 15 минут количество жизней добавлялось
 
   @Transactional()
   async selectCategories(
@@ -269,6 +271,8 @@ export class MatchService {
       throw ResponseManager.buildError(ERROR_MESSAGES.QUESTION_NOT_EXIST);
     }
 
+    // здесь нужно добавить иф на счет question type
+
     if (body.answerId) {
       const answer = question.answers.find((item) => item.id === body.answerId);
       if (!answer) {
@@ -320,8 +324,6 @@ export class MatchService {
         relations: ['user'],
       });
 
-    console.log('questionsLength * usersLength', questionsLength * usersLength);
-    console.log('matchUserAnswersLength', matchUserAnswersLength);
     if (questionsLength * usersLength === matchUserAnswersLength) {
       console.log('MATCH ENDED');
       const [firstUser, secondUser] = match.users;
@@ -329,15 +331,10 @@ export class MatchService {
       const firstUserCorrectAnswersCount = matchUserAnswers.filter(
         (answer) => answer.isCorrect && answer.user.id === firstUser.id,
       ).length;
-      console.log('firstUserCorrectAnswersCount', firstUserCorrectAnswersCount);
 
       const secondUserCorrectAnswersCount = matchUserAnswers.filter(
         (answer) => answer.isCorrect && answer.user.id === secondUser.id,
       ).length;
-      console.log(
-        'secondUserCorrectAnswersCount',
-        secondUserCorrectAnswersCount,
-      );
 
       let winner = null;
 
@@ -346,7 +343,6 @@ export class MatchService {
       } else if (firstUserCorrectAnswersCount < secondUserCorrectAnswersCount) {
         winner = { id: secondUser.id };
       }
-      console.log('winner', winner);
 
       await this._matchRepository.update(match.id, {
         status: MatchStatusType.ENDED,
@@ -359,44 +355,6 @@ export class MatchService {
         winner,
       });
     }
-  }
-
-  async getMatchDataToSend(id: number): Promise<MatchEntity> {
-    const match = await this._matchRepository.findOne({
-      where: {
-        id,
-      },
-      relations: [
-        'users',
-        'lastAnswer',
-        'lastAnswer.user',
-        'lastAnswer.question',
-        'lastAnswer.answer',
-        'users.categories',
-        'questions',
-        'questions.correctAnswer',
-        'questions.answers',
-      ],
-    });
-
-    return match;
-  }
-
-  async findOne(id: number): Promise<MatchEntity> {
-    return this._matchRepository.findOne({
-      where: { id },
-      relations: [
-        'users',
-        'lastAnswer',
-        'lastAnswer.user',
-        'lastAnswer.question',
-        'lastAnswer.answer',
-        'questions',
-        'questions.correctAnswer',
-        'questions.category',
-        'questions.answers',
-      ],
-    });
   }
 
   async getRandomQuestionsByMatch(
@@ -434,5 +392,25 @@ export class MatchService {
     });
 
     return questions;
+  }
+
+  async getMatchDataToSend(id: number): Promise<MatchEntity> {
+    const match = await this._matchRepository.findOne({
+      where: { id },
+      relations: [
+        'users',
+        'lastAnswer',
+        'lastAnswer.user',
+        'lastAnswer.question',
+        'lastAnswer.answer',
+        'users.categories',
+        'questions',
+        'questions.correctAnswer',
+        'questions.category',
+        'questions.answers',
+      ],
+    });
+
+    return match;
   }
 }

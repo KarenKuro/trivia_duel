@@ -68,8 +68,6 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
       let users: IUser[] = [];
       users = [...match.users];
 
-      console.log(users);
-
       match = omit(match, ['users']) as MatchEntity;
       users.map((user) => {
         this.server.to(user.id.toString()).emit('message', match);

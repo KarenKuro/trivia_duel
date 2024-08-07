@@ -3,4 +3,5 @@ export * from './category';
 export * from './question';
 export * from './auth';
 export * from './payment';
+export * from './user';
 export * from './match';

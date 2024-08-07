@@ -49,11 +49,18 @@ export class MatchEntity extends BaseEntity {
   @JoinColumn({ name: 'winner_id' })
   winner: UserEntity;
 
+  @ManyToOne(() => UserEntity)
+  @JoinColumn({ name: 'looser_id' })
+  looser: UserEntity;
+
   @Column({ enum: MatchLevel, default: MatchLevel.BRONZE, type: 'enum' })
   matchLevel: MatchLevel;
 
   @OneToMany(() => MatchCategoryEntity, (categories) => categories.match)
   categories: MatchCategoryEntity[];
+
+  @OneToMany(() => UserAnswerEntity, (answer) => answer.match)
+  userAsnwers: UserAnswerEntity[];
 
   @OneToOne(() => MatchEntity, (match) => match.nextMatch)
   @ApiHideProperty()

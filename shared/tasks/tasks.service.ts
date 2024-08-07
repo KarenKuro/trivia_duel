@@ -43,6 +43,7 @@ export class TasksService {
           match.id,
         );
         this._matchGateway.sendMessageToHandlers(previousMatchData);
+        // Здесь user увидит, что второй отменил переигровку
       }
     });
   }

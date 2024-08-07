@@ -56,7 +56,7 @@ export class MatchService {
   async createOrJoinMatch(userPayload: IUserId): Promise<MatchEntity> {
     const user = await this._userService.findOne(userPayload.id);
 
-    if (user.tickets === 0) {
+    if (user.tickets <= 0) {
       throw ResponseManager.buildError(ERROR_MESSAGES.USER_DONT_HAVE_LIVE);
     }
 
@@ -103,16 +103,10 @@ export class MatchService {
       });
     }
 
-    const newTicketsValue = --user.tickets;
-
-    await this._userService.updateUser(user.id, {
-      tickets: newTicketsValue,
-    });
-
     await this._matchGateway.sendMessageToHandlers(newMatch);
 
     return newMatch; //++++++++++++++++++++++++Крон джоб, чтобы юзер не ждал больше 10 секунд
-  } //крон джоб чтобы каждые 15 минут количество жизней добавлялось
+  }
 
   @Transactional()
   async selectCategories(
@@ -131,7 +125,7 @@ export class MatchService {
       ],
     });
 
-    if (!match) {
+    if (!match || match.status !== MatchStatusType.CATEGORY_CHOOSE) {
       throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_MAKING);
     }
 
@@ -233,6 +227,14 @@ export class MatchService {
       match.status = MatchStatusType.IN_PROCESS;
       await this._matchRepository.save(match);
 
+      for (const user of match.users) {
+        const newTicketsValue = --user.tickets;
+
+        await this._userService.updateUser(user.id, {
+          tickets: newTicketsValue,
+        });
+      }
+
       const matchData = await this.getMatchDataToSend(id);
       this._matchGateway.sendMessageToHandlers(matchData);
     }
@@ -305,7 +307,6 @@ export class MatchService {
       throw ResponseManager.buildError(ERROR_MESSAGES.QUESTION_NOT_EXIST);
     }
 
-    // здесь нужно добавить иф на счет ques
     if (body.answerId) {
       const answer = question.answers.find((item) => item.id === body.answerId);
       if (!answer) {
@@ -378,18 +379,53 @@ export class MatchService {
         (answer) => answer.isCorrect && answer.user.id === secondUser.id,
       ).length;
 
-      let winner = null;
+      let winner: UserEntity = null;
+      let looser: UserEntity = null;
 
       if (firstUserCorrectAnswersCount > secondUserCorrectAnswersCount) {
-        winner = { id: firstUser.id };
+        winner = firstUser;
+        looser = secondUser;
       } else if (firstUserCorrectAnswersCount < secondUserCorrectAnswersCount) {
-        winner = { id: secondUser.id };
+        winner = secondUser;
+        looser = firstUser;
       }
 
       await this._matchRepository.update(match.id, {
         status: MatchStatusType.ENDED,
         winner,
+        looser,
       });
+
+      if (winner) {
+        if (winner.currentWinCount === winner.longestWinCount) {
+          await this._userService.updateUser(winner.id, {
+            longestWinCount() {
+              return 'longest_win_count + 1';
+            },
+          });
+        }
+        await this._userService.updateUser(winner.id, {
+          currentWinCount() {
+            return 'current_win_count + 1';
+          },
+        });
+      }
+
+      if (looser) {
+        await this._userService.updateUser(looser.id, {
+          currentWinCount: 0,
+        });
+      }
+
+      if (!looser && !winner) {
+        await this._userService.updateUser(firstUser.id, {
+          currentWinCount: 0,
+        });
+
+        await this._userService.updateUser(secondUser.id, {
+          currentWinCount: 0,
+        });
+      }
 
       this._matchGateway.sendMessageToHandlers({
         ...matchData,
@@ -397,27 +433,6 @@ export class MatchService {
         winner,
       });
     }
-  }
-
-  async findOne(id: number): Promise<MatchEntity> {
-    const match = await this._matchRepository.findOne({
-      where: { id },
-      relations: [
-        'users',
-        'lastAnswer',
-        'lastAnswer.user',
-        'lastAnswer.question',
-        'lastAnswer.answer',
-        'users.categories',
-        'questions',
-        'questions.correctAnswer',
-        'questions.category',
-        'questions.answers',
-        'nextMatch',
-      ],
-    });
-
-    return match;
   }
 
   async getMatchDataToSend(id: number): Promise<MatchEntity> {
@@ -436,49 +451,120 @@ export class MatchService {
     return match;
   }
 
+  async findOne(userPayload: IUserId, id: number): Promise<MatchEntity> {
+    const match = await this._matchRepository.findOne({
+      where: { id },
+      relations: [
+        'users',
+        'lastAnswer',
+        'lastAnswer.user',
+        'lastAnswer.question',
+        'lastAnswer.answer',
+        'users.categories',
+        'questions',
+        'questions.correctAnswer',
+        'questions.category',
+        'questions.answers',
+        'userAsnwers',
+        'userAsnwers.answer',
+        'userAsnwers.question',
+        'userAsnwers.user',
+        'nextMatch',
+      ],
+    });
+
+    if (!match || !match.users.some((user) => user.id === userPayload.id)) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_ID);
+    }
+
+    return match;
+  }
+
   @Transactional()
   async startNewMatchWithSameOpponent(userPayload: IUserId, matchId: number) {
     const previousMatch = await this._matchRepository.findOne({
       where: { id: matchId },
-      relations: ['users', 'nextMatch'],
+      relations: ['users', 'nextMatch', 'nextMatch.users'],
     });
 
-    // TODO: Add Conditions
-    // is ended
-    // is not played bot
-    // Check the user access
+    if (!previousMatch) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_ID);
+    }
+
+    const user = previousMatch.users.find((user) => user.id === userPayload.id);
+
+    if (!user) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_ID);
+    }
+
+    if (user.tickets <= 0) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.USER_DONT_HAVE_LIVE);
+    }
+
+    if (previousMatch.againstBot) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_MAKING);
+    }
+
+    if (previousMatch.status !== MatchStatusType.ENDED) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.PREVIOS_MATCH_NOT_ENDED);
+    }
 
     const nextMatch = previousMatch.nextMatch;
     if (nextMatch) {
-      // TODO: Add condition
-      // is next match canceled
+      if (nextMatch.status === MatchStatusType.CANCELED) {
+        throw ResponseManager.buildError(ERROR_MESSAGES.NEXT_MATCH_CANCELED);
+      }
 
-      nextMatch.status = MatchStatusType.CATEGORY_CHOOSE;
-      await this._matchRepository.save(nextMatch);
-      const previousMatchData = await this.getMatchDataToSend(previousMatch.id);
-      this._matchGateway.sendMessageToHandlers(previousMatchData);
-    } else {
-      await this._matchRepository.save({
-        previousMatch: { id: previousMatch.id },
-        users: previousMatch.users,
+      nextMatch.users.map((userInNextMatch) => {
+        if (userInNextMatch.id === user.id) {
+          throw ResponseManager.buildError(
+            ERROR_MESSAGES.USER_ALREADY_IN_MATCH,
+          );
+        }
       });
 
-      const previousMatchData = await this.getMatchDataToSend(previousMatch.id);
-      this._matchGateway.sendMessageToHandlers(previousMatchData);
+      if (nextMatch.users.length !== 1) {
+        throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_MAKING);
+      }
+      nextMatch.users.push(user);
+      nextMatch.status = MatchStatusType.CATEGORY_CHOOSE;
+      await this._matchRepository.save(nextMatch);
+    } else {
+      const users: UserEntity[] = [];
+      users.push(user);
+      await this._matchRepository.save({
+        previousMatch: { id: previousMatch.id },
+        users: users,
+        status: MatchStatusType.PENDING,
+      });
     }
+    const previousMatchData = await this.getMatchDataToSend(previousMatch.id);
+    this._matchGateway.sendMessageToHandlers(previousMatchData);
+    // В которой есть инфа о next.match. и если статус category_choose- они переходят в next match ?????
   }
 
   @Transactional()
   async cancelRestart(userPayload: IUserId, matchId: number) {
     const previousMatch = await this._matchRepository.findOne({
-      where: { id: matchId },
+      where: { id: matchId, users: { id: userPayload.id } },
       relations: ['users', 'nextMatch'],
     });
 
-    // TODO: Add Conditions
-    // is ended
-    // is not played bot
-    // Check the user access
+    if (!previousMatch) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_ID);
+    } /// несколько проверак про previous match.
+
+    if (!previousMatch.users.some((user) => user.id === userPayload.id)) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_ID);
+    }
+
+    if (previousMatch.againstBot) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_MAKING);
+    }
+
+    if (previousMatch.status !== MatchStatusType.ENDED) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.PREVIOS_MATCH_NOT_ENDED);
+    }
 
     let nextMatch = previousMatch.nextMatch;
     if (nextMatch) {

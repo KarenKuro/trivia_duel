@@ -41,6 +41,12 @@ export class UserResponseDTO implements IUser {
   tickets: number;
 
   @ApiProperty()
+  longestWinCount: number;
+
+  @ApiProperty()
+  currentWinCount: number;
+
+  @ApiProperty()
   createdAt: Date;
 
   @ApiProperty()

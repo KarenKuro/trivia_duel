@@ -9,6 +9,7 @@ import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
 import { CategoriesService } from '@api-resources/categories';
 import { UserStatus } from '@common/enums';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 @Injectable()
 export class UserService {
@@ -68,7 +69,10 @@ export class UserService {
     return user.categories;
   }
 
-  async updateUser(userId: number, newUserData: Partial<IUser>): Promise<void> {
+  async updateUser(
+    userId: number,
+    newUserData: QueryDeepPartialEntity<IUser>,
+  ): Promise<void> {
     const updatedUser = await this._userRepository.update(userId, newUserData);
     if (updatedUser.affected === 0) {
       throw ResponseManager.buildError(ERROR_MESSAGES.USER_NOT_EXISTS);

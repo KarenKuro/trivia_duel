@@ -55,4 +55,10 @@ export class UserEntity extends BaseEntity {
 
   @Column({ default: 5 })
   tickets: number;
+
+  @Column({ default: 0, name: 'longest_win_count' })
+  longestWinCount: number;
+
+  @Column({ default: 0, name: 'current_win_count' })
+  currentWinCount: number;
 }

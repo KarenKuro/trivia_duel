@@ -18,4 +18,6 @@ export interface IUser {
   createdAt: Date;
   updatedAt: Date;
   matches?: IMatch[];
+  longestWinCount: number;
+  currentWinCount: number;
 }

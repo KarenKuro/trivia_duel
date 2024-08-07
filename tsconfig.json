@@ -17,6 +17,7 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
+    "esModuleInterop": true,
     "paths": {
       "@common/*": ["./common/*"],
       "@api-resources/*": ["apps/api/src/resources/*"],
@@ -24,5 +25,5 @@
       "@shared/*": ["./shared/*"]
     }
   },
-  // "exclude": ["node_modules"]
+  "exclude": ["node_modules"]
 }

@@ -53,10 +53,13 @@ export class MatchController {
   @Get(':id')
   @ApiOperation({ summary: 'Get Match data by Match Id' })
   @ApiParam({ name: 'id', description: 'Match Id' })
-  async get(@Param() param: IdDTO): Promise<MatchResponseDTO> {
+  async get(
+    @Param() param: IdDTO,
+    @AuthUser() user: TokenPayloadDTO,
+  ): Promise<MatchResponseDTO> {
     console.log(param);
 
-    return await this._matchService.findOne(+param.id);
+    return await this._matchService.findOne(user, +param.id); /// user statistic.
   }
 
   @Post(':id/answer')

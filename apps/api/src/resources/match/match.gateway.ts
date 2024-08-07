@@ -1,5 +1,3 @@
-import { MatchEntity } from '@common/database/entities';
-import { ITokenPayload, IUser } from '@common/models';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import {
@@ -9,8 +7,10 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { omit } from 'lodash';
-// import { omit } from 'lodash';
 import { Server, Socket } from 'socket.io';
+
+import { MatchEntity } from '@common/database/entities';
+import { ITokenPayload, IUser } from '@common/models';
 
 @WebSocketGateway(3001)
 export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -25,15 +25,8 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
   server: Server;
 
   async handleConnection(client: Socket) {
-    // let { token: accessToken } = client.handshake.auth;
-    // console.log(client.handshake);
-
-    // if (!accessToken) {
     const accessToken = client.handshake.headers.bearer.toString();
-    // if (accessToken) {
-    //   accessToken = accessToken.split(' ').reverse()[0];
-    // }
-    // }
+
     try {
       await this.jwtService.verify(accessToken);
       const payload = this.jwtService.decode(accessToken) as ITokenPayload;

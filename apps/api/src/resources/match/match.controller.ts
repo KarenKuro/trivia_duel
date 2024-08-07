@@ -1,17 +1,18 @@
-import { AuthUser } from '@common/decorators';
-import { IdDTO, SuccessDTO, TokenPayloadDTO } from '@common/dtos';
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
-import { MatchService } from './match.service';
-import { AuthUserGuard } from '@common/guards';
-import { CategoriesDTO, MatchResponseDTO, UserAnswerDTO } from './dto';
-import { ResponseManager } from '@common/helpers';
-import { ERROR_MESSAGES } from '@common/messages';
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
+
+import { AuthUserGuard } from '@common/guards';
+import { AuthUser } from '@common/decorators';
+import { IdDTO, SuccessDTO, TokenPayloadDTO } from '@common/dtos';
+import { CategoriesDTO, MatchResponseDTO, UserAnswerDTO } from './dto';
+import { ResponseManager } from '@common/helpers';
+import { ERROR_MESSAGES } from '@common/messages';
+import { MatchService } from './match.service';
 
 @Controller('matches')
 @UseGuards(AuthUserGuard())

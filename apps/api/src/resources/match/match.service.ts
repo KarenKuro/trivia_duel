@@ -1,3 +1,8 @@
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { EntityManager, In, Repository } from 'typeorm';
+import { Transactional } from 'typeorm-transactional';
+
 import {
   CategoryEntity,
   MatchCategoryEntity,
@@ -6,10 +11,7 @@ import {
   UserAnswerEntity,
   UserEntity,
 } from '@common/database/entities';
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, In, Repository } from 'typeorm';
-import { MatchGateway } from './match.gateway';
+import { CategoriesService, MatchGateway, UserService } from '..';
 import {
   ICategories,
   ICategory,
@@ -20,13 +22,10 @@ import {
 import { MatchLevel, MatchStatusType, QuestionType } from '@common/enums';
 import { MatchHelpers, ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
-import { UserService } from '@api-resources/user';
 import {
   MATCH_CATEGORIES_MAX_LENGTH,
   MATCH_USER_CATEGORIES_MAX_LENGTH,
 } from '@common/constants';
-import { CategoriesService } from '@api-resources/categories';
-import { Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class MatchService {

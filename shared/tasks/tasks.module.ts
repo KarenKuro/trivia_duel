@@ -1,10 +1,11 @@
-import { MatchEntity } from '@common/database';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TasksService } from './tasks.service';
-import { MatchGateway, MatchModule } from '@api-resources/match';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+
+import { MatchEntity } from '@common/database';
+import { TasksService } from './tasks.service';
+import { MatchGateway, MatchModule } from '@api-resources/match';
 
 @Module({
   imports: [

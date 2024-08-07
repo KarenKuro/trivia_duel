@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
-import { MatchGateway } from './match.gateway';
-import { MatchService } from './match.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+
 import {
   CategoryEntity,
   MatchCategoryEntity,
@@ -10,8 +11,8 @@ import {
   UserAnswerEntity,
   UserEntity,
 } from '@common/database/entities';
-import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MatchService } from './match.service';
+import { MatchGateway } from './match.gateway';
 import { MatchController } from './match.controller';
 import { UserModule } from '@api-resources/user';
 import { CategoriesModule } from '@api-resources/categories';

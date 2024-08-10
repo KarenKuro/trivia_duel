@@ -3,9 +3,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
-import { MatchEntity } from '@common/database';
+import { MatchEntity, UserEntity } from '@common/database';
 import { TasksService } from './tasks.service';
 import { MatchGateway, MatchModule } from '@api-resources/match';
+import { UserModule } from '@api-resources/user';
 
 @Module({
   imports: [
@@ -19,8 +20,9 @@ import { MatchGateway, MatchModule } from '@api-resources/match';
       }),
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([MatchEntity]),
+    TypeOrmModule.forFeature([MatchEntity, UserEntity]),
     MatchModule,
+    UserModule,
   ],
   providers: [TasksService, MatchGateway],
 })

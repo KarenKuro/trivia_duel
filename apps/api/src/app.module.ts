@@ -3,6 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { addTransactionalDataSource } from 'typeorm-transactional';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { API_VALIDATIONS } from '@common/validators';
 import { ENV_CONST } from '@common/constants';
@@ -28,7 +30,6 @@ import {
   UserAnswerEntity,
   UserEntity,
 } from '@common/database/entities';
-import { ScheduleModule } from '@nestjs/schedule';
 import { TasksModule } from '@shared/tasks';
 
 const isProductionMode = process.env.NODE_ENV === NodeEnv.production;
@@ -45,6 +46,7 @@ const envFilePath = isProductionMode
     MatchModule,
     TasksModule,
     ScheduleModule.forRoot(),
+    EventEmitterModule.forRoot(),
     ConfigModule.forRoot({
       envFilePath,
       isGlobal: true,

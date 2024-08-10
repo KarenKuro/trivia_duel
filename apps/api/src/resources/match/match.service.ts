@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, In, Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import {
   CategoryEntity,
@@ -11,7 +12,6 @@ import {
   UserAnswerEntity,
   UserEntity,
 } from '@common/database/entities';
-import { CategoriesService, MatchGateway, UserService } from '..';
 import {
   ICategories,
   ICategory,
@@ -26,6 +26,9 @@ import {
   MATCH_CATEGORIES_MAX_LENGTH,
   MATCH_USER_CATEGORIES_MAX_LENGTH,
 } from '@common/constants';
+import { UserService } from '@api-resources/user';
+import { CategoriesService } from '@api-resources/categories';
+import { MatchGateway } from './match.gateway';
 
 @Injectable()
 export class MatchService {
@@ -49,6 +52,8 @@ export class MatchService {
     private readonly _matchGateway: MatchGateway,
 
     private readonly _entityManager: EntityManager,
+
+    private readonly _eventEmitter: EventEmitter2,
   ) {}
 
   @Transactional()
@@ -101,10 +106,9 @@ export class MatchService {
         matchLevel,
       });
     }
-
     await this._matchGateway.sendMessageToHandlers(newMatch);
 
-    return newMatch; //++++++++++++++++++++++++Крон джоб, чтобы юзер не ждал больше 10 секунд
+    return newMatch; // TODO: Крон джоб, или event чтобы юзер не ждал больше 10 секунд и подключался бот
   }
 
   @Transactional()
@@ -162,6 +166,8 @@ export class MatchService {
     const matchCategoryIds: number[] = match.categories.map(
       (matchCategory) => matchCategory.category.id,
     );
+
+    // TODO: здесь нужно добавить две случайные категории от бота
 
     const hasOpponentChoose = Boolean(match.categories?.length);
 
@@ -287,6 +293,8 @@ export class MatchService {
         'questions.answers',
       ],
     });
+
+    // TODO: написать функцию, если against bot - true
 
     if (!match) {
       throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_ID);
@@ -431,6 +439,8 @@ export class MatchService {
         status: MatchStatusType.ENDED,
         winner,
       });
+
+      this._eventEmitter.emit('task.trigger', match.users);
     }
   }
 
@@ -501,7 +511,9 @@ export class MatchService {
     }
 
     if (previousMatch.againstBot) {
-      throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_MAKING);
+      throw ResponseManager.buildError(
+        ERROR_MESSAGES.PREVIOUS_MATCH_AGAINST_BOT,
+      );
     }
 
     if (previousMatch.status !== MatchStatusType.ENDED) {
@@ -551,7 +563,7 @@ export class MatchService {
 
     if (!previousMatch) {
       throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_ID);
-    } /// несколько проверак про previous match.
+    }
 
     if (!previousMatch.users.some((user) => user.id === userPayload.id)) {
       throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_ID);

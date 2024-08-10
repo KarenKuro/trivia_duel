@@ -145,7 +145,7 @@ export class AuthController {
   // Only for mobile developers. Not use this method in producnion mode
   // Only for mobile developers. Not use this method in producnion mode
   // Only for mobile developers. Not use this method in producnion mode
-
+  // !Only for mobile developers. Not use this method in producnion mode
   @Post('create')
   @ApiOperation({
     summary:
@@ -167,6 +167,7 @@ export class AuthController {
   // Only for mobile developers. Not use this method in producnion mode
   // Only for mobile developers. Not use this method in producnion mode
   // Only for mobile developers. Not use this method in producnion mode
+  // !Only for mobile developers. Not use this method in producnion mode
 
   @Patch('update')
   @ApiOperation({

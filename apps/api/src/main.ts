@@ -15,7 +15,7 @@ import { ResponseManager } from '@common/helpers';
 
 const PORT = process.env.API_PORT;
 
-process.env.TZ = 'Etc/UTC';
+// process.env.TZ = 'Etc/UTC';
 
 async function bootstrap() {
   initializeTransactionalContext();

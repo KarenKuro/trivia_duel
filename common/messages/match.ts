@@ -11,4 +11,7 @@ export const MATCH_ERROR_MESSAGES = {
   NEXT_MATCH_CANCELED: {
     message: 'next_match_canceled',
   },
+  PREVIOUS_MATCH_AGAINST_BOT: {
+    message: 'err_previous_match_against_bot',
+  },
 };

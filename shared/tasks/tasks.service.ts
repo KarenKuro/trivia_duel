@@ -2,13 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LessThan, Repository } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { OnEvent } from '@nestjs/event-emitter';
+import * as schedule from 'node-schedule';
 
 import { MatchEntity, UserEntity } from '@common/database';
 import { MatchStatusType } from '@common/enums';
 import { MatchGateway, MatchService } from '@api-resources/match';
-import { OnEvent } from '@nestjs/event-emitter';
 import { UserService } from '@api-resources/user';
-import * as schedule from 'node-schedule';
 
 @Injectable()
 export class TasksService {
@@ -21,8 +21,7 @@ export class TasksService {
     private readonly _matchGateway: MatchGateway,
   ) {}
 
-  // Чтобы переводить матч в closed,
-  // если противник не согласился на переигровку в течении 10 секунд
+  // To change the match to closed if the opponent does not agree to a replay within 10 seconds
   // TODO: Put EVERY_10_SECONDS
   @Cron(CronExpression.EVERY_10_MINUTES)
   async closeNextMatches() {
@@ -49,12 +48,12 @@ export class TasksService {
           match.id,
         );
         this._matchGateway.sendMessageToHandlers(previousMatchData);
-        // Здесь user увидит, что второй отменил переигровку
+        // Here the user will see that the second one has cancelled the replay
       }
     });
   }
 
-  // Принудительно завершать матчи , если они длятся больше 5 минут
+  // Force matches to end if they last longer than 5 minutes
   // TODO: Put EVERY_10_SECONDS
   @Cron(CronExpression.EVERY_10_MINUTES)
   async endMatches() {
@@ -85,7 +84,7 @@ export class TasksService {
     });
   }
 
-  // Добавлять по одному тикету, через 15 минут после завершения матча
+  // add tiket, after 15 minutes, when match ended
   @OnEvent('task.trigger')
   handleTaskTrigger(users: UserEntity[]) {
     const fifteenMinutesFromNow = new Date(Date.now() + 15 * 60 * 1000);
@@ -96,7 +95,7 @@ export class TasksService {
         let tickets = user.tickets;
         if (tickets < 5) {
           ++tickets;
-          await this._userService.updateUser(user.id, { tickets }); // Обновляем значение tickets в базе данных
+          await this._userService.updateUser(user.id, { tickets }); // update user.tikets in db
         }
       }
     });

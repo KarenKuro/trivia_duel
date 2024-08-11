@@ -283,7 +283,11 @@ export class MatchService {
   }
 
   @Transactional()
-  async answer(userPayload: IUserId, matchId: number, body: IUserAnswer) {
+  async answer(
+    userPayload: IUserId,
+    matchId: number,
+    body: IUserAnswer,
+  ): Promise<void> {
     const match = await this._matchRepository.findOne({
       where: { id: matchId, status: MatchStatusType.IN_PROCESS },
       relations: [
@@ -375,73 +379,82 @@ export class MatchService {
       });
 
     if (questionsLength * usersLength === matchUserAnswersLength) {
-      console.log('MATCH ENDED');
-      const [firstUser, secondUser] = match.users;
+      this.finishingMatchWithRealOpponent(match, matchUserAnswers, matchData);
+    }
+  }
 
-      const firstUserCorrectAnswersCount = matchUserAnswers.filter(
-        (answer) => answer.isCorrect && answer.user.id === firstUser.id,
-      ).length;
+  async finishingMatchWithRealOpponent(
+    match: MatchEntity,
+    matchUserAnswers: UserAnswerEntity[],
+    matchData: MatchEntity,
+  ): Promise<void> {
+    console.log('MATCH ENDED');
+    const [firstUser, secondUser] = match.users;
 
-      const secondUserCorrectAnswersCount = matchUserAnswers.filter(
-        (answer) => answer.isCorrect && answer.user.id === secondUser.id,
-      ).length;
+    const firstUserCorrectAnswersCount = matchUserAnswers.filter(
+      (answer) => answer.isCorrect && answer.user.id === firstUser.id,
+    ).length;
 
-      let winner: UserEntity = null;
-      let looser: UserEntity = null;
+    const secondUserCorrectAnswersCount = matchUserAnswers.filter(
+      (answer) => answer.isCorrect && answer.user.id === secondUser.id,
+    ).length;
 
-      if (firstUserCorrectAnswersCount > secondUserCorrectAnswersCount) {
-        winner = firstUser;
-        looser = secondUser;
-      } else if (firstUserCorrectAnswersCount < secondUserCorrectAnswersCount) {
-        winner = secondUser;
-        looser = firstUser;
-      }
+    let winner: UserEntity = null;
+    let looser: UserEntity = null;
 
-      await this._matchRepository.update(match.id, {
-        status: MatchStatusType.ENDED,
-        winner,
-        looser,
-      });
+    if (firstUserCorrectAnswersCount > secondUserCorrectAnswersCount) {
+      winner = firstUser;
+      looser = secondUser;
+    } else if (firstUserCorrectAnswersCount < secondUserCorrectAnswersCount) {
+      winner = secondUser;
+      looser = firstUser;
+    }
 
-      if (winner) {
-        if (winner.currentWinCount === winner.longestWinCount) {
-          await this._userService.updateUser(winner.id, {
-            longestWinCount() {
-              return 'longest_win_count + 1';
-            },
-          });
-        }
+    await this._matchRepository.update(match.id, {
+      status: MatchStatusType.ENDED,
+      winner,
+      looser,
+    });
+
+    if (winner) {
+      if (winner.currentWinCount === winner.longestWinCount) {
         await this._userService.updateUser(winner.id, {
-          currentWinCount() {
-            return 'current_win_count + 1';
+          longestWinCount() {
+            return 'longest_win_count + 1';
           },
         });
       }
+      await this._userService.updateUser(winner.id, {
+        currentWinCount() {
+          return 'current_win_count + 1';
+        },
+      });
+    }
 
-      if (looser) {
-        await this._userService.updateUser(looser.id, {
-          currentWinCount: 0,
-        });
-      }
+    if (looser) {
+      await this._userService.updateUser(looser.id, {
+        currentWinCount: 0,
+      });
+    }
 
-      if (!looser && !winner) {
-        await this._userService.updateUser(firstUser.id, {
-          currentWinCount: 0,
-        });
-
-        await this._userService.updateUser(secondUser.id, {
-          currentWinCount: 0,
-        });
-      }
-
-      this._matchGateway.sendMessageToHandlers({
-        ...matchData,
-        status: MatchStatusType.ENDED,
-        winner,
+    if (!looser && !winner) {
+      await this._userService.updateUser(firstUser.id, {
+        currentWinCount: 0,
       });
 
-      this._eventEmitter.emit('task.trigger', match.users);
+      await this._userService.updateUser(secondUser.id, {
+        currentWinCount: 0,
+      });
     }
+
+    this._matchGateway.sendMessageToHandlers({
+      ...matchData,
+      status: MatchStatusType.ENDED,
+      winner,
+    });
+
+    // add tiket, after 15 minutes, when match ended
+    this._eventEmitter.emit('task.trigger', match.users);
   }
 
   async getMatchDataToSend(id: number): Promise<MatchEntity> {

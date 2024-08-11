@@ -86,7 +86,7 @@ export class MatchController {
   }
 
   @Post(':id/cancel')
-  @ApiOperation({ summary: 'Restart match' })
+  @ApiOperation({ summary: 'Match restart cancellation' })
   @ApiParam({ name: 'id', description: 'Match Id' })
   async cancelRestart(
     @AuthUser() user: TokenPayloadDTO,

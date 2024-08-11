@@ -1,6 +1,8 @@
 import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Transactional } from 'typeorm-transactional';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 import { CategoryEntity, UserEntity } from '@common/database/entities';
 import { ICategory, IId, IUser } from '@common/models';
@@ -9,7 +11,6 @@ import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
 import { CategoriesService } from '@api-resources/categories';
 import { UserStatus } from '@common/enums';
-import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 @Injectable()
 export class UserService {
@@ -69,6 +70,7 @@ export class UserService {
     return user.categories;
   }
 
+  @Transactional()
   async updateUser(
     userId: number,
     newUserData: QueryDeepPartialEntity<IUser>,

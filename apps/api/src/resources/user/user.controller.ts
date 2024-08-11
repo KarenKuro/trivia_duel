@@ -60,7 +60,7 @@ export class UserController {
   }
 
   @Post('points')
-  @ApiOperation({ summary: 'Add points after game' })
+  @ApiOperation({ summary: 'Add points (experience)' })
   async addPoints(
     @AuthUser() token: TokenPayloadDTO,
     @Body() body: AmountDTO,

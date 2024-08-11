@@ -78,4 +78,11 @@ export class UserService {
       throw ResponseManager.buildError(ERROR_MESSAGES.USER_NOT_EXISTS);
     }
   }
+
+  levelUp(user: IUser): Partial<IUser> {
+    // здесь должна быть логика повышения уровня
+    // TODO level up user;
+    const improvedUserLevel = ++user.level;
+    return { level: improvedUserLevel };
+  }
 }

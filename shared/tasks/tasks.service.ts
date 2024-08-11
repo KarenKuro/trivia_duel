@@ -21,6 +21,8 @@ export class TasksService {
     private readonly _matchGateway: MatchGateway,
   ) {}
 
+  // Чтобы переводить матч в closed,
+  // если противник не согласился на переигровку в течении 10 секунд
   // TODO: Put EVERY_10_SECONDS
   @Cron(CronExpression.EVERY_10_MINUTES)
   async closeNextMatches() {
@@ -52,6 +54,7 @@ export class TasksService {
     });
   }
 
+  // Принудительно завершать матчи , если они длятся больше 5 минут
   // TODO: Put EVERY_10_SECONDS
   @Cron(CronExpression.EVERY_10_MINUTES)
   async endMatches() {
@@ -82,6 +85,7 @@ export class TasksService {
     });
   }
 
+  // Добавлять по одному тикету, через 15 минут после завершения матча
   @OnEvent('task.trigger')
   handleTaskTrigger(users: UserEntity[]) {
     const fifteenMinutesFromNow = new Date(Date.now() + 15 * 60 * 1000);

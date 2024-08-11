@@ -379,14 +379,13 @@ export class MatchService {
       });
 
     if (questionsLength * usersLength === matchUserAnswersLength) {
-      this.finishingMatchWithRealOpponent(match, matchUserAnswers, matchData);
+      this.finishingMatchWithRealOpponent(match, matchUserAnswers);
     }
   }
 
   async finishingMatchWithRealOpponent(
     match: MatchEntity,
     matchUserAnswers: UserAnswerEntity[],
-    matchData: MatchEntity,
   ): Promise<void> {
     console.log('MATCH ENDED');
     const [firstUser, secondUser] = match.users;
@@ -446,6 +445,7 @@ export class MatchService {
         currentWinCount: 0,
       });
     }
+    const matchData = await this.getMatchDataToSend(match.id);
 
     this._matchGateway.sendMessageToHandlers({
       ...matchData,

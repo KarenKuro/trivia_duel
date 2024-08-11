@@ -6,7 +6,7 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-// import { omit } from 'lodash';
+import { omit } from 'lodash';
 import { Server, Socket } from 'socket.io';
 
 import { MatchEntity } from '@common/database/entities';
@@ -61,7 +61,9 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
       let users: IUser[] = [];
       users = [...match.users];
 
-      // match = omit(match, ['users']) as MatchEntity;
+      // TODO не стоит ли добавить сюда хотя бы какую то инфу о юзере? чтобы перед началом матча показать инфу о юзере
+      // или лучше создать отдельный метод, для момента начала матча?
+      match = omit(match, ['users']) as MatchEntity;
       users.map((user) => {
         this.server.to(user.id.toString()).emit('message', match);
       });

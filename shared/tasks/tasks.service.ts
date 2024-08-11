@@ -53,11 +53,11 @@ export class TasksService {
     });
   }
 
-  // Force matches to end if they last longer than 5 minutes
-  // TODO: Put EVERY_10_SECONDS
+  // Force canceled match if the match continious more than 5 minutes
+  // TODO: Put EVERY_10_SECONDS, and change fiveMinutes const
   @Cron(CronExpression.EVERY_10_MINUTES)
   async endMatches() {
-    const fiveMinutes: number = 1000 * 60 * 5;
+    const fiveMinutes: number = 1000 * 60 * 15; //1000 * 60 * 5;
     const fiveMinutesAgo = new Date(Date.now() - fiveMinutes);
 
     const matchesToUpdate = await this._matchRepository
@@ -85,9 +85,10 @@ export class TasksService {
   }
 
   // add tiket, after 15 minutes, when match ended
+  // TODO: change fifteenMinutesFromNow(uncomment: '* 60')
   @OnEvent('task.trigger')
   handleTaskTrigger(users: UserEntity[]) {
-    const fifteenMinutesFromNow = new Date(Date.now() + 15 * 60 * 1000);
+    const fifteenMinutesFromNow = new Date(Date.now() + 15 * 1000); // * 60);
     console.log('event', users);
 
     schedule.scheduleJob(fifteenMinutesFromNow, async () => {

@@ -379,7 +379,7 @@ export class MatchService {
       });
 
     if (questionsLength * usersLength === matchUserAnswersLength) {
-      this.finishingMatchWithRealOpponent(match, matchUserAnswers);
+      await this.finishingMatchWithRealOpponent(match, matchUserAnswers);
     }
   }
 
@@ -452,6 +452,9 @@ export class MatchService {
       status: MatchStatusType.ENDED,
       winner,
     });
+
+    // TODO add user points and levelup
+    // this._userService.addPoints(users, matchData);
 
     // add tiket, after 15 minutes, when match ended
     this._eventEmitter.emit('task.trigger', match.users);

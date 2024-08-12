@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThan, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { OnEvent } from '@nestjs/event-emitter';
 import * as schedule from 'node-schedule';
@@ -25,18 +25,14 @@ export class TasksService {
   // TODO: Put EVERY_10_SECONDS
   @Cron(CronExpression.EVERY_10_MINUTES)
   async closeNextMatches() {
-    const tenSecondsInMs: number = 10000;
-    const tenSecondsAgo = new Date(Date.now() - tenSecondsInMs);
-
-    const matches = await this._matchRepository.find({
-      where: {
-        nextMatch: {
-          createdAt: LessThan(tenSecondsAgo),
-          status: MatchStatusType.PENDING,
-        },
-      },
-      relations: ['nextMatch'],
-    });
+    const matches = await this._matchRepository
+      .createQueryBuilder('match')
+      .leftJoinAndSelect('match.nextMatch', 'nextMatch')
+      .where('nextMatch.createdAt < DATE_SUB(now(), INTERVAL 10 SECOND)')
+      .andWhere('nextMatch.status = :status', {
+        status: MatchStatusType.PENDING,
+      })
+      .getMany();
 
     matches.map(async (match) => {
       if (match.nextMatch) {
@@ -57,12 +53,9 @@ export class TasksService {
   // TODO: Put EVERY_10_SECONDS, and change fiveMinutes const
   @Cron(CronExpression.EVERY_10_MINUTES)
   async endMatches() {
-    const fiveMinutes: number = 1000 * 60 * 15; //1000 * 60 * 5;
-    const fiveMinutesAgo = new Date(Date.now() - fiveMinutes);
-
     const matchesToUpdate = await this._matchRepository
       .createQueryBuilder('match')
-      .where('match.createdAt < :fiveMinutesAgo', { fiveMinutesAgo })
+      .where('match.createdAt < DATE_SUB(now(), INTERVAL 5 MINUTE)')
       .andWhere('match.status IN (:...statuses)', {
         statuses: [
           MatchStatusType.PENDING,

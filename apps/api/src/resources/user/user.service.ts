@@ -81,10 +81,12 @@ export class UserService {
     }
   }
 
-  levelUp(user: IUser): Partial<IUser> {
-    // здесь должна быть логика повышения уровня
-    // TODO level up user;
-    const improvedUserLevel = ++user.level;
-    return { level: improvedUserLevel };
-  }
+  // @Transactional()
+  // async addPoints(users: IUser[], matchData: IMatch): Promise<void> {
+  //   // TODO add points and if need level up;
+  //   //
+  //   //
+  //   // level: newLevel
+  //   // await this.updateUser(user.id, { points });
+  // }
 }

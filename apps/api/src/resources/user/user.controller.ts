@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { UserService } from './user.service';
 import { AuthUser } from '@common/decorators';
-import { AmountDTO, IdDTO, TokenPayloadDTO } from '@common/dtos';
+import { IdDTO, TokenPayloadDTO } from '@common/dtos';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
 import { AuthUserGuard } from '@common/guards';
@@ -57,22 +57,5 @@ export class UserController {
     }
 
     return categories;
-  }
-
-  @Post('points')
-  @ApiOperation({ summary: 'Add points (experience)' })
-  async addPoints(
-    @AuthUser() token: TokenPayloadDTO,
-    @Body() body: AmountDTO,
-  ): Promise<UserResponseDTO> {
-    const user = await this._userService.findOne(token.id);
-    const newLevel = this._userService.levelUp(user);
-    const newPoints = user.points + body.amount;
-    await this._userService.updateUser(token.id, {
-      points: newPoints,
-      level: newLevel.level,
-    });
-
-    return { ...user, points: newPoints, level: newLevel.level };
   }
 }

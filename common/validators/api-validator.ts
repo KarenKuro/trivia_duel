@@ -18,4 +18,5 @@ export const API_VALIDATIONS = Joi.object({
   DB_SYNC: Joi.boolean().default(false),
   JWT_SECRET: Joi.string().required(),
   JWT_EXPIRES_IN: Joi.string().required(),
+  // REDIS_URL: Joi.string().required(),
 });

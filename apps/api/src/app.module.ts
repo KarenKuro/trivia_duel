@@ -17,6 +17,7 @@ import {
   facebookConfig,
   googleConfig,
   jwtConfig,
+  // redisConfig,
 } from '@common/config';
 import {
   AuthModule,
@@ -58,6 +59,7 @@ const envFilePath = isProductionMode
         facebookConfig,
         jwtConfig,
         googleConfig,
+        // redisConfig,
       ],
     }),
     TypeOrmModule.forRootAsync({

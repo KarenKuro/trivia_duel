@@ -2,7 +2,7 @@ import { Column, Entity, ManyToMany, OneToMany } from 'typeorm';
 import { BaseEntity } from '../base';
 import { QuestionEntity } from './question.entity';
 import { UserEntity } from './user.entity';
-import { TranslatedCategoryEntity } from './translated-category';
+import { TranslatedCategoryEntity } from './translated-category.entity';
 
 @Entity({ name: 'categories' })
 export class CategoryEntity extends BaseEntity {

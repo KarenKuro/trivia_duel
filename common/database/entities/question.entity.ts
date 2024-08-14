@@ -11,6 +11,7 @@ import { BaseEntity } from '../base';
 import { QuestionType } from '@common/enums';
 import { AnswerEntity } from './answer.entity';
 import { CategoryEntity } from './category.entity';
+import { TranslatedQuestionEntity } from './translated-question.entity';
 
 @Entity({ name: 'questions' })
 export class QuestionEntity extends BaseEntity {
@@ -38,4 +39,10 @@ export class QuestionEntity extends BaseEntity {
   })
   @JoinColumn({ name: 'category_id' })
   category: CategoryEntity;
+
+  @OneToMany(
+    () => TranslatedQuestionEntity,
+    (translatedQuestion) => translatedQuestion.question,
+  )
+  translatedQuestions: TranslatedQuestionEntity[];
 }

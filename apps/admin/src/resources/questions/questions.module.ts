@@ -8,16 +8,27 @@ import { QuestionsController } from './questions.controller';
 import {
   AnswerEntity,
   CategoryEntity,
+  LanguageEntity,
   QuestionEntity,
+  TranslatedAnswerEntity,
+  TranslatedQuestionEntity,
 } from '@common/database/entities';
 import { AnswersModule } from '@admin-resources/answers';
 import { CategoriesModule } from '@admin-resources/categories';
+import { LanguagesService } from '@admin-resources/languages';
 
 @Module({
   imports: [
     AnswersModule,
     CategoriesModule,
-    TypeOrmModule.forFeature([CategoryEntity, QuestionEntity, AnswerEntity]),
+    TypeOrmModule.forFeature([
+      CategoryEntity,
+      QuestionEntity,
+      AnswerEntity,
+      LanguageEntity,
+      TranslatedQuestionEntity,
+      TranslatedAnswerEntity,
+    ]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -30,7 +41,7 @@ import { CategoriesModule } from '@admin-resources/categories';
     }),
   ],
   controllers: [QuestionsController],
-  providers: [QuestionsService],
+  providers: [QuestionsService, LanguagesService],
   exports: [QuestionsService],
 })
 export class QuestionsModule {}

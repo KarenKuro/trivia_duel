@@ -1,7 +1,8 @@
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 
 import { BaseEntity } from '../base';
 import { QuestionEntity } from './question.entity';
+import { TranslatedAnswerEntity } from './translated-answer.entity';
 
 @Entity({ name: 'answers' })
 export class AnswerEntity extends BaseEntity {
@@ -12,4 +13,10 @@ export class AnswerEntity extends BaseEntity {
     onDelete: 'CASCADE',
   })
   question: QuestionEntity;
+
+  @OneToMany(
+    () => TranslatedAnswerEntity,
+    (translatedAnswer) => translatedAnswer.answer,
+  )
+  translatedAnswers: TranslatedAnswerEntity[];
 }

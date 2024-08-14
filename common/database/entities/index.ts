@@ -6,5 +6,7 @@ export * from './question.entity';
 export * from './match.entity';
 export * from './user-answer.entity';
 export * from './match-category.entity';
-export * from './translated-category';
 export * from './language.entity';
+export * from './translated-category.entity';
+export * from './translated-question.entity';
+export * from './translated-answer.entity';

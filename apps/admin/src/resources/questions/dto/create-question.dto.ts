@@ -3,6 +3,7 @@ import { QuestionType } from '@common/enums';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   ArrayMaxSize,
+  ArrayMinSize,
   ArrayUnique,
   IsArray,
   IsEnum,
@@ -18,6 +19,7 @@ export class CreateQuestionDto {
   question: string;
 
   @ArrayMaxSize(4)
+  @ArrayMinSize(4)
   @ArrayUnique()
   @IsString({ each: true })
   @IsArray()

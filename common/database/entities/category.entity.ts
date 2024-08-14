@@ -2,6 +2,7 @@ import { Column, Entity, ManyToMany, OneToMany } from 'typeorm';
 import { BaseEntity } from '../base';
 import { QuestionEntity } from './question.entity';
 import { UserEntity } from './user.entity';
+import { TranslatedCategoryEntity } from './translated-category';
 
 @Entity({ name: 'categories' })
 export class CategoryEntity extends BaseEntity {
@@ -25,6 +26,11 @@ export class CategoryEntity extends BaseEntity {
   @ManyToMany(() => UserEntity, (user) => user.categories)
   users: UserEntity[];
 
-  // @Column()
   isActive?: boolean;
+
+  @OneToMany(
+    () => TranslatedCategoryEntity,
+    (translatedCategory) => translatedCategory.category,
+  )
+  translatedCategories: TranslatedCategoryEntity[];
 }

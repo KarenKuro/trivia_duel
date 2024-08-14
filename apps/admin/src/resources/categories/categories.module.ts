@@ -8,12 +8,21 @@ import { CategoriesController } from './categories.controller';
 import {
   AnswerEntity,
   CategoryEntity,
+  LanguageEntity,
   QuestionEntity,
+  TranslatedCategoryEntity,
 } from '@common/database/entities';
+import { LanguagesService } from '@admin-resources/languages';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([CategoryEntity, QuestionEntity, AnswerEntity]),
+    TypeOrmModule.forFeature([
+      CategoryEntity,
+      QuestionEntity,
+      AnswerEntity,
+      TranslatedCategoryEntity,
+      LanguageEntity,
+    ]),
 
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -27,7 +36,7 @@ import {
     }),
   ],
   controllers: [CategoriesController],
-  providers: [CategoriesService],
+  providers: [CategoriesService, LanguagesService],
   exports: [CategoriesService],
 })
 export class CategoriesModule {}

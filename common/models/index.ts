@@ -11,3 +11,5 @@ export * from './category';
 export * from './question';
 export * from './user';
 export * from './match';
+export * from './language';
+export * from './translated-category';

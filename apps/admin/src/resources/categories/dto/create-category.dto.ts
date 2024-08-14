@@ -1,6 +1,16 @@
 import { ICreateCategory } from '@common/models';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  ArrayUnique,
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+import { TranslatedCategoryDTO } from './translated-category.dto';
 
 export class CreateCategoryDTO implements ICreateCategory {
   @IsNotEmpty()
@@ -22,4 +32,12 @@ export class CreateCategoryDTO implements ICreateCategory {
   // @IsOptional()
   // @ApiProperty()
   // isExclusive?: boolean;
+
+  @IsNotEmpty()
+  @ArrayMaxSize(2)
+  @ArrayMinSize(2)
+  @IsArray()
+  @ArrayUnique()
+  @ApiProperty()
+  translatedCategory: TranslatedCategoryDTO[];
 }

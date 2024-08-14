@@ -1,3 +1,5 @@
+import { ITranslatedCategory } from '../translated-category';
+
 export interface ICategory {
   id: number;
   name: string;
@@ -7,4 +9,5 @@ export interface ICategory {
   createdAt: Date;
   updatedAt: Date;
   isActive?: boolean;
+  translatedCategories: ITranslatedCategory[];
 }

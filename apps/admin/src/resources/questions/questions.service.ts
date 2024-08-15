@@ -12,11 +12,18 @@ import {
   IQuestion,
   IUpdateQuestion,
 } from '@common/models';
-import { AnswerEntity, QuestionEntity } from '@common/database/entities';
+import {
+  AnswerEntity,
+  LanguageEntity,
+  QuestionEntity,
+  TranslatedAnswerEntity,
+  TranslatedQuestionEntity,
+} from '@common/database/entities';
 import { AnswersService } from '@admin-resources/answers';
 import { QuestionType } from '@common/enums';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
+import { LanguagesService } from '@admin-resources/languages';
 
 @Injectable()
 export class QuestionsService {
@@ -25,6 +32,14 @@ export class QuestionsService {
 
     @InjectRepository(QuestionEntity)
     private readonly _questionRepository: Repository<QuestionEntity>,
+
+    @InjectRepository(TranslatedQuestionEntity)
+    private readonly _translatedQuestionRepository: Repository<TranslatedQuestionEntity>,
+
+    @InjectRepository(TranslatedAnswerEntity)
+    private readonly _translatedAnswersRepository: Repository<TranslatedAnswerEntity>,
+
+    private readonly _languagesService: LanguagesService,
   ) {}
 
   @Transactional()
@@ -35,17 +50,56 @@ export class QuestionsService {
       category: { id: body.categoryId },
     });
 
-    for (const answer of body.answers) {
-      const validatedAnswer = answer.trim();
+    const languages = await this._languagesService.findAll();
+    const languagesIds = languages.map((language) => language.id);
+
+    if (languages.length !== body.translatedQuestion.length) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.LANGUAGE_MISSING);
+    }
+
+    const translatedQuestions = body.translatedQuestion.map(
+      (translatedQuestion) => {
+        if (!languagesIds.includes(translatedQuestion.languageId)) {
+          throw ResponseManager.buildError(ERROR_MESSAGES.LANGUAGE_NOT_EXIST);
+        }
+
+        return this._translatedQuestionRepository.create({
+          translatedQuestion: translatedQuestion.translatedQuestion,
+          question: { id: question.id } as QuestionEntity,
+          language: { id: translatedQuestion.languageId } as LanguageEntity,
+        });
+      },
+    );
+    await this._translatedQuestionRepository.save(translatedQuestions);
+
+    for (const answerData of body.answers) {
+      const validatedAnswer = answerData.text.trim();
 
       const newAnswer = await this._answerService.create({
         value: validatedAnswer,
-        question: {
-          id: question.id,
-        } as QuestionEntity,
+        question: { id: question.id } as QuestionEntity,
       });
+
+      const translatedAnswers = answerData.translatedAnswers.map(
+        (translatedAnswer) => {
+          if (!languagesIds.includes(translatedAnswer.languageId)) {
+            throw ResponseManager.buildError(ERROR_MESSAGES.LANGUAGE_NOT_EXIST);
+          }
+
+          return this._translatedAnswersRepository.create({
+            translatedAnswer: translatedAnswer.translatedAnswer,
+            answer: { id: newAnswer.id } as AnswerEntity,
+            language: {
+              id: translatedAnswer.languageId,
+            } as LanguageEntity,
+          });
+        },
+      );
+
+      await this._translatedAnswersRepository.save(translatedAnswers);
+
       if (
-        answer === body.correctAnswer.trim() ||
+        validatedAnswer === body.correctAnswer.trim() ||
         body.type === QuestionType.SINGLE
       ) {
         newAnswer.value = newAnswer.value.trim();
@@ -60,7 +114,14 @@ export class QuestionsService {
   async findAll(pagination: IPagination): Promise<IQuestion[]> {
     const { offset, limit } = pagination;
     const questions = await this._questionRepository.find({
-      relations: ['answers', 'correctAnswer'],
+      relations: [
+        'answers',
+        'correctAnswer',
+        'translatedQuestions',
+        'translatedQuestions.question',
+        'answers.translatedAnswers',
+        'answers.translatedAnswers.answer',
+      ],
       skip: +offset,
       take: +limit,
     });

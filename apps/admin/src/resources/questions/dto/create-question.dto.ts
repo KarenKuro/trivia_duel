@@ -1,4 +1,4 @@
-import { ValidateIsInclude } from '@common/decorators';
+import { ValidateIsAnswerIncluded } from '@common/decorators';
 import { QuestionType } from '@common/enums';
 import { ApiProperty } from '@nestjs/swagger';
 import {
@@ -11,6 +11,9 @@ import {
   IsNumber,
   IsString,
 } from 'class-validator';
+import { TranslatedQuestionDTO } from './translated-question.dto';
+import { CreateAnswerDTO } from './create-answer.dto';
+import { ValidateIsAnswersUnique } from '@common/decorators/is-answers-unique.decorator';
 
 export class CreateQuestionDto {
   @IsString()
@@ -19,18 +22,17 @@ export class CreateQuestionDto {
   question: string;
 
   @ArrayMaxSize(4)
-  @ArrayMinSize(4)
-  @ArrayUnique()
-  @IsString({ each: true })
+  @ArrayMinSize(1)
+  @ValidateIsAnswersUnique()
   @IsArray()
+  @ArrayUnique()
   @IsNotEmpty()
   @ApiProperty()
-  answers: string[];
+  answers: CreateAnswerDTO[];
 
-  @ValidateIsInclude({
-    context: 'answers',
-  })
+  @ValidateIsAnswerIncluded()
   @IsString()
+  @IsNotEmpty()
   @ApiProperty()
   correctAnswer: string;
 
@@ -43,4 +45,10 @@ export class CreateQuestionDto {
   @IsNotEmpty()
   @ApiProperty()
   categoryId: number;
+
+  @IsNotEmpty()
+  @IsArray()
+  @ArrayUnique()
+  @ApiProperty()
+  translatedQuestion: TranslatedQuestionDTO[];
 }

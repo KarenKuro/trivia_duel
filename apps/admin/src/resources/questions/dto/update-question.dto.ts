@@ -40,6 +40,4 @@ export class AnswerDTO {
   @IsString()
   @ApiProperty()
   value: string;
-
-  // question: QuestionResponseDTO;
 }

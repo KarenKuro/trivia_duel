@@ -1,7 +1,7 @@
 import { IQuestion } from './question';
 
 export interface IUpdateQuestion {
-  question: string;
+  question?: string;
   answers?: IAnswer[];
   correctAnswerId?: number;
   categoryId?: number;

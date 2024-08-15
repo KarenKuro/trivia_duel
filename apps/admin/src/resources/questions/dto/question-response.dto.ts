@@ -1,6 +1,7 @@
 import { QuestionType } from '@common/enums';
 import { ApiProperty } from '@nestjs/swagger';
-import { AnswerDTO } from './update-question.dto';
+import { AnswerDTO, CorrectAnswerDTO } from './update-question.dto';
+import { TranslatedQuestionResponseDTO } from './translated-question-response.dto';
 
 export class QuestionResponseDTO {
   @ApiProperty()
@@ -12,8 +13,8 @@ export class QuestionResponseDTO {
   @ApiProperty({ type: () => AnswerDTO, isArray: true })
   answers: AnswerDTO[];
 
-  @ApiProperty({ type: () => AnswerDTO })
-  correctAnswer: AnswerDTO;
+  @ApiProperty({ type: () => CorrectAnswerDTO })
+  correctAnswer: CorrectAnswerDTO;
 
   @ApiProperty()
   type: QuestionType;
@@ -26,4 +27,7 @@ export class QuestionResponseDTO {
 
   @ApiProperty()
   updatedAt: Date;
+
+  @ApiProperty({ type: () => TranslatedQuestionResponseDTO, isArray: true })
+  translatedQuestions?: TranslatedQuestionResponseDTO[];
 }

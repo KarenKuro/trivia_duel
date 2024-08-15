@@ -113,14 +113,14 @@ export class QuestionsService {
 
   async findAll(pagination: IPagination): Promise<IQuestion[]> {
     const { offset, limit } = pagination;
+
     const questions = await this._questionRepository.find({
       relations: [
         'answers',
         'correctAnswer',
+        'category',
         'translatedQuestions',
-        'translatedQuestions.question',
         'answers.translatedAnswers',
-        'answers.translatedAnswers.answer',
       ],
       skip: +offset,
       take: +limit,
@@ -132,7 +132,13 @@ export class QuestionsService {
   async findOne(param: Partial<IQuestion>): Promise<IQuestion> {
     const question = await this._questionRepository.findOne({
       where: param,
-      relations: ['answers', 'correctAnswer', 'category'],
+      relations: [
+        'answers',
+        'correctAnswer',
+        'category',
+        'translatedQuestions',
+        'answers.translatedAnswers',
+      ],
     });
     return question;
   }
@@ -140,7 +146,13 @@ export class QuestionsService {
   async findAllByCategory(param: Partial<ICategory>): Promise<IQuestion[]> {
     const questions = await this._questionRepository.find({
       where: { category: param },
-      relations: ['answers', 'correctAnswer'],
+      relations: [
+        'answers',
+        'correctAnswer',
+        'category',
+        'translatedQuestions',
+        'answers.translatedAnswers',
+      ],
     });
 
     return questions;

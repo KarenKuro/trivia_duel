@@ -3,7 +3,7 @@ import { ILanguage } from '../language';
 
 export interface ITranslatedCategory {
   id: number;
-  translatedName: string;
+  text: string;
   category: ICategory;
   language: ILanguage;
   createdAt: Date;

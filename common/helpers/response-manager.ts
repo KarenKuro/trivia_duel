@@ -24,6 +24,14 @@ export class ResponseManager {
     const errorResponse: IValidationErrors[] = [];
 
     for (const e of errors) {
+      if (e.children) {
+        errorResponse.push(
+          ...ResponseManager.validationHandler(
+            e.children,
+            `${parentProp}${e.property?.toLowerCase()}`,
+          ),
+        );
+      }
       if (e.constraints) {
         const constrainKeys = Object.keys(e.constraints);
         for (const item of constrainKeys) {

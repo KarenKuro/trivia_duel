@@ -6,7 +6,7 @@ import { QuestionEntity } from './question.entity';
 @Entity({ name: 'translated_question' })
 export class TranslatedQuestionEntity extends BaseEntity {
   @Column()
-  translatedQuestion: string;
+  text: string;
 
   @ManyToOne(() => QuestionEntity, (question) => question.translatedQuestions, {
     onDelete: 'CASCADE',

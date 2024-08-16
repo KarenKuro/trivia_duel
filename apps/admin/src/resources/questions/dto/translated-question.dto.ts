@@ -10,5 +10,5 @@ export class TranslatedQuestionDTO {
   @IsNotEmpty()
   @IsString()
   @ApiProperty()
-  translatedQuestion: string;
+  text: string;
 }

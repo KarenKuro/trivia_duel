@@ -9,14 +9,16 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  ValidateNested,
 } from 'class-validator';
 import { TranslatedCategoryDTO } from './translated-category.dto';
+import { Type } from 'class-transformer';
 
 export class CreateCategoryDTO implements ICreateCategory {
   @IsNotEmpty()
   @IsString()
   @ApiProperty()
-  name: string;
+  text: string;
 
   @IsNumber()
   @IsOptional()
@@ -39,5 +41,7 @@ export class CreateCategoryDTO implements ICreateCategory {
   @IsArray()
   @ArrayUnique()
   @ApiProperty()
-  translatedCategory: TranslatedCategoryDTO[];
+  @ValidateNested({ each: true })
+  @Type(() => TranslatedCategoryDTO)
+  translatedCategories: TranslatedCategoryDTO[];
 }

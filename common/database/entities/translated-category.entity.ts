@@ -6,7 +6,7 @@ import { LanguageEntity } from './language.entity';
 @Entity({ name: 'translated_category' })
 export class TranslatedCategoryEntity extends BaseEntity {
   @Column()
-  translatedName: string;
+  text: string;
 
   @ManyToOne(
     () => CategoryEntity,

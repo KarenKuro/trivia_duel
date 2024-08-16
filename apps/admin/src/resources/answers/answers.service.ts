@@ -22,10 +22,10 @@ export class AnswersService {
     return { success: true };
   }
 
-  async findOne(param: number): Promise<IAnswer> {
+  async findOne(param: number): Promise<AnswerEntity> {
     const answer = await this._answerRepository.findOne({
       where: { id: param },
-      relations: ['question'],
+      relations: ['question', 'translatedAnswers'],
     });
     return answer;
   }

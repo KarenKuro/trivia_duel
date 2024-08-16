@@ -45,7 +45,7 @@ export class CategoriesController {
   })
   async create(@Body() body: CreateCategoryDTO): Promise<CategoryResponseDTO> {
     const existCategory = await this._categoriesService.findOne({
-      name: body.name,
+      text: body.text,
     });
 
     if (existCategory) {
@@ -105,9 +105,9 @@ export class CategoriesController {
       throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORY_NOT_EXIST);
     }
 
-    if (body.name) {
+    if (body.text) {
       const existCategory = await this._categoriesService.findOne({
-        name: body.name,
+        text: body.text,
       });
       if (existCategory && existCategory.id !== category.id) {
         throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORY_ALREADY_EXIST);

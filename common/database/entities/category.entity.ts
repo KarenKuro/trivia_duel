@@ -7,7 +7,7 @@ import { TranslatedCategoryEntity } from './translated-category.entity';
 @Entity({ name: 'categories' })
 export class CategoryEntity extends BaseEntity {
   @Column({ unique: true })
-  name: string;
+  text: string;
 
   @Column({ default: 0 })
   price: number;

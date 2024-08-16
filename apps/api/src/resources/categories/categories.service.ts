@@ -39,7 +39,7 @@ export class CategoriesService {
 
     return allCategories.map((category) => ({
       id: category.category_id,
-      name: category.category_name,
+      text: category.category_text,
       price: category.category_price,
       premiumPrice: category.category_premiumPrice,
       createdAt: category.category_created_at,

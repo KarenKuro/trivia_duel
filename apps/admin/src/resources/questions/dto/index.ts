@@ -6,3 +6,5 @@ export * from './translated-answer-response.dto';
 export * from './translated-answers.dto';
 export * from './translated-question-response.dto';
 export * from './translated-question.dto';
+export * from './correct-answer.dto';
+export * from './answer.dto';

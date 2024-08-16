@@ -7,7 +7,7 @@ export class TranslatedCategoryResponseDTO {
   id: number;
 
   @ApiProperty()
-  translatedName: string;
+  text: string;
 
   @ApiProperty()
   category: CategoryResponseDTO;

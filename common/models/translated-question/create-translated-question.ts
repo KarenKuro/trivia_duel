@@ -1,4 +1,4 @@
 export interface ICreateTranslatedQuestion {
   languageId: number;
-  translatedQuestion: string;
+  text: string;
 }

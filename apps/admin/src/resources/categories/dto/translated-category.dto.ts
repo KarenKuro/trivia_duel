@@ -10,5 +10,5 @@ export class TranslatedCategoryDTO {
   @IsNotEmpty()
   @IsString()
   @ApiProperty()
-  translatedName: string;
+  text: string;
 }

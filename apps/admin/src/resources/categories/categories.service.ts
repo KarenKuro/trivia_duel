@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
+import { omit } from 'lodash';
 
 import {
   CategoryEntity,
@@ -13,6 +14,7 @@ import {
   ICreateCategory,
   IMessageSuccess,
   IPagination,
+  IUpdateCategory,
 } from '@common/models';
 import { LanguagesService } from '@admin-resources/languages';
 import { ResponseManager } from '@common/helpers';
@@ -33,7 +35,7 @@ export class CategoriesService {
   @Transactional()
   async create(body: ICreateCategory): Promise<ICategory> {
     const category = (await this._categoryRepository.save({
-      name: body.name,
+      text: body.text,
       premiumPrice: body.premiumPrice,
       price: body.price,
     })) as CategoryEntity;
@@ -42,13 +44,13 @@ export class CategoriesService {
     const languagesIds = languages.map((language) => language.id);
 
     const translatedCategories: TranslatedCategoryEntity[] = await Promise.all(
-      body.translatedCategory.map((translatedCategory) => {
+      body.translatedCategories.map((translatedCategory) => {
         if (!languagesIds.includes(translatedCategory.languageId)) {
           throw ResponseManager.buildError(ERROR_MESSAGES.LANGUAGE_NOT_EXIST);
         }
 
         return this._translatedCategoryRepository.save({
-          translatedName: translatedCategory.translatedName,
+          text: translatedCategory.text,
           category: { id: category.id } as CategoryEntity,
           language: { id: translatedCategory.languageId } as LanguageEntity,
         });
@@ -57,13 +59,13 @@ export class CategoriesService {
 
     return { ...category, translatedCategories };
   }
-
+  // TODO возвращать entity
   async findAll(pagination: IPagination): Promise<ICategory[]> {
     const { offset, limit } = pagination;
     const categories = await this._categoryRepository.find({
       skip: +offset,
       take: +limit,
-      relations: ['translatedCategories'],
+      relations: ['translatedCategories', 'translatedCategories.language'],
     });
 
     return categories;
@@ -72,7 +74,7 @@ export class CategoriesService {
   async findOne(param: Partial<ICategory>): Promise<ICategory> {
     const category = await this._categoryRepository.findOne({
       where: param,
-      relations: ['translatedCategories'],
+      relations: ['translatedCategories', 'translatedCategories.language'],
     });
 
     return category;
@@ -81,9 +83,29 @@ export class CategoriesService {
   @Transactional()
   async update(
     category: ICategory,
-    body: Partial<ICreateCategory>,
+    body: Partial<IUpdateCategory>,
   ): Promise<IMessageSuccess> {
-    await this._categoryRepository.update(category.id, body);
+    if (body.translatedCategories) {
+      const categoryData = await this.findOne({ id: category.id });
+      const translatedIds = categoryData.translatedCategories.map((e) => e.id);
+      for (const translatedCategory of body.translatedCategories) {
+        if (!translatedIds.includes(translatedCategory.id)) {
+          throw ResponseManager.buildError(
+            ERROR_MESSAGES.TRANSLATED_CATEGORY_NOT_EXIST,
+          );
+        }
+
+        await this._translatedCategoryRepository.update(
+          translatedCategory.id,
+          translatedCategory,
+        );
+      }
+    }
+
+    await this._categoryRepository.update(
+      category.id,
+      omit(body, ['translatedCategories']),
+    );
 
     return { success: true };
   }

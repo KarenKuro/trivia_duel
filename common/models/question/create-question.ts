@@ -3,7 +3,7 @@ import { ICreateTranslatedQuestion } from '../translated-question';
 import { ICreateAnswer } from './create-answer';
 
 export interface ICreateQuestion {
-  question: string;
+  text: string;
   answers: ICreateAnswer[];
   correctAnswer: string;
   type: QuestionType;

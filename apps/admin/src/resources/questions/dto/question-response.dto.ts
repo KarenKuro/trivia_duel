@@ -1,14 +1,13 @@
 import { QuestionType } from '@common/enums';
 import { ApiProperty } from '@nestjs/swagger';
-import { AnswerDTO, CorrectAnswerDTO } from './update-question.dto';
-import { TranslatedQuestionResponseDTO } from './translated-question-response.dto';
+import { AnswerDTO, CorrectAnswerDTO, TranslatedQuestionResponseDTO } from './';
 
 export class QuestionResponseDTO {
   @ApiProperty()
   id: number;
 
   @ApiProperty()
-  question: string;
+  text: string;
 
   @ApiProperty({ type: () => AnswerDTO, isArray: true })
   answers: AnswerDTO[];

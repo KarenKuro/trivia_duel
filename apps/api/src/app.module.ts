@@ -26,10 +26,10 @@ import {
   UserModule,
 } from './resources';
 import {
-  MatchCategoryEntity,
-  MatchEntity,
-  UserAnswerEntity,
-  UserEntity,
+  LanguageEntity,
+  TranslatedAnswerEntity,
+  TranslatedCategoryEntity,
+  TranslatedQuestionEntity,
 } from '@common/database/entities';
 import { TasksModule } from '@shared/tasks';
 
@@ -79,10 +79,10 @@ const envFilePath = isProductionMode
           // https://docs.nestjs.com/techniques/database
           synchronize: configService.get<boolean>(`DB_CONFIG.sync`),
           entities: [
-            MatchEntity,
-            UserAnswerEntity,
-            MatchCategoryEntity,
-            UserEntity,
+            TranslatedAnswerEntity,
+            TranslatedCategoryEntity,
+            TranslatedQuestionEntity,
+            LanguageEntity,
           ],
         };
       },

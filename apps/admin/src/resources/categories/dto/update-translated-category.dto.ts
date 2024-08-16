@@ -1,14 +1,15 @@
+import { IUpdateTranslatedCategory } from '@common/models';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class TranslatedAnswerDTO {
+export class UpdateTranslatedCategoryDTO implements IUpdateTranslatedCategory {
   @IsNumber()
   @IsNotEmpty()
   @ApiProperty()
-  languageId: number;
+  id: number;
 
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   @ApiProperty()
   text: string;
 }

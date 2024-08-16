@@ -2,7 +2,7 @@ import { ITranslatedCategory } from '../translated-category';
 
 export interface ICategory {
   id: number;
-  name: string;
+  text: string;
   price: number;
   premiumPrice: number;
   // isExclusive: boolean;

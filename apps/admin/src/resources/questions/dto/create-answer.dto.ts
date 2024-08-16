@@ -1,7 +1,8 @@
 import { ICreateAnswer } from '@common/models/question/create-answer';
-import { TranslatedAnswersDTO } from './translated-answers.dto';
-import { IsArray, IsNotEmpty, IsString } from 'class-validator';
+import { TranslatedAnswerDTO } from './translated-answers.dto';
+import { IsArray, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export class CreateAnswerDTO implements ICreateAnswer {
   @IsString()
@@ -12,5 +13,7 @@ export class CreateAnswerDTO implements ICreateAnswer {
   @IsArray()
   @IsNotEmpty()
   @ApiProperty()
-  translatedAnswers: TranslatedAnswersDTO[];
+  @ValidateNested({ each: true })
+  @Type(() => TranslatedAnswerDTO)
+  translatedAnswers: TranslatedAnswerDTO[];
 }

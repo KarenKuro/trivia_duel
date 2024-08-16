@@ -44,18 +44,27 @@ export class QuestionsService {
 
   @Transactional()
   async create(body: ICreateQuestion): Promise<IQuestion> {
-    const question = await this._questionRepository.save({
-      question: body.question.trim(),
-      type: body.type,
-      category: { id: body.categoryId },
-    });
-
     const languages = await this._languagesService.findAll();
-    const languagesIds = languages.map((language) => language.id);
 
     if (languages.length !== body.translatedQuestion.length) {
       throw ResponseManager.buildError(ERROR_MESSAGES.LANGUAGE_MISSING);
     }
+
+    const languagesIds = languages.map((language) => language.id);
+
+    const translatedQuestionIds = body.translatedQuestion.map(
+      (el) => el.languageId,
+    );
+    const languagesIdsSet = new Set(translatedQuestionIds);
+    if (translatedQuestionIds.length !== languagesIdsSet.size) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.LANGUAGE_ALREADY_EXIST);
+    }
+
+    const question = await this._questionRepository.save({
+      text: body.text.trim(),
+      type: body.type,
+      category: { id: body.categoryId },
+    });
 
     const translatedQuestions = body.translatedQuestion.map(
       (translatedQuestion) => {
@@ -64,7 +73,7 @@ export class QuestionsService {
         }
 
         return this._translatedQuestionRepository.create({
-          translatedQuestion: translatedQuestion.translatedQuestion,
+          text: translatedQuestion.text,
           question: { id: question.id } as QuestionEntity,
           language: { id: translatedQuestion.languageId } as LanguageEntity,
         });
@@ -72,11 +81,12 @@ export class QuestionsService {
     );
     await this._translatedQuestionRepository.save(translatedQuestions);
 
+    const allTranslatedAnswers: TranslatedAnswerEntity[] = [];
     for (const answerData of body.answers) {
       const validatedAnswer = answerData.text.trim();
 
       const newAnswer = await this._answerService.create({
-        value: validatedAnswer,
+        text: validatedAnswer,
         question: { id: question.id } as QuestionEntity,
       });
 
@@ -87,7 +97,7 @@ export class QuestionsService {
           }
 
           return this._translatedAnswersRepository.create({
-            translatedAnswer: translatedAnswer.translatedAnswer,
+            text: translatedAnswer.text,
             answer: { id: newAnswer.id } as AnswerEntity,
             language: {
               id: translatedAnswer.languageId,
@@ -96,18 +106,28 @@ export class QuestionsService {
         },
       );
 
-      await this._translatedAnswersRepository.save(translatedAnswers);
+      const translatedAnswersIds = translatedAnswers.map(
+        (el) => el.language.id,
+      );
+      const languagesIdsSet = new Set(translatedAnswersIds);
+      if (translatedAnswersIds.length !== languagesIdsSet.size) {
+        throw ResponseManager.buildError(ERROR_MESSAGES.LANGUAGE_ALREADY_EXIST);
+      }
+
+      allTranslatedAnswers.push(...translatedAnswers);
 
       if (
         validatedAnswer === body.correctAnswer.trim() ||
         body.type === QuestionType.SINGLE
       ) {
-        newAnswer.value = newAnswer.value.trim();
+        newAnswer.text = newAnswer.text.trim();
         await this._questionRepository.update(question.id, {
           correctAnswer: newAnswer,
         });
       }
     }
+    await this._translatedAnswersRepository.save(allTranslatedAnswers);
+
     return question;
   }
 
@@ -121,6 +141,7 @@ export class QuestionsService {
         'category',
         'translatedQuestions',
         'answers.translatedAnswers',
+        'answers.translatedAnswers.language',
       ],
       skip: +offset,
       take: +limit,
@@ -138,6 +159,7 @@ export class QuestionsService {
         'category',
         'translatedQuestions',
         'answers.translatedAnswers',
+        'answers.translatedAnswers.language',
       ],
     });
     return question;
@@ -158,8 +180,8 @@ export class QuestionsService {
     return questions;
   }
 
-  async findOneByQuestion(question: string): Promise<IQuestion> {
-    return await this._questionRepository.findOneBy({ question });
+  async findOneByQuestion(text: string): Promise<IQuestion> {
+    return await this._questionRepository.findOneBy({ text });
   }
 
   @Transactional()
@@ -171,19 +193,50 @@ export class QuestionsService {
       for (const answer of body.answers) {
         const answerEntity = await this._answerService.findOne(answer.id);
         if (answerEntity.question.id !== question.id) {
-          throw ResponseManager.buildError(ERROR_MESSAGES.QUESTION_NOT_EXIST);
+          throw ResponseManager.buildError(ERROR_MESSAGES.ANSWER_NOT_EXISTS);
         }
         await this._answerService.update(answerEntity, {
-          value: answer.value.trim(),
+          text: answer.text.trim(),
         });
+
+        for (const translatedAnswer of answer.translatedAnswers) {
+          const answerTranslatedIds = answerEntity.translatedAnswers.map(
+            (e) => e.id,
+          );
+          if (!answerTranslatedIds.includes(translatedAnswer.id)) {
+            throw ResponseManager.buildError(
+              ERROR_MESSAGES.ADMIN_INVALID_PASSWORD,
+            );
+          }
+          await this._translatedAnswersRepository.update(translatedAnswer.id, {
+            text: translatedAnswer.text.trim(),
+          });
+        }
+      }
+    }
+
+    if (body.translatedQuestions) {
+      const translatedIds = question.translatedQuestions.map((e) => e.id);
+
+      for (const translatedQuestion of body.translatedQuestions) {
+        if (!translatedIds.includes(translatedQuestion.id)) {
+          throw ResponseManager.buildError(
+            ERROR_MESSAGES.TRANSLATED_CATEGORY_NOT_EXIST,
+          );
+        }
+
+        await this._translatedQuestionRepository.update(
+          translatedQuestion.id,
+          translatedQuestion,
+        );
       }
     }
 
     const updateBody = omit(body, [
       'answers',
-      'correctAnswer',
       'categoryId',
       'correctAnswerId',
+      'translatedQuestions',
     ]) as IQuestion;
 
     if (body.categoryId) {
@@ -199,7 +252,7 @@ export class QuestionsService {
         );
       }
       updateBody.correctAnswer = { id: body.correctAnswerId } as AnswerEntity;
-      updateBody.question = updateBody.question.trim();
+      updateBody.text = updateBody.text.trim();
     }
 
     await this._questionRepository.update(question.id, updateBody);

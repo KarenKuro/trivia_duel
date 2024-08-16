@@ -6,7 +6,7 @@ export class CategoryResponseDTO {
   id: number;
 
   @ApiProperty()
-  name: string;
+  text: string;
 
   @ApiProperty()
   price: number;

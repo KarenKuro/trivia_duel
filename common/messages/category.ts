@@ -11,4 +11,7 @@ export const CATEGORY_ERROR_MESSAGES = {
   WRONG_CATEGORIES_COUNT: {
     message: 'err_wrong_categories_count',
   },
+  TRANSLATED_CATEGORY_NOT_EXIST: {
+    message: 'err_translated_category_not_exist',
+  },
 };

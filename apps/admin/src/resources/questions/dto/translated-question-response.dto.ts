@@ -5,7 +5,7 @@ export class TranslatedQuestionResponseDTO {
   id: number;
 
   @ApiProperty()
-  translatedQuestion: string;
+  text: string;
 
   @ApiProperty()
   createdAt: Date;

@@ -3,7 +3,7 @@ import { IQuestion } from '../question';
 
 export interface ITranslatedQuestion {
   id: number;
-  translatedQuestion: string;
+  text: string;
   question: IQuestion;
   language: ILanguage;
   createdAt: Date;

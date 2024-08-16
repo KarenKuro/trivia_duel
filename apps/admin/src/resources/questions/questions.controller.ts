@@ -45,12 +45,12 @@ export class QuestionsController {
   })
   async create(@Body() body: CreateQuestionDto): Promise<QuestionResponseDTO> {
     const { categoryId } = body;
-    const { question: wordingOfQuestion } = body;
+    const { text } = body;
 
-    const existingQuest = await this._questionsService.findOneByQuestion(
-      wordingOfQuestion.trim(),
+    const existingQuestion = await this._questionsService.findOneByQuestion(
+      text.trim(),
     );
-    if (existingQuest) {
+    if (existingQuestion) {
       throw ResponseManager.buildError(ERROR_MESSAGES.QUESTION_ALREADY_EXIST);
     }
 
@@ -138,7 +138,7 @@ export class QuestionsController {
     }
 
     const existQuestion = await this._questionsService.findOneByQuestion(
-      body.question.trim(),
+      body.text.trim(),
     );
     if (existQuestion && existQuestion.id !== question.id) {
       throw ResponseManager.buildError(ERROR_MESSAGES.QUESTION_ALREADY_EXIST);

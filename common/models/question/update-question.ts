@@ -1,14 +1,23 @@
-import { IQuestion } from './question';
-
 export interface IUpdateQuestion {
-  question?: string;
-  answers?: IAnswer[];
+  text: string;
+  answers?: IUpdateAnswer[];
   correctAnswerId?: number;
   categoryId?: number;
+  translatedQuestions?: IUpdateTranslatedQuestions[];
 }
 
-export interface IAnswer {
+export interface IUpdateAnswer {
   id: number;
-  value: string;
-  question?: IQuestion;
+  text: string;
+  translatedAnswers?: IUpdateTranslatedAnswers[];
+}
+
+export interface IUpdateTranslatedAnswers {
+  id: number;
+  text: string;
+}
+
+export interface IUpdateTranslatedQuestions {
+  id: number;
+  text: string;
 }

@@ -38,13 +38,13 @@ async function bootstrap() {
       forbidNonWhitelisted: false,
       stopAtFirstError: true,
       exceptionFactory: (errors) => {
-        const errorResponce: IValidationErrors[] = [];
+        const errorResponse: IValidationErrors[] = [];
         errors.forEach((e) => {
           if (e.constraints) {
-            errorResponce.push(...ResponseManager.validationHandler([e]));
+            errorResponse.push(...ResponseManager.validationHandler([e]));
           }
           if (e.children) {
-            errorResponce.push(
+            errorResponse.push(
               ...ResponseManager.validationHandler(
                 e.children,
                 e.property?.toLowerCase(),
@@ -53,7 +53,7 @@ async function bootstrap() {
           }
         });
         throw ResponseManager.buildError(
-          { errors: errorResponce, message: 'ValidationError' },
+          { errors: errorResponse, message: 'ValidationError' },
           HttpStatus.UNPROCESSABLE_ENTITY,
         );
       },

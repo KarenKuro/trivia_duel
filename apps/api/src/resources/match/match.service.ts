@@ -344,7 +344,7 @@ export class MatchService {
       const validatedBodyAnswer = body.answer.trim().toLowerCase();
 
       isSingleTypeAnswerCorrect = question.answers.some(
-        (item) => item.value.trim().toLowerCase() === validatedBodyAnswer,
+        (item) => item.text.trim().toLowerCase() === validatedBodyAnswer,
       );
     }
 

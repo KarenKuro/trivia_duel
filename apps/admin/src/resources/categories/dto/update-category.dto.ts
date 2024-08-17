@@ -10,8 +10,8 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { UpdateTranslatedCategoryDTO } from './update-translated-category.dto';
 import { IUpdateCategory } from '@common/models';
+import { UpdateTranslatedCategoryDTO } from '.';
 
 export class UpdateCategoryDTO implements IUpdateCategory {
   @IsString()

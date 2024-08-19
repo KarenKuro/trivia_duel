@@ -1,7 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { ITranslatedCategory } from '@common/models';
-
 export class CategoryResponseDTO {
   @ApiProperty()
   id: number;
@@ -24,6 +22,10 @@ export class CategoryResponseDTO {
   @ApiProperty()
   updatedAt: Date;
 
-  @ApiProperty()
-  translatedCategories?: ITranslatedCategory[];
+  // @ApiProperty({
+  //   uniqueItems: true,
+  //   maxItems: 2,
+  //   minItems: 2,
+  // })
+  // translatedCategories?: TranslatedCategoryResponseDTO[];
 }

@@ -3,7 +3,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpStatus,
   Patch,
   Post,
   Req,
@@ -41,15 +40,15 @@ import { CreateUserDTO } from './dto/create-user.dto';
 export class AuthController {
   constructor(private readonly _authService: AuthService) {}
 
-  @Get('facebook')
-  @UseGuards(AuthGuard('facebook'))
-  @ApiOperation({
-    summary:
-      'This API registers a new user in the database using a Facebook account. In case of success the request will be redirected to /facebook/login (See next endpoint)',
-  })
-  async facebookLogin(): Promise<HttpStatus> {
-    return HttpStatus.OK;
-  }
+  // @Get('facebook')
+  // @UseGuards(AuthGuard('facebook'))
+  // @ApiOperation({
+  //   summary:
+  //     'This API registers a new user in the database using a Facebook account. In case of success the request will be redirected to /facebook/login (See next endpoint)',
+  // })
+  // async facebookLogin(): Promise<HttpStatus> {
+  //   return HttpStatus.OK;
+  // }
 
   @Get('facebook/login')
   @UseGuards(AuthGuard('facebook'))

@@ -1,5 +1,10 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { AuthUser } from '@common/decorators';
 import { TokenPayloadDTO } from '@common/dtos';
@@ -33,11 +38,13 @@ export class CategoriesController {
     if (!categories.length) {
       throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORIES_NOT_EXISTS);
     }
+
     return categories;
   }
 
   @Post('buy')
   @ApiOperation({ summary: 'Buy category' })
+  @ApiResponse({ status: 201 })
   async buyCategory(
     @AuthUser() token: TokenPayloadDTO,
     @Body() body: BuyCategoryDTO,

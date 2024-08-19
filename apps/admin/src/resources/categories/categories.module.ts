@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { CategoriesService } from './categories.service';
-import { CategoriesController } from './categories.controller';
+import { LanguagesService } from '@admin-resources/languages';
+
 import {
   AnswerEntity,
   CategoryEntity,
@@ -12,7 +12,9 @@ import {
   QuestionEntity,
   TranslatedCategoryEntity,
 } from '@common/database/entities';
-import { LanguagesService } from '@admin-resources/languages';
+
+import { CategoriesController } from './categories.controller';
+import { CategoriesService } from './categories.service';
 
 @Module({
   imports: [

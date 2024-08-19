@@ -1,9 +1,11 @@
-import { UserEntity } from '@common/database/entities';
-import { IMessageSuccess, IPagination, IUser } from '@common/models';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+
 import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
+
+import { UserEntity } from '@common/database/entities';
+import { IMessageSuccess, IPagination, IUser } from '@common/models';
 
 @Injectable()
 export class UserService {

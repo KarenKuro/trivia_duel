@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { QuestionsService } from './questions.service';
-import { QuestionsController } from './questions.controller';
+import { AnswersModule } from '@admin-resources/answers';
+import { CategoriesModule } from '@admin-resources/categories';
+import { LanguagesService } from '@admin-resources/languages';
+
 import {
   AnswerEntity,
   CategoryEntity,
@@ -13,9 +15,9 @@ import {
   TranslatedAnswerEntity,
   TranslatedQuestionEntity,
 } from '@common/database/entities';
-import { AnswersModule } from '@admin-resources/answers';
-import { CategoriesModule } from '@admin-resources/categories';
-import { LanguagesService } from '@admin-resources/languages';
+
+import { QuestionsController } from './questions.controller';
+import { QuestionsService } from './questions.service';
 
 @Module({
   imports: [

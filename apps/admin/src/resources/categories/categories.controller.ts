@@ -17,17 +17,18 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { CategoriesService } from './categories.service';
+import { IdDTO, PaginationQueryDTO, SuccessDTO } from '@common/dtos';
+import { TokenTypes } from '@common/enums';
 import { AuthUserGuard } from '@common/guards';
+import { ResponseManager } from '@common/helpers';
+import { ERROR_MESSAGES } from '@common/messages';
+
+import { CategoriesService } from './categories.service';
 import {
   CategoryResponseDTO,
   CreateCategoryDTO,
   UpdateCategoryDTO,
 } from './dto';
-import { ResponseManager } from '@common/helpers';
-import { ERROR_MESSAGES } from '@common/messages';
-import { IdDTO, PaginationQueryDTO, SuccessDTO } from '@common/dtos';
-import { TokenTypes } from '@common/enums';
 
 @Controller('categories')
 @UseGuards(AuthUserGuard(TokenTypes.PRIMARY))

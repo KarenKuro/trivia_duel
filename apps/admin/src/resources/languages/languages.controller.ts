@@ -6,12 +6,13 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import { IdDTO } from '@common/dtos';
 import { AuthUserGuard } from '@common/guards';
-import { LanguagesService } from './languages.service';
-import { CreateLanguageDTO, LanguageResponseDTO } from './dto';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
-import { IdDTO } from '@common/dtos';
+
+import { CreateLanguageDTO, LanguageResponseDTO } from './dto';
+import { LanguagesService } from './languages.service';
 
 @Controller('languages')
 @UseGuards(AuthUserGuard())

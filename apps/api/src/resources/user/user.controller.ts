@@ -1,14 +1,16 @@
 import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-import { UserService } from './user.service';
+import { CategoryResponseDTO } from '@api-resources/categories/dto';
+
 import { AuthUser } from '@common/decorators';
 import { IdDTO, TokenPayloadDTO } from '@common/dtos';
+import { AuthUserGuard } from '@common/guards';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
-import { AuthUserGuard } from '@common/guards';
-import { CategoryResponseDTO } from '@api-resources/categories/dto';
+
 import { UserResponseDTO } from './dto';
+import { UserService } from './user.service';
 
 @Controller('users')
 @UseGuards(AuthUserGuard())

@@ -1,16 +1,14 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { addTransactionalDataSource } from 'typeorm-transactional';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { API_VALIDATIONS } from '@common/validators';
-import { ENV_CONST } from '@common/constants';
-import { NodeEnv } from '@common/enums';
-import { AppService } from './app.service';
-import { AppController } from './app.controller';
+import { DataSource } from 'typeorm';
+import { addTransactionalDataSource } from 'typeorm-transactional';
+
+import { TasksModule } from '@shared/tasks';
+
 import {
   appConfig,
   databaseConfiguration,
@@ -19,19 +17,24 @@ import {
   jwtConfig,
   // redisConfig,
 } from '@common/config';
-import {
-  AuthModule,
-  CategoriesModule,
-  MatchModule,
-  UserModule,
-} from './resources';
+import { ENV_CONST } from '@common/constants';
 import {
   LanguageEntity,
   TranslatedAnswerEntity,
   TranslatedCategoryEntity,
   TranslatedQuestionEntity,
 } from '@common/database/entities';
-import { TasksModule } from '@shared/tasks';
+import { NodeEnv } from '@common/enums';
+import { API_VALIDATIONS } from '@common/validators';
+
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import {
+  AuthModule,
+  CategoriesModule,
+  MatchModule,
+  UserModule,
+} from './resources';
 
 const isProductionMode = process.env.NODE_ENV === NodeEnv.production;
 

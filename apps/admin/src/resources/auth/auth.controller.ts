@@ -6,12 +6,13 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import { AuthToken, AuthUser } from '@common/decorators';
+import { TokenTypes } from '@common/enums/jwt-token';
+import { AuthUserGuard } from '@common/guards';
+import { IRefreshPayload } from '@common/models';
+
 import { AuthService } from './auth.service';
 import { AuthTokensDTO, LoginDTO } from './dto';
-import { AuthUserGuard } from '@common/guards';
-import { TokenTypes } from '@common/enums/jwt-token';
-import { AuthToken, AuthUser } from '@common/decorators';
-import { IRefreshPayload } from '@common/models';
 
 @ApiTags('Authentication management')
 @Controller('auth')

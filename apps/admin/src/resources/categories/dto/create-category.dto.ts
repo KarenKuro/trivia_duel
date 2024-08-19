@@ -1,5 +1,6 @@
-import { ICreateCategory } from '@common/models';
 import { ApiProperty } from '@nestjs/swagger';
+
+import { Transform, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
   ArrayMinSize,
@@ -11,8 +12,10 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
+
+import { ICreateCategory } from '@common/models';
+
 import { TranslatedCategoryDTO } from './translated-category.dto';
-import { Transform, Type } from 'class-transformer';
 
 export class CreateCategoryDTO implements ICreateCategory {
   @IsNotEmpty()

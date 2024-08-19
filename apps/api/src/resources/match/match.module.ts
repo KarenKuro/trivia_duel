@@ -1,7 +1,10 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { CategoriesModule } from '@api-resources/categories';
+import { UserModule } from '@api-resources/user';
 
 import {
   CategoryEntity,
@@ -11,11 +14,10 @@ import {
   UserAnswerEntity,
   UserEntity,
 } from '@common/database/entities';
-import { MatchService } from './match.service';
-import { MatchGateway } from './match.gateway';
+
 import { MatchController } from './match.controller';
-import { UserModule } from '@api-resources/user';
-import { CategoriesModule } from '@api-resources/categories';
+import { MatchGateway } from './match.gateway';
+import { MatchService } from './match.service';
 
 @Module({
   imports: [

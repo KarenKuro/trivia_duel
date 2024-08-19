@@ -9,7 +9,6 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import axios from 'axios';
 import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
@@ -18,20 +17,24 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { AuthService } from './auth.service';
-import { AuthTokensDTO } from './dto';
+import axios from 'axios';
+import { Request } from 'express';
+
+import { UserResponseDTO } from '@admin-resources/user/dto';
+
 import { AuthToken, AuthUser } from '@common/decorators';
+import { TokenTypes } from '@common/enums';
+import { AuthUserGuard } from '@common/guards';
 import {
   IFacebookPayload,
   IFacebookProfile,
   IGoogleProfile,
   IRefreshPayload,
 } from '@common/models';
-import { AuthUserGuard } from '@common/guards';
-import { TokenTypes } from '@common/enums';
+
+import { AuthService } from './auth.service';
+import { AuthTokensDTO } from './dto';
 import { CreateUserDTO } from './dto/create-user.dto';
-import { UserResponseDTO } from '@admin-resources/user/dto';
-import { Request } from 'express';
 
 @ApiTags('Authentication management')
 @Controller('auth')
@@ -44,7 +47,7 @@ export class AuthController {
     summary:
       'This API registers a new user in the database using a Facebook account. In case of success the request will be redirected to /facebook/login (See next endpoint)',
   })
-  async facebookLogin(): Promise<any> {
+  async facebookLogin(): Promise<HttpStatus> {
     return HttpStatus.OK;
   }
 

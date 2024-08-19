@@ -1,15 +1,24 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { DataSource } from 'typeorm';
 import { addTransactionalDataSource } from 'typeorm-transactional';
 
-import { ADMIN_VALIDATIONS } from '@common/validators';
-import { ENV_CONST } from '@common/constants';
-import { NodeEnv } from '@common/enums';
-import { AdminService } from './admin.service';
-import { AdminController } from './admin.controller';
+import { LanguagesModule } from '@admin-resources/languages';
+
 import { appConfig, databaseConfiguration, jwtConfig } from '@common/config';
+import { ENV_CONST } from '@common/constants';
+import {
+  MatchCategoryEntity,
+  MatchEntity,
+  UserAnswerEntity,
+} from '@common/database/entities';
+import { NodeEnv } from '@common/enums';
+import { ADMIN_VALIDATIONS } from '@common/validators';
+
+import { AdminController } from './admin.controller';
+import { AdminService } from './admin.service';
 import {
   AnswersModule,
   AuthModule,
@@ -17,12 +26,6 @@ import {
   QuestionsModule,
 } from './resources';
 import { UserModule } from './resources/user/user.module';
-import {
-  MatchCategoryEntity,
-  MatchEntity,
-  UserAnswerEntity,
-} from '@common/database/entities';
-import { LanguagesModule } from '@admin-resources/languages';
 
 const isProductionMode = process.env.NODE_ENV === NodeEnv.production;
 

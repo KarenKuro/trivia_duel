@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { CategoriesService } from './categories.service';
-import { CategoriesController } from './categories.controller';
 import { CategoryEntity, UserEntity } from '@common/database/entities';
+
+import { CategoriesController } from './categories.controller';
+import { CategoriesService } from './categories.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([CategoryEntity, UserEntity]),
-
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({

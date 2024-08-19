@@ -1,17 +1,18 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+import { AuthUser } from '@common/decorators';
+import { TokenPayloadDTO } from '@common/dtos';
+import { AuthUserGuard } from '@common/guards';
+import { ResponseManager } from '@common/helpers';
+import { ERROR_MESSAGES } from '@common/messages';
+
 import { CategoriesService } from './categories.service';
 import {
   BuyCategoryDTO,
   CategoryResponseDTO,
   CategoryWithIsActiveDTO,
 } from './dto';
-import { AuthUserGuard } from '@common/guards';
-import { AuthUser } from '@common/decorators';
-import { TokenPayloadDTO } from '@common/dtos';
-import { ResponseManager } from '@common/helpers';
-import { ERROR_MESSAGES } from '@common/messages';
 
 @Controller('categories')
 @UseGuards(AuthUserGuard())

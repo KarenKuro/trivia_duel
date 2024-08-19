@@ -1,7 +1,9 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 import { CategoryResponseDTO } from '@api-resources/categories/dto';
+
 import { UserStatus } from '@common/enums';
 import { IUser } from '@common/models';
-import { ApiProperty } from '@nestjs/swagger';
 
 export class UserResponseDTO implements IUser {
   @ApiProperty()

@@ -1,16 +1,17 @@
-import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Transactional } from 'typeorm-transactional';
+
+import { Repository } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
+import { Transactional } from 'typeorm-transactional';
+
+import { CategoriesService } from '@api-resources/categories';
 
 import { CategoryEntity, UserEntity } from '@common/database/entities';
-import { ICategory, IId, IUser } from '@common/models';
-import { IUserId } from '@common/models/common/user-id';
+import { UserStatus } from '@common/enums';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
-import { CategoriesService } from '@api-resources/categories';
-import { UserStatus } from '@common/enums';
+import { ICategory, IId, IUser, IUserId } from '@common/models';
 
 @Injectable()
 export class UserService {

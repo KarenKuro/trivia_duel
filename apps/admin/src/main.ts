@@ -1,17 +1,19 @@
-import { NestFactory, Reflector } from '@nestjs/core';
-import { NestExpressApplication } from '@nestjs/platform-express';
 import {
   ClassSerializerInterceptor,
   HttpStatus,
   ValidationPipe,
   VersioningType,
 } from '@nestjs/common';
+import { NestFactory, Reflector } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
 import { initializeTransactionalContext } from 'typeorm-transactional';
 
-import { AdminModule } from './admin.module';
-import { IValidationErrors } from '@common/models';
 import { ResponseManager } from '@common/helpers';
+import { IValidationErrors } from '@common/models';
+
+import { AdminModule } from './admin.module';
 
 const PORT = process.env.ADMIN_PORT;
 

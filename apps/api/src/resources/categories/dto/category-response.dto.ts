@@ -1,5 +1,6 @@
-import { ITranslatedCategory } from '@common/models';
 import { ApiProperty } from '@nestjs/swagger';
+
+import { ITranslatedCategory } from '@common/models';
 
 export class CategoryResponseDTO {
   @ApiProperty()
@@ -24,5 +25,5 @@ export class CategoryResponseDTO {
   updatedAt: Date;
 
   @ApiProperty()
-  translatedCategories: ITranslatedCategory[];
+  translatedCategories?: ITranslatedCategory[];
 }

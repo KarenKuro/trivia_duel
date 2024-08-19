@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { LanguagesService } from './languages.service';
 import { LanguageEntity } from '@common/database/entities/language.entity';
+
 import { LanguagesController } from './languages.controller';
+import { LanguagesService } from './languages.service';
 
 @Module({
   imports: [

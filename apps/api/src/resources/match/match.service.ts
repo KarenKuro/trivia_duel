@@ -1,9 +1,17 @@
 import { Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
+
 import { EntityManager, In, Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 
+import { CategoriesService } from '@api-resources/categories';
+import { UserService } from '@api-resources/user';
+
+import {
+  MATCH_CATEGORIES_MAX_LENGTH,
+  MATCH_USER_CATEGORIES_MAX_LENGTH,
+} from '@common/constants';
 import {
   CategoryEntity,
   MatchCategoryEntity,
@@ -12,6 +20,9 @@ import {
   UserAnswerEntity,
   UserEntity,
 } from '@common/database/entities';
+import { MatchLevel, MatchStatusType, QuestionType } from '@common/enums';
+import { MatchHelpers, ResponseManager } from '@common/helpers';
+import { ERROR_MESSAGES } from '@common/messages';
 import {
   ICategories,
   ICategory,
@@ -19,15 +30,7 @@ import {
   IUserAnswer,
   IUserId,
 } from '@common/models';
-import { MatchLevel, MatchStatusType, QuestionType } from '@common/enums';
-import { MatchHelpers, ResponseManager } from '@common/helpers';
-import { ERROR_MESSAGES } from '@common/messages';
-import {
-  MATCH_CATEGORIES_MAX_LENGTH,
-  MATCH_USER_CATEGORIES_MAX_LENGTH,
-} from '@common/constants';
-import { UserService } from '@api-resources/user';
-import { CategoriesService } from '@api-resources/categories';
+
 import { MatchGateway } from './match.gateway';
 
 @Injectable()

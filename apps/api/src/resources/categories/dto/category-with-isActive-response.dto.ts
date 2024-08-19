@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CategoryResponseDTO } from './category-response.dto';
+
 import { IsBoolean } from 'class-validator';
+
+import { CategoryResponseDTO } from './category-response.dto';
 
 export class CategoryWithIsActiveDTO extends CategoryResponseDTO {
   @ApiProperty()

@@ -5,6 +5,7 @@
 // Only for mobile developers. Comment this method in producnion mode
 
 import { ApiProperty } from '@nestjs/swagger';
+
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateUserDTO {

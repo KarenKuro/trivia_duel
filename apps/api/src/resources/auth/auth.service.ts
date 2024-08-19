@@ -1,11 +1,15 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
+
 import { Repository } from 'typeorm';
 import { v4 as uuid } from 'uuid';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 
 import { UserEntity } from '@common/database/entities';
+import { UserStatus } from '@common/enums';
+import { ResponseManager } from '@common/helpers';
+import { ERROR_MESSAGES } from '@common/messages';
 import {
   IAuthTokens,
   IJwt,
@@ -13,9 +17,6 @@ import {
   ITokenPayload,
   IUser,
 } from '@common/models';
-import { UserStatus } from '@common/enums';
-import { ResponseManager } from '@common/helpers';
-import { ERROR_MESSAGES } from '@common/messages';
 
 @Injectable()
 export class AuthService {

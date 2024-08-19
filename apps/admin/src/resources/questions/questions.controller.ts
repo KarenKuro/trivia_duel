@@ -17,14 +17,16 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { QuestionsService } from './questions.service';
-import { CreateQuestionDto } from './dto/create-question.dto';
 import { CategoriesService } from '@admin-resources/categories';
-import { ResponseManager } from '@common/helpers';
-import { ERROR_MESSAGES } from '@common/messages';
+
 import { IdDTO, PaginationQueryDTO, SuccessDTO } from '@common/dtos';
 import { AuthUserGuard } from '@common/guards';
+import { ResponseManager } from '@common/helpers';
+import { ERROR_MESSAGES } from '@common/messages';
+
 import { QuestionResponseDTO, UpdateQuestionDTO } from './dto';
+import { CreateQuestionDto } from './dto/create-question.dto';
+import { QuestionsService } from './questions.service';
 
 @Controller('questions')
 @UseGuards(AuthUserGuard())

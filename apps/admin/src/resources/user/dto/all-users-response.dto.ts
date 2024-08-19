@@ -1,6 +1,8 @@
-import { MetaResponseDTO } from '@common/dtos';
-import { UserResponseDTO } from './user-response.dto';
 import { ApiProperty } from '@nestjs/swagger';
+
+import { MetaResponseDTO } from '@common/dtos';
+
+import { UserResponseDTO } from './user-response.dto';
 
 export class AllUsersResponseDTO {
   @ApiProperty()

@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+
 import { TranslatedCategoryResponseDTO } from './translated-category-response.dto';
 
 export class CategoryResponseDTO {

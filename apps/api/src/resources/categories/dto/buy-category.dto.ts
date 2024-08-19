@@ -1,6 +1,8 @@
-import { CurrencyTypes } from '@common/enums';
 import { ApiProperty } from '@nestjs/swagger';
+
 import { IsEnum, IsNotEmpty, IsNumber } from 'class-validator';
+
+import { CurrencyTypes } from '@common/enums';
 
 export class BuyCategoryDTO {
   @ApiProperty()

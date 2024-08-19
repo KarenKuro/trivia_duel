@@ -1,6 +1,8 @@
-import { IAuthTokens } from '@common/models';
 import { ApiProperty } from '@nestjs/swagger';
+
 import { IsNotEmpty, IsString } from 'class-validator';
+
+import { IAuthTokens } from '@common/models';
 
 export class AuthTokensDTO implements IAuthTokens {
   @ApiProperty()

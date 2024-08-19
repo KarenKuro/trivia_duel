@@ -6,12 +6,13 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { AuthUserGuard } from '@common/guards';
 import { AuthUser } from '@common/decorators';
 import { IdDTO, SuccessDTO, TokenPayloadDTO } from '@common/dtos';
-import { CategoriesDTO, MatchResponseDTO, UserAnswerDTO } from './dto';
+import { AuthUserGuard } from '@common/guards';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
+
+import { CategoriesDTO, MatchResponseDTO, UserAnswerDTO } from './dto';
 import { MatchService } from './match.service';
 
 @Controller('matches')

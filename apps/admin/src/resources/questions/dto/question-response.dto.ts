@@ -1,7 +1,10 @@
-import { QuestionType } from '@common/enums';
 import { ApiProperty } from '@nestjs/swagger';
-import { AnswerDTO, CorrectAnswerDTO, TranslatedQuestionResponseDTO } from './';
+
 import { CategoryResponseWithoutTranslationsDTO } from '@admin-resources/categories/dto';
+
+import { QuestionType } from '@common/enums';
+
+import { AnswerDTO, CorrectAnswerDTO, TranslatedQuestionResponseDTO } from './';
 
 export class QuestionResponseDTO {
   @ApiProperty()

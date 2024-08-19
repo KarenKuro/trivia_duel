@@ -7,22 +7,24 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UserService } from './user.service';
-import { IdDTO, PaginationQueryDTO, SuccessDTO } from '@common/dtos';
-import { ResponseManager } from '@common/helpers';
-import { ERROR_MESSAGES } from '@common/messages';
-import {
-  AllUsersResponseDTO,
-  UpdateUserStatusDTO,
-  UserResponseDTO,
-} from './dto';
-import { AuthUserGuard } from '@common/guards';
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
+
+import { IdDTO, PaginationQueryDTO, SuccessDTO } from '@common/dtos';
+import { AuthUserGuard } from '@common/guards';
+import { ResponseManager } from '@common/helpers';
+import { ERROR_MESSAGES } from '@common/messages';
+
+import {
+  AllUsersResponseDTO,
+  UpdateUserStatusDTO,
+  UserResponseDTO,
+} from './dto';
+import { UserService } from './user.service';
 
 @Controller('users')
 @UseGuards(AuthUserGuard())

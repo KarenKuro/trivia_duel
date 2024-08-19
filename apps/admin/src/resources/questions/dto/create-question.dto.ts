@@ -1,6 +1,6 @@
-import { ValidateIsAnswerIncluded } from '@common/decorators';
-import { QuestionType } from '@common/enums';
 import { ApiProperty } from '@nestjs/swagger';
+
+import { Transform, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
   ArrayMinSize,
@@ -12,10 +12,13 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { TranslatedQuestionDTO } from './translated-question.dto';
-import { CreateAnswerDTO } from './create-answer.dto';
+
+import { ValidateIsAnswerIncluded } from '@common/decorators';
 import { ValidateIsAnswersUnique } from '@common/decorators/is-answers-unique.decorator';
-import { Transform, Type } from 'class-transformer';
+import { QuestionType } from '@common/enums';
+
+import { CreateAnswerDTO } from './create-answer.dto';
+import { TranslatedQuestionDTO } from './translated-question.dto';
 
 export class CreateQuestionDto {
   @IsString()

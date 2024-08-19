@@ -1,7 +1,6 @@
-import { IUpdateQuestion } from '@common/models';
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform, Type } from 'class-transformer';
 
+import { Transform, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
   ArrayUnique,
@@ -12,6 +11,8 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
+
+import { IUpdateQuestion } from '@common/models';
 
 export class UpdateQuestionDTO implements IUpdateQuestion {
   @IsString()

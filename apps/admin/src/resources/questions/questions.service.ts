@@ -1,17 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+
 import { omit } from 'lodash';
+import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 
-import {
-  ICategory,
-  ICreateQuestion,
-  IMessageSuccess,
-  IPagination,
-  IQuestion,
-  IUpdateQuestion,
-} from '@common/models';
+import { AnswersService } from '@admin-resources/answers';
+import { LanguagesService } from '@admin-resources/languages';
+
 import {
   AnswerEntity,
   CategoryEntity,
@@ -20,11 +16,17 @@ import {
   TranslatedAnswerEntity,
   TranslatedQuestionEntity,
 } from '@common/database/entities';
-import { AnswersService } from '@admin-resources/answers';
 import { QuestionType } from '@common/enums';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
-import { LanguagesService } from '@admin-resources/languages';
+import {
+  ICategory,
+  ICreateQuestion,
+  IMessageSuccess,
+  IPagination,
+  IQuestion,
+  IUpdateQuestion,
+} from '@common/models';
 
 @Injectable()
 export class QuestionsService {
@@ -121,7 +123,6 @@ export class QuestionsService {
         validatedAnswer === body.correctAnswer ||
         body.type === QuestionType.SINGLE
       ) {
-        newAnswer.text = newAnswer.text;
         await this._questionRepository.update(question.id, {
           correctAnswer: newAnswer,
         });
@@ -294,7 +295,6 @@ export class QuestionsService {
         );
       }
       updateBody.correctAnswer = { id: body.correctAnswerId } as AnswerEntity;
-      updateBody.text = updateBody.text;
     }
 
     await this._questionRepository.update(question.id, updateBody);

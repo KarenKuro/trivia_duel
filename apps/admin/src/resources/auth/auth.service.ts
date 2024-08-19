@@ -1,16 +1,17 @@
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { v4 as uuid } from 'uuid';
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+
 import * as bcrypt from 'bcryptjs';
+import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
+import { v4 as uuid } from 'uuid';
 
 import { AdminEntity } from '@common/database/entities';
-import { IAdminLogin, IAuthTokens, IJwt, ITokenPayload } from '@common/models';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
+import { IAdminLogin, IAuthTokens, IJwt, ITokenPayload } from '@common/models';
 
 @Injectable()
 export class AuthService {

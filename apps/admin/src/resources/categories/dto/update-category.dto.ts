@@ -1,4 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
+
+import { Transform, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
   ArrayMinSize,
@@ -9,8 +11,9 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { Transform, Type } from 'class-transformer';
+
 import { IUpdateCategory } from '@common/models';
+
 import { UpdateTranslatedCategoryDTO } from '.';
 
 export class UpdateCategoryDTO implements IUpdateCategory {

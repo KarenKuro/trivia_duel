@@ -1,15 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+
 import { Not, Repository } from 'typeorm';
+import { Transactional } from 'typeorm-transactional';
 
 import { CategoryEntity, UserEntity } from '@common/database/entities';
-import { IUserId } from '@common/models/common/user-id';
-import { ICategory, IQueryBuilderCategory } from '@common/models';
-import { Transactional } from 'typeorm-transactional';
-import { IBuyCategory } from '@common/models/category/buy-category';
+import { CurrencyTypes, UserStatus } from '@common/enums';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
-import { CurrencyTypes, UserStatus } from '@common/enums';
+import { ICategory, IQueryBuilderCategory } from '@common/models';
+import { IBuyCategory } from '@common/models/category/buy-category';
+import { IUserId } from '@common/models/common/user-id';
 
 @Injectable()
 export class CategoriesService {

@@ -38,18 +38,13 @@ export class QuestionsController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new question' })
-  @ApiResponse({
-    status: 201,
-    description: 'Return created question',
-    type: QuestionResponseDTO,
-  })
-  async create(@Body() body: CreateQuestionDto): Promise<QuestionResponseDTO> {
+  @ApiResponse({ status: 201, type: SuccessDTO })
+  async create(@Body() body: CreateQuestionDto): Promise<SuccessDTO> {
     const { categoryId } = body;
     const { text } = body;
 
-    const existingQuestion = await this._questionsService.findOneByQuestion(
-      text.trim(),
-    );
+    const existingQuestion =
+      await this._questionsService.findOneByQuestion(text);
     if (existingQuestion) {
       throw ResponseManager.buildError(ERROR_MESSAGES.QUESTION_ALREADY_EXIST);
     }
@@ -59,8 +54,8 @@ export class QuestionsController {
       throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORIES_NOT_EXISTS);
     }
 
-    const question = await this._questionsService.create(body);
-    return question;
+    await this._questionsService.create(body);
+    return { success: true };
   }
 
   @Get()
@@ -138,7 +133,7 @@ export class QuestionsController {
     }
 
     const existQuestion = await this._questionsService.findOneByQuestion(
-      body.text.trim(),
+      body.text,
     );
     if (existQuestion && existQuestion.id !== question.id) {
       throw ResponseManager.buildError(ERROR_MESSAGES.QUESTION_ALREADY_EXIST);

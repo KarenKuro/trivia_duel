@@ -1,6 +1,6 @@
 import { IUpdateQuestion } from '@common/models';
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
 import {
   ArrayMaxSize,
@@ -15,6 +15,9 @@ import {
 
 export class UpdateQuestionDTO implements IUpdateQuestion {
   @IsString()
+  @Transform(({ value }) => {
+    return value?.trim();
+  })
   @ApiProperty()
   text: string;
 
@@ -24,7 +27,7 @@ export class UpdateQuestionDTO implements IUpdateQuestion {
   @ValidateNested({ each: true })
   @Type(() => UpdateAnswerDTO)
   @IsOptional()
-  @ApiProperty()
+  @ApiProperty({ uniqueItems: true, minItems: 1, maxItems: 4 })
   answers?: UpdateAnswerDTO[];
 
   @IsNumber()
@@ -43,7 +46,7 @@ export class UpdateQuestionDTO implements IUpdateQuestion {
   @ValidateNested({ each: true })
   @Type(() => UpdateTranslatedQuestionDTO)
   @IsOptional()
-  @ApiProperty()
+  @ApiProperty({ uniqueItems: true, minItems: 0, maxItems: 2 })
   translatedQuestions?: UpdateTranslatedQuestionDTO[];
 }
 
@@ -53,8 +56,11 @@ export class UpdateTranslatedQuestionDTO {
   @ApiProperty()
   id: number;
 
-  @IsNotEmpty()
   @IsString()
+  @IsNotEmpty()
+  @Transform(({ value }) => {
+    return value?.trim();
+  })
   @ApiProperty()
   text: string;
 }
@@ -65,8 +71,11 @@ export class UpdateAnswerDTO {
   @ApiProperty()
   id: number;
 
-  @IsNotEmpty()
   @IsString()
+  @IsNotEmpty()
+  @Transform(({ value }) => {
+    return value?.trim();
+  })
   @ApiProperty()
   text: string;
 
@@ -75,7 +84,7 @@ export class UpdateAnswerDTO {
   @ValidateNested({ each: true })
   @Type(() => UpdateTranslatedAnswerDTO)
   @IsOptional()
-  @ApiProperty()
+  @ApiProperty({ uniqueItems: true, minItems: 0, maxItems: 2 })
   translatedAnswers?: UpdateTranslatedAnswerDTO[];
 }
 
@@ -85,8 +94,11 @@ export class UpdateTranslatedAnswerDTO {
   @ApiProperty()
   id: number;
 
-  @IsNotEmpty()
   @IsString()
+  @IsNotEmpty()
+  @Transform(({ value }) => {
+    return value?.trim();
+  })
   @ApiProperty()
   text: string;
 }

@@ -12,11 +12,14 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { TranslatedCategoryDTO } from './translated-category.dto';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
 export class CreateCategoryDTO implements ICreateCategory {
   @IsNotEmpty()
   @IsString()
+  @Transform(({ value }) => {
+    return value?.trim();
+  })
   @ApiProperty()
   text: string;
 
@@ -40,7 +43,7 @@ export class CreateCategoryDTO implements ICreateCategory {
   @ArrayMinSize(2)
   @IsArray()
   @ArrayUnique()
-  @ApiProperty()
+  @ApiProperty({ uniqueItems: true, maxItems: 2, minItems: 2 })
   @ValidateNested({ each: true })
   @Type(() => TranslatedCategoryDTO)
   translatedCategories: TranslatedCategoryDTO[];

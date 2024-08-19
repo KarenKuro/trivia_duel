@@ -1,4 +1,4 @@
-import { CategoryResponseDTO } from '@admin-resources/categories/dto';
+import { CategoryResponseWithoutTranslationsDTO } from '@admin-resources/categories/dto';
 import { UserStatus } from '@common/enums';
 import { IUser } from '@common/models';
 import { ApiProperty } from '@nestjs/swagger';
@@ -20,7 +20,7 @@ export class UserResponseDTO implements IUser {
   status: UserStatus;
 
   @ApiProperty()
-  categories: CategoryResponseDTO[];
+  categories: CategoryResponseWithoutTranslationsDTO[];
 
   @ApiProperty()
   coins: number;

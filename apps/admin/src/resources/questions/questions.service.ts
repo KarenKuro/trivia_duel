@@ -14,6 +14,7 @@ import {
 } from '@common/models';
 import {
   AnswerEntity,
+  CategoryEntity,
   LanguageEntity,
   QuestionEntity,
   TranslatedAnswerEntity,
@@ -43,7 +44,7 @@ export class QuestionsService {
   ) {}
 
   @Transactional()
-  async create(body: ICreateQuestion): Promise<IQuestion> {
+  async create(body: ICreateQuestion): Promise<void> {
     const languages = await this._languagesService.findAll();
 
     if (languages.length !== body.translatedQuestion.length) {
@@ -61,7 +62,7 @@ export class QuestionsService {
     }
 
     const question = await this._questionRepository.save({
-      text: body.text.trim(),
+      text: body.text,
       type: body.type,
       category: { id: body.categoryId },
     });
@@ -83,7 +84,7 @@ export class QuestionsService {
 
     const allTranslatedAnswers: TranslatedAnswerEntity[] = [];
     for (const answerData of body.answers) {
-      const validatedAnswer = answerData.text.trim();
+      const validatedAnswer = answerData.text;
 
       const newAnswer = await this._answerService.create({
         text: validatedAnswer,
@@ -117,18 +118,16 @@ export class QuestionsService {
       allTranslatedAnswers.push(...translatedAnswers);
 
       if (
-        validatedAnswer === body.correctAnswer.trim() ||
+        validatedAnswer === body.correctAnswer ||
         body.type === QuestionType.SINGLE
       ) {
-        newAnswer.text = newAnswer.text.trim();
+        newAnswer.text = newAnswer.text;
         await this._questionRepository.update(question.id, {
           correctAnswer: newAnswer,
         });
       }
     }
     await this._translatedAnswersRepository.save(allTranslatedAnswers);
-
-    return question;
   }
 
   async findAll(pagination: IPagination): Promise<IQuestion[]> {
@@ -174,6 +173,7 @@ export class QuestionsService {
         'category',
         'translatedQuestions',
         'answers.translatedAnswers',
+        'answers.translatedAnswers.language',
       ],
     });
 
@@ -189,34 +189,78 @@ export class QuestionsService {
     question: IQuestion,
     body: IUpdateQuestion,
   ): Promise<IMessageSuccess> {
+    const questionAnswerIds = question.answers.map((e) => e.id);
+
+    // Validate and Update Answers
     if (body.answers) {
+      const bodyAnswersIds = body.answers.map((e) => e.id);
+      const uniqueBodyAnswersIds = new Set([...bodyAnswersIds]);
+      if (bodyAnswersIds.length !== uniqueBodyAnswersIds.size) {
+        throw ResponseManager.buildError(ERROR_MESSAGES.ANSWERS_NOT_UNIQUE);
+      }
+      // Validate answers and translated answers
+      for (const id of bodyAnswersIds) {
+        if (!questionAnswerIds.includes(id)) {
+          throw ResponseManager.buildError(ERROR_MESSAGES.ANSWER_NOT_EXISTS);
+        }
+      }
+
       for (const answer of body.answers) {
         const answerEntity = await this._answerService.findOne(answer.id);
         if (answerEntity.question.id !== question.id) {
           throw ResponseManager.buildError(ERROR_MESSAGES.ANSWER_NOT_EXISTS);
         }
         await this._answerService.update(answerEntity, {
-          text: answer.text.trim(),
+          text: answer.text,
         });
 
-        for (const translatedAnswer of answer.translatedAnswers) {
-          const answerTranslatedIds = answerEntity.translatedAnswers.map(
-            (e) => e.id,
-          );
-          if (!answerTranslatedIds.includes(translatedAnswer.id)) {
-            throw ResponseManager.buildError(
-              ERROR_MESSAGES.ADMIN_INVALID_PASSWORD,
+        if (answer.translatedAnswers) {
+          for (const translatedAnswer of answer.translatedAnswers) {
+            const answerTranslatedIds = answerEntity.translatedAnswers.map(
+              (e) => e.id,
+            );
+
+            if (!answerTranslatedIds.includes(translatedAnswer.id)) {
+              throw ResponseManager.buildError(
+                ERROR_MESSAGES.TRANSLATED_ANSWER_NOT_EXISTS,
+              );
+            }
+
+            const bodyTranslatedAnswersIds = answer.translatedAnswers.map(
+              (e) => e.id,
+            );
+            const uniqueAnswerTranslatedIds = new Set([
+              ...bodyTranslatedAnswersIds,
+            ]);
+            if (
+              bodyTranslatedAnswersIds.length !== uniqueAnswerTranslatedIds.size
+            ) {
+              throw ResponseManager.buildError(
+                ERROR_MESSAGES.TRANSLATED_ANSWERS_NOT_UNIQUE,
+              );
+            }
+
+            await this._translatedAnswersRepository.update(
+              translatedAnswer.id,
+              {
+                text: translatedAnswer.text,
+              },
             );
           }
-          await this._translatedAnswersRepository.update(translatedAnswer.id, {
-            text: translatedAnswer.text.trim(),
-          });
         }
       }
     }
 
+    // Validate and Update translated questions
     if (body.translatedQuestions) {
       const translatedIds = question.translatedQuestions.map((e) => e.id);
+      const bodyTranslatedIds = body.translatedQuestions.map((e) => e.id);
+      const uniqTranslatedIds = new Set([...bodyTranslatedIds]);
+      if (bodyTranslatedIds.length !== uniqTranslatedIds.size) {
+        throw ResponseManager.buildError(
+          ERROR_MESSAGES.TRANSLATED_QUESTIONS_NOT_UNIQUE,
+        );
+      }
 
       for (const translatedQuestion of body.translatedQuestions) {
         if (!translatedIds.includes(translatedQuestion.id)) {
@@ -240,10 +284,8 @@ export class QuestionsService {
     ]) as IQuestion;
 
     if (body.categoryId) {
-      updateBody.category = { id: body.categoryId };
+      updateBody.category = { id: body.categoryId } as CategoryEntity;
     }
-
-    const questionAnswerIds = question.answers.map((e) => e.id);
 
     if (body.correctAnswerId) {
       if (!questionAnswerIds.includes(body.correctAnswerId)) {
@@ -252,7 +294,7 @@ export class QuestionsService {
         );
       }
       updateBody.correctAnswer = { id: body.correctAnswerId } as AnswerEntity;
-      updateBody.text = updateBody.text.trim();
+      updateBody.text = updateBody.text;
     }
 
     await this._questionRepository.update(question.id, updateBody);

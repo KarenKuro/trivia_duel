@@ -15,18 +15,21 @@ import {
 import { TranslatedQuestionDTO } from './translated-question.dto';
 import { CreateAnswerDTO } from './create-answer.dto';
 import { ValidateIsAnswersUnique } from '@common/decorators/is-answers-unique.decorator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
 export class CreateQuestionDto {
   @IsString()
   @IsNotEmpty()
+  @Transform(({ value }) => {
+    return value?.trim();
+  })
   @ApiProperty()
   text: string;
 
   @IsNotEmpty()
   @IsArray()
   @ArrayUnique()
-  @ApiProperty()
+  @ApiProperty({ uniqueItems: true, maxItems: 2, minItems: 2 })
   @ValidateNested({ each: true })
   @Type(() => TranslatedQuestionDTO)
   translatedQuestion: TranslatedQuestionDTO[];
@@ -37,7 +40,7 @@ export class CreateQuestionDto {
   @IsArray()
   @ArrayUnique()
   @IsNotEmpty()
-  @ApiProperty()
+  @ApiProperty({ uniqueItems: true, maxItems: 1, minItems: 4 })
   @ValidateNested({ each: true })
   @Type(() => CreateAnswerDTO)
   answers: CreateAnswerDTO[];

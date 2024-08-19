@@ -1,3 +1,4 @@
+import { LanguageResponseDTO } from '@admin-resources/languages/dto';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class TranslatedAnswerResponseDTO {
@@ -12,4 +13,7 @@ export class TranslatedAnswerResponseDTO {
 
   @ApiProperty()
   updatedAt: Date;
+
+  @ApiProperty({ type: LanguageResponseDTO })
+  language: LanguageResponseDTO;
 }

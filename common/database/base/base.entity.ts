@@ -1,4 +1,3 @@
-import { Exclude } from 'class-transformer';
 import {
   CreateDateColumn,
   PrimaryGeneratedColumn,
@@ -9,13 +8,13 @@ export class BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Exclude()
+  // @Exclude()
   @CreateDateColumn({
     name: 'created_at',
   })
   createdAt: Date;
 
-  @Exclude()
+  // @Exclude()
   @UpdateDateColumn({
     name: 'updated_at',
   })

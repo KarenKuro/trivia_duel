@@ -1,5 +1,6 @@
 import {
   AnswerEntity,
+  CategoryEntity,
   TranslatedQuestionEntity,
 } from '@common/database/entities';
 import { QuestionType } from '@common/enums';
@@ -11,7 +12,7 @@ export interface IQuestion {
   translatedQuestions: TranslatedQuestionEntity[];
   correctAnswer: AnswerEntity;
   type: QuestionType;
-  category: { id: number };
+  category: CategoryEntity;
   createdAt: Date;
   updatedAt: Date;
 }

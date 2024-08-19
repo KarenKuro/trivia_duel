@@ -17,4 +17,16 @@ export const QUESTION_ERROR_MESSAGES = {
   ANSWER_NOT_EXISTS: {
     message: 'err_answer_not_exists',
   },
+  ANSWERS_NOT_UNIQUE: {
+    message: 'err_answer_not_unique',
+  },
+  TRANSLATED_ANSWER_NOT_EXISTS: {
+    message: 'err_translated_answer_not_exists',
+  },
+  TRANSLATED_ANSWERS_NOT_UNIQUE: {
+    message: 'err_translated_answers_not_unique',
+  },
+  TRANSLATED_QUESTIONS_NOT_UNIQUE: {
+    message: 'err_translated_questions_not_unique',
+  },
 };

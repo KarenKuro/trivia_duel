@@ -33,7 +33,7 @@ export class CategoriesService {
   ) {}
 
   @Transactional()
-  async create(body: ICreateCategory): Promise<ICategory> {
+  async create(body: ICreateCategory): Promise<void> {
     const category = (await this._categoryRepository.save({
       text: body.text,
       premiumPrice: body.premiumPrice,
@@ -43,24 +43,24 @@ export class CategoriesService {
     const languages = await this._languagesService.findAll();
     const languagesIds = languages.map((language) => language.id);
 
-    const translatedCategories: TranslatedCategoryEntity[] = await Promise.all(
-      body.translatedCategories.map((translatedCategory) => {
+    const translatedCategories = body.translatedCategories.map(
+      (translatedCategory) => {
         if (!languagesIds.includes(translatedCategory.languageId)) {
           throw ResponseManager.buildError(ERROR_MESSAGES.LANGUAGE_NOT_EXIST);
         }
 
-        return this._translatedCategoryRepository.save({
+        return this._translatedCategoryRepository.create({
           text: translatedCategory.text,
           category: { id: category.id } as CategoryEntity,
           language: { id: translatedCategory.languageId } as LanguageEntity,
         });
-      }),
+      },
     );
 
-    return { ...category, translatedCategories };
+    await this._translatedCategoryRepository.save(translatedCategories);
   }
-  // TODO возвращать entity
-  async findAll(pagination: IPagination): Promise<ICategory[]> {
+
+  async findAll(pagination: IPagination): Promise<CategoryEntity[]> {
     const { offset, limit } = pagination;
     const categories = await this._categoryRepository.find({
       skip: +offset,
@@ -88,6 +88,17 @@ export class CategoriesService {
     if (body.translatedCategories) {
       const categoryData = await this.findOne({ id: category.id });
       const translatedIds = categoryData.translatedCategories.map((e) => e.id);
+      const bodyTranslatedCategoriesIds = body.translatedCategories.map(
+        (e) => e.id,
+      );
+      const uniqueTranslatedIds = new Set([...bodyTranslatedCategoriesIds]);
+
+      if (bodyTranslatedCategoriesIds.length !== uniqueTranslatedIds.size) {
+        throw ResponseManager.buildError(
+          ERROR_MESSAGES.TRANSLATED_CATEGORIES_NOT_UNIQUE,
+        );
+      }
+
       for (const translatedCategory of body.translatedCategories) {
         if (!translatedIds.includes(translatedCategory.id)) {
           throw ResponseManager.buildError(

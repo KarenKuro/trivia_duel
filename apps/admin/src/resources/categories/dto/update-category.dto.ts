@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   ArrayMaxSize,
   ArrayMinSize,
@@ -9,24 +9,27 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { IUpdateCategory } from '@common/models';
 import { UpdateTranslatedCategoryDTO } from '.';
 
 export class UpdateCategoryDTO implements IUpdateCategory {
   @IsString()
   @IsOptional()
-  @ApiProperty()
+  @Transform(({ value }) => {
+    return value?.trim();
+  })
+  @ApiPropertyOptional()
   text: string;
 
   @IsNumber()
   @IsOptional()
-  @ApiProperty()
+  @ApiPropertyOptional()
   price: number;
 
   @IsNumber()
   @IsOptional()
-  @ApiProperty()
+  @ApiPropertyOptional()
   premiumPrice: number;
 
   // @IsBoolean()
@@ -35,10 +38,10 @@ export class UpdateCategoryDTO implements IUpdateCategory {
   // isExclusive?: boolean;
 
   @ArrayMaxSize(2)
-  @ArrayMinSize(2)
+  @ArrayMinSize(0)
   @IsArray()
   @ArrayUnique()
-  @ApiProperty()
+  @ApiPropertyOptional({ uniqueItems: true, minItems: 0, maxItems: 2 })
   @ValidateNested({ each: true })
   @Type(() => UpdateTranslatedCategoryDTO)
   @IsOptional()

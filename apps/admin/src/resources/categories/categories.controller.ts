@@ -40,10 +40,9 @@ export class CategoriesController {
   @ApiOperation({ summary: 'Create a new category' })
   @ApiResponse({
     status: 201,
-    description: 'Return created category',
-    type: CategoryResponseDTO,
+    type: SuccessDTO,
   })
-  async create(@Body() body: CreateCategoryDTO): Promise<CategoryResponseDTO> {
+  async create(@Body() body: CreateCategoryDTO): Promise<SuccessDTO> {
     const existCategory = await this._categoriesService.findOne({
       text: body.text,
     });
@@ -52,8 +51,8 @@ export class CategoriesController {
       throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORY_ALREADY_EXIST);
     }
 
-    const category = await this._categoriesService.create(body);
-    return category;
+    await this._categoriesService.create(body);
+    return { success: true };
   }
 
   @Get()

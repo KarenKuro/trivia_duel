@@ -84,10 +84,10 @@ export class UserService {
 
   // @Transactional()
   // async addPoints(users: IUser[], matchData: IMatch): Promise<void> {
-  //   // TODO add points and if need level up;
-  //   //
-  //   //
-  //   // level: newLevel
-  //   // await this.updateUser(user.id, { points });
+  // TODO add points and if need level up;
+  //
+  //
+  // level: newLevel
+  // await this.updateUser(user.id, { points });
   // }
 }

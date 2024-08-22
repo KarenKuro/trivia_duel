@@ -162,7 +162,7 @@ export class MatchService {
 
     categoriesObj.categories.forEach((categoryId) => {
       if (!userCategoryIds.includes(categoryId)) {
-        throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORY_NOT_EXIST);
+        throw ResponseManager.buildError(ERROR_MESSAGES.USER_CATEGORIES_NOT_EXISTS);
       }
     });
 

@@ -10,6 +10,7 @@ import { LanguagesService } from '@admin-resources/languages';
 import {
   CategoryEntity,
   LanguageEntity,
+  MediaEntity,
   TranslatedCategoryEntity,
 } from '@common/database/entities';
 import { ResponseManager } from '@common/helpers';
@@ -31,6 +32,9 @@ export class CategoriesService {
     @InjectRepository(TranslatedCategoryEntity)
     private readonly _translatedCategoryRepository: Repository<TranslatedCategoryEntity>,
 
+    @InjectRepository(MediaEntity)
+    private readonly _mediaRepository: Repository<MediaEntity>,
+
     private readonly _languagesService: LanguagesService,
   ) {}
 
@@ -41,7 +45,6 @@ export class CategoriesService {
       premiumPrice: body.premiumPrice,
       price: body.price,
     })) as CategoryEntity;
-
     const languages = await this._languagesService.findAll();
     const languagesIds = languages.map((language) => language.id);
 
@@ -58,6 +61,11 @@ export class CategoriesService {
         });
       },
     );
+
+    await this._mediaRepository.save({
+      path: body.path,
+      category: { id: category.id } as CategoryEntity,
+    });
 
     await this._translatedCategoryRepository.save(translatedCategories);
   }
@@ -76,7 +84,7 @@ export class CategoriesService {
   async findOne(param: Partial<ICategory>): Promise<ICategory> {
     const category = await this._categoryRepository.findOne({
       where: param,
-      relations: ['translatedCategories', 'translatedCategories.language'],
+      relations: ['translatedCategories', 'translatedCategories.language', 'medias'],
     });
 
     return category;
@@ -115,9 +123,24 @@ export class CategoriesService {
       }
     }
 
+    if (body.medias) {
+      const categoryData = await this.findOne({ id: category.id });
+      const mediaIds = categoryData.medias.map((e) => e.id);
+
+      for (const media of body.medias) {
+        if (!mediaIds.includes(media.id)) {
+          throw ResponseManager.buildError(ERROR_MESSAGES.MEDIA_NOT_EXIST)
+        }
+
+
+      await this._mediaRepository.update(media.id, media)
+      }
+
+    }
+
     await this._categoryRepository.update(
       category.id,
-      omit(body, ['translatedCategories']),
+      omit(body, ['translatedCategories', 'medias']),
     );
 
     return { success: true };

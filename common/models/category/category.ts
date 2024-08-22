@@ -1,3 +1,4 @@
+import { IMedia } from '../media';
 import { ITranslatedCategory } from '../translated-category';
 
 export interface ICategory {
@@ -10,4 +11,5 @@ export interface ICategory {
   updatedAt: Date;
   isActive?: boolean;
   translatedCategories?: ITranslatedCategory[];
+  medias?: IMedia[];
 }

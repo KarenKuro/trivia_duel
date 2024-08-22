@@ -12,6 +12,7 @@ import { ENV_CONST } from '@common/constants';
 import {
   MatchCategoryEntity,
   MatchEntity,
+  MediaEntity,
   UserAnswerEntity,
 } from '@common/database/entities';
 import { NodeEnv } from '@common/enums';
@@ -71,7 +72,7 @@ const envFilePath = isProductionMode
           // Do not use synchronize in production mode
           // https://docs.nestjs.com/techniques/database
           synchronize: configService.get<boolean>(`DB_CONFIG.sync`),
-          entities: [MatchEntity, UserAnswerEntity, MatchCategoryEntity],
+          entities: [MatchEntity, UserAnswerEntity, MatchCategoryEntity, MediaEntity],
         };
       },
       async dataSourceFactory(options) {

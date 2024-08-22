@@ -9,12 +9,14 @@ import {
   AnswerEntity,
   CategoryEntity,
   LanguageEntity,
+  MediaEntity,
   QuestionEntity,
   TranslatedCategoryEntity,
 } from '@common/database/entities';
 
 import { CategoriesController } from './categories.controller';
 import { CategoriesService } from './categories.service';
+import { FileService } from '@shared/file/file.service';
 
 @Module({
   imports: [
@@ -24,6 +26,7 @@ import { CategoriesService } from './categories.service';
       AnswerEntity,
       TranslatedCategoryEntity,
       LanguageEntity,
+      MediaEntity,
     ]),
 
     JwtModule.registerAsync({
@@ -38,7 +41,7 @@ import { CategoriesService } from './categories.service';
     }),
   ],
   controllers: [CategoriesController],
-  providers: [CategoriesService, LanguagesService],
+  providers: [CategoriesService, LanguagesService, FileService],
   exports: [CategoriesService],
 })
 export class CategoriesModule {}

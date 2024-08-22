@@ -20,4 +20,5 @@ export interface IUser {
   matches?: IMatch[];
   longestWinCount: number;
   currentWinCount: number;
+  avatar?: string;
 }

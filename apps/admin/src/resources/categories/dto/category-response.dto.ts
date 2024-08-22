@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 import { TranslatedCategoryResponseDTO } from './translated-category-response.dto';
+import { MediaResponseDTO } from './media.response.dto';
 
 export class CategoryResponseDTO {
   @ApiProperty()
@@ -17,6 +18,9 @@ export class CategoryResponseDTO {
 
   // @ApiProperty()
   // isExclusive: boolean;
+
+  @ApiProperty()
+  medias?: MediaResponseDTO[];
 
   @ApiProperty()
   createdAt: Date;

@@ -8,16 +8,22 @@ import {
   Query,
   Patch,
   Delete,
+  UseInterceptors,
+  UploadedFile,
+  HttpStatus,
+  ParseFilePipeBuilder,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 
-import { IdDTO, PaginationQueryDTO, SuccessDTO } from '@common/dtos';
+import { IdDTO, PaginationQueryDTO, PathDTO, SuccessDTO } from '@common/dtos';
 import { TokenTypes } from '@common/enums';
 import { AuthUserGuard } from '@common/guards';
 import { ResponseManager } from '@common/helpers';
@@ -29,13 +35,18 @@ import {
   CreateCategoryDTO,
   UpdateCategoryDTO,
 } from './dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { FileService } from '@shared/file/file.service';
 
 @Controller('categories')
 @UseGuards(AuthUserGuard(TokenTypes.PRIMARY))
 @ApiTags('Categories')
 @ApiBearerAuth()
 export class CategoriesController {
-  constructor(private readonly _categoriesService: CategoriesService) {}
+  constructor(
+    private readonly _categoriesService: CategoriesService,
+    private readonly _fileService: FileService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new category' })
@@ -126,5 +137,35 @@ export class CategoriesController {
       throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORY_NOT_EXIST);
     }
     return await this._categoriesService.remove(category);
+  }
+
+  @UseInterceptors(FileInterceptor('image'))
+  @Post('image')
+  @ApiOperation({ summary: 'Upload category image' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ description: 'The file and additional data to upload' })
+  @ApiResponse({
+    status: 201,
+    description: 'File successfully uploaded.',
+    type: PathDTO,
+  })
+  async uploadFile(
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: /.(jpg|jpeg|png)$/,
+        })
+        .addMaxSizeValidator({
+          maxSize: 5 * 1000 * 1000,
+        })
+        .build({
+          errorHttpStatusCode: HttpStatus.BAD_REQUEST,
+          fileIsRequired: true,
+        }),
+    )
+    file: Express.Multer.File,
+  ): Promise<PathDTO> {
+    const savedFilePath = await this._fileService.saveFile(file);
+    return { path: savedFilePath };
   }
 }

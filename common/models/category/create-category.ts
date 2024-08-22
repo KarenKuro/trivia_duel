@@ -6,4 +6,5 @@ export interface ICreateCategory {
   premiumPrice: number;
   // isExclusive?: boolean;
   translatedCategories: ICreateTranslatedCategory[];
+  path: string;
 }

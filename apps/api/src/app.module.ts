@@ -19,7 +19,7 @@ import {
 } from '@common/config';
 import { ENV_CONST } from '@common/constants';
 import {
-  LanguageEntity,
+  MediaEntity,
   TranslatedAnswerEntity,
   TranslatedCategoryEntity,
   TranslatedQuestionEntity,
@@ -35,6 +35,7 @@ import {
   MatchModule,
   UserModule,
 } from './resources';
+import { LanguagesModule } from '@api-resources/languages/languages.module';
 
 const isProductionMode = process.env.NODE_ENV === NodeEnv.production;
 
@@ -49,6 +50,7 @@ const envFilePath = isProductionMode
     UserModule,
     MatchModule,
     TasksModule,
+    LanguagesModule,
     ScheduleModule.forRoot(),
     EventEmitterModule.forRoot(),
     ConfigModule.forRoot({
@@ -85,7 +87,7 @@ const envFilePath = isProductionMode
             TranslatedAnswerEntity,
             TranslatedCategoryEntity,
             TranslatedQuestionEntity,
-            LanguageEntity,
+            MediaEntity,
           ],
         };
       },

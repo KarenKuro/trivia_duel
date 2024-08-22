@@ -50,4 +50,12 @@ export class CreateCategoryDTO implements ICreateCategory {
   @ValidateNested({ each: true })
   @Type(() => TranslatedCategoryDTO)
   translatedCategories: TranslatedCategoryDTO[];
+
+  @IsString()
+  @IsNotEmpty()
+  @Transform(({ value }) => {
+    return value?.trim();
+  })
+  @ApiProperty()
+  path: string;
 }

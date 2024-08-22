@@ -1,3 +1,4 @@
+import { IUpdateMedia } from '../media';
 import { IUpdateTranslatedCategory } from '../translated-category';
 
 export interface IUpdateCategory {
@@ -5,4 +6,5 @@ export interface IUpdateCategory {
   price: number;
   premiumPrice: number;
   translatedCategories: IUpdateTranslatedCategory[];
+  medias: IUpdateMedia[];
 }

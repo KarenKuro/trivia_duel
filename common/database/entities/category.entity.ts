@@ -3,6 +3,7 @@ import { BaseEntity } from '../base';
 import { QuestionEntity } from './question.entity';
 import { UserEntity } from './user.entity';
 import { TranslatedCategoryEntity } from './translated-category.entity';
+import { MediaEntity } from './media.entity';
 
 @Entity({ name: 'categories' })
 export class CategoryEntity extends BaseEntity {
@@ -33,4 +34,9 @@ export class CategoryEntity extends BaseEntity {
     (translatedCategory) => translatedCategory.category,
   )
   translatedCategories: TranslatedCategoryEntity[];
+
+  @OneToMany(() => MediaEntity, (media) => media.category, {
+    onDelete: 'CASCADE',
+  })
+  medias: MediaEntity[];
 }

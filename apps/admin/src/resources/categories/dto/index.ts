@@ -5,3 +5,5 @@ export * from './translated-category.dto';
 export * from './translated-category-response.dto';
 export * from './update-translated-category.dto';
 export * from './category-response-without-translation.dto';
+export * from './media.response.dto';
+export * from './update-media.dto';

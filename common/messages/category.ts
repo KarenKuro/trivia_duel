@@ -17,4 +17,7 @@ export const CATEGORY_ERROR_MESSAGES = {
   TRANSLATED_CATEGORIES_NOT_UNIQUE: {
     message: 'err_translated_categories_not_unique',
   },
+  MEDIA_NOT_EXIST: {
+    message: 'err_media_not_exist',
+  },
 };

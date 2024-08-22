@@ -14,7 +14,7 @@ import {
 
 import { IUpdateCategory } from '@common/models';
 
-import { UpdateTranslatedCategoryDTO } from '.';
+import { UpdateMediaDTO, UpdateTranslatedCategoryDTO } from '.';
 
 export class UpdateCategoryDTO implements IUpdateCategory {
   @IsString()
@@ -44,9 +44,17 @@ export class UpdateCategoryDTO implements IUpdateCategory {
   @ArrayMinSize(0)
   @IsArray()
   @ArrayUnique()
-  @ApiPropertyOptional({ uniqueItems: true, minItems: 0, maxItems: 2 })
   @ValidateNested({ each: true })
   @Type(() => UpdateTranslatedCategoryDTO)
   @IsOptional()
+  @ApiPropertyOptional({ uniqueItems: true, minItems: 0, maxItems: 2 })
   translatedCategories: UpdateTranslatedCategoryDTO[];
+
+  @IsArray()
+  @ArrayUnique()
+  @ValidateNested({ each: true })
+  @Type(() => UpdateMediaDTO)
+  @IsOptional()
+  @ApiPropertyOptional({ uniqueItems: true })
+  medias: UpdateMediaDTO[];
 }

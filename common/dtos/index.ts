@@ -4,3 +4,4 @@ export * from './success.dto';
 export * from './meta-response.dto';
 export * from './token-payload.dto';
 export * from './amount.dto';
+export * from './path.dto';

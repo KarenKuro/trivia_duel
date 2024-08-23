@@ -33,17 +33,6 @@ export class CategoryResponseDTO {
   })
   translatedCategories?: TranslatedCategoryResponseDTO[];
 
-  // @Transform((medias) => {
-  //   return medias.value.map(({ path }) => {
-  //     console.log('value', path);
-  //     return path.path;
-  //   });
-  // })
-  // @Transform(({ value }) => {
-  //   return value.map((media: IMedia) => media.path);
-  // })
-  // @ApiProperty({ type: [String] })
-  // medias?: string[];
-  @ApiProperty()
-  medias?: MediaResponseDTO[];
+  @ApiProperty({ type: String })
+  image?: MediaResponseDTO | string;
 }

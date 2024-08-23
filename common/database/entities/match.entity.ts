@@ -25,6 +25,12 @@ export class MatchEntity extends BaseEntity {
   })
   status: MatchStatusType;
 
+  @Column({
+    name: 'started_at',
+    type: 'datetime',
+  })
+  startedAt: Date;
+
   @ManyToMany(() => UserEntity)
   @JoinTable({
     name: 'match_users',

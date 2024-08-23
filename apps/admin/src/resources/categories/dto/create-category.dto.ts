@@ -13,11 +13,9 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-import { ICreateCategory } from '@common/models';
-
 import { TranslatedCategoryDTO } from './translated-category.dto';
 
-export class CreateCategoryDTO implements ICreateCategory {
+export class CreateCategoryDTO {
   @IsNotEmpty()
   @IsString()
   @Transform(({ value }) => {
@@ -27,11 +25,17 @@ export class CreateCategoryDTO implements ICreateCategory {
   text: string;
 
   @IsNumber()
+  @Transform(({ value }) => {
+    return !isNaN(value) ? Number(value) : value;
+  })
   @IsOptional()
   @ApiProperty()
   price: number;
 
   @IsNumber()
+  @Transform(({ value }) => {
+    return !isNaN(value) ? Number(value) : value;
+  })
   @IsOptional()
   @ApiProperty()
   premiumPrice: number;
@@ -50,12 +54,4 @@ export class CreateCategoryDTO implements ICreateCategory {
   @ValidateNested({ each: true })
   @Type(() => TranslatedCategoryDTO)
   translatedCategories: TranslatedCategoryDTO[];
-
-  @IsString()
-  @IsNotEmpty()
-  @Transform(({ value }) => {
-    return value?.trim();
-  })
-  @ApiProperty()
-  path: string;
 }

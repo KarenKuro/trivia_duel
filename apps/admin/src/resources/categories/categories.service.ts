@@ -40,10 +40,16 @@ export class CategoriesService {
 
   @Transactional()
   async create(body: ICreateCategory): Promise<void> {
+    const iamge = await this._mediaRepository.save({
+      path: body.path,
+    });
     const category = (await this._categoryRepository.save({
       text: body.text,
       premiumPrice: body.premiumPrice,
       price: body.price,
+      image: {
+        id: iamge.id,
+      },
     })) as CategoryEntity;
     const languages = await this._languagesService.findAll();
     const languagesIds = languages.map((language) => language.id);
@@ -62,11 +68,6 @@ export class CategoriesService {
       },
     );
 
-    await this._mediaRepository.save({
-      path: body.path,
-      category: { id: category.id } as CategoryEntity,
-    });
-
     await this._translatedCategoryRepository.save(translatedCategories);
   }
 
@@ -75,7 +76,11 @@ export class CategoriesService {
     const categories = await this._categoryRepository.find({
       skip: +offset,
       take: +limit,
-      relations: ['translatedCategories', 'translatedCategories.language'],
+      relations: [
+        'translatedCategories',
+        'translatedCategories.language',
+        'image',
+      ],
     });
 
     return categories;
@@ -84,7 +89,11 @@ export class CategoriesService {
   async findOne(param: Partial<ICategory>): Promise<ICategory> {
     const category = await this._categoryRepository.findOne({
       where: param,
-      relations: ['translatedCategories', 'translatedCategories.language', 'medias'],
+      relations: [
+        'translatedCategories',
+        'translatedCategories.language',
+        'image',
+      ],
     });
 
     return category;
@@ -123,24 +132,19 @@ export class CategoriesService {
       }
     }
 
-    if (body.medias) {
+    if (body.path.length > 0) {
       const categoryData = await this.findOne({ id: category.id });
-      const mediaIds = categoryData.medias.map((e) => e.id);
-
-      for (const media of body.medias) {
-        if (!mediaIds.includes(media.id)) {
-          throw ResponseManager.buildError(ERROR_MESSAGES.MEDIA_NOT_EXIST)
-        }
-
-
-      await this._mediaRepository.update(media.id, media)
-      }
-
+      await this._mediaRepository.update(
+        (categoryData.image as MediaEntity).id,
+        {
+          path: body.path,
+        },
+      );
     }
 
     await this._categoryRepository.update(
       category.id,
-      omit(body, ['translatedCategories', 'medias']),
+      omit(body, ['translatedCategories', 'path']),
     );
 
     return { success: true };

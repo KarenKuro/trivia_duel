@@ -27,6 +27,8 @@ import {
   QuestionsModule,
 } from './resources';
 import { UserModule } from './resources/user/user.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 const isProductionMode = process.env.NODE_ENV === NodeEnv.production;
 
@@ -36,6 +38,10 @@ const envFilePath = isProductionMode
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', '..', '..', 'uploads'), // Путь к папке uploads
+      serveRoot: '/uploads', // URL-адрес, по которому файлы будут доступны
+    }),
     AuthModule,
     CategoriesModule,
     QuestionsModule,
@@ -72,7 +78,12 @@ const envFilePath = isProductionMode
           // Do not use synchronize in production mode
           // https://docs.nestjs.com/techniques/database
           synchronize: configService.get<boolean>(`DB_CONFIG.sync`),
-          entities: [MatchEntity, UserAnswerEntity, MatchCategoryEntity, MediaEntity],
+          entities: [
+            MatchEntity,
+            UserAnswerEntity,
+            MatchCategoryEntity,
+            MediaEntity,
+          ],
         };
       },
       async dataSourceFactory(options) {

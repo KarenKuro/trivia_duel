@@ -4,3 +4,4 @@ export * from './question';
 export * from './user';
 export * from './currency';
 export * from './match';
+export * from './file';

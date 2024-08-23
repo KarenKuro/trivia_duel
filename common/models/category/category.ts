@@ -11,5 +11,5 @@ export interface ICategory {
   updatedAt: Date;
   isActive?: boolean;
   translatedCategories?: ITranslatedCategory[];
-  medias?: IMedia[];
+  image?: IMedia | string;
 }

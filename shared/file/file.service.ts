@@ -1,3 +1,4 @@
+import { Folder } from '@common/enums';
 import { Injectable } from '@nestjs/common';
 import { promises as fs } from 'fs';
 import { join } from 'path';
@@ -8,28 +9,41 @@ export class FileService {
   private readonly uploadPath = './uploads';
 
   constructor() {
-    this.ensureUploadsFolderExists();
-  }
-
-  private async ensureUploadsFolderExists() {
-    try {
-      await fs.access(this.uploadPath);
-    } catch {
-      await fs.mkdir(this.uploadPath, { recursive: true });
+    this.ensureFolderExists(this.uploadPath);
+    for (const folderName of Object.values(Folder)) {
+      this.ensureFolderExists(`${this.uploadPath}/${folderName}`);
     }
   }
 
-  async saveFile(file: Express.Multer.File): Promise<string> {
-    const filename = `${uuidv4()}${this.getExtension(file.originalname)}`;
-    const filePath = join(this.uploadPath, filename);
-    console.log(filePath);
-
-    await fs.writeFile(filePath, file.buffer);
-    return filePath;
+  private async ensureFolderExists(name: string) {
+    try {
+      await fs.access(name);
+    } catch {
+      await fs.mkdir(name, { recursive: true });
+    }
   }
 
   private getExtension(filename: string): string {
     return filename.substring(filename.lastIndexOf('.'));
   }
-  // private getImagePath(fileName: string): string {}
+
+  async saveFile(file: Express.Multer.File, folder: Folder): Promise<string> {
+    try {
+      const filename = `${uuidv4()}${this.getExtension(file.originalname)}`;
+      const filePath = join(`${this.uploadPath}/${folder}`, filename);
+
+      await fs.writeFile(filePath, file.buffer);
+      return filePath;
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async removeFile(filePath: string): Promise<void> {
+    try {
+      await fs.unlink(filePath);
+    } catch (err) {
+      console.error(err);
+    }
+  }
 }

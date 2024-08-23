@@ -15,7 +15,6 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiBody,
   ApiConsumes,
   ApiOperation,
   ApiQuery,
@@ -23,8 +22,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { IdDTO, PaginationQueryDTO, PathDTO, SuccessDTO } from '@common/dtos';
-import { TokenTypes } from '@common/enums';
+import { IdDTO, PaginationQueryDTO, SuccessDTO } from '@common/dtos';
+import { Folder, TokenTypes } from '@common/enums';
 import { AuthUserGuard } from '@common/guards';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
@@ -37,6 +36,7 @@ import {
 } from './dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileService } from '@shared/file/file.service';
+import { IMedia } from '@common/models/media';
 
 @Controller('categories')
 @UseGuards(AuthUserGuard(TokenTypes.PRIMARY))
@@ -49,12 +49,30 @@ export class CategoriesController {
   ) {}
 
   @Post()
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Create a new category' })
   @ApiResponse({
     status: 201,
     type: SuccessDTO,
   })
-  async create(@Body() body: CreateCategoryDTO): Promise<SuccessDTO> {
+  async create(
+    @Body() body: CreateCategoryDTO,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: /.(jpg|jpeg|png)$/,
+        })
+        .addMaxSizeValidator({
+          maxSize: 5 * 1000 * 1000,
+        })
+        .build({
+          errorHttpStatusCode: HttpStatus.BAD_REQUEST,
+          fileIsRequired: true,
+        }),
+    )
+    file: Express.Multer.File,
+  ): Promise<SuccessDTO> {
     const existCategory = await this._categoriesService.findOne({
       text: body.text,
     });
@@ -63,7 +81,9 @@ export class CategoriesController {
       throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORY_ALREADY_EXIST);
     }
 
-    await this._categoriesService.create(body);
+    const filePath = await this._fileService.saveFile(file, Folder.CATEGORIES);
+
+    await this._categoriesService.create({ ...body, path: filePath });
     return { success: true };
   }
 
@@ -105,10 +125,26 @@ export class CategoriesController {
   }
 
   @Patch(':id')
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Update a category by id' })
   async update(
     @Param() param: IdDTO,
     @Body() body: UpdateCategoryDTO,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: /.(jpg|jpeg|png)$/,
+        })
+        .addMaxSizeValidator({
+          maxSize: 5 * 1000 * 1000,
+        })
+        .build({
+          errorHttpStatusCode: HttpStatus.BAD_REQUEST,
+          fileIsRequired: false,
+        }),
+    )
+    file: Express.Multer.File,
   ): Promise<SuccessDTO> {
     const category = await this._categoriesService.findOne({ id: +param.id });
 
@@ -125,7 +161,19 @@ export class CategoriesController {
       }
     }
 
-    return await this._categoriesService.update(category, body);
+    let updatedPath: string = '';
+
+    const previousFilePath = (category.image as IMedia).path;
+
+    if (file) {
+      await this._fileService.removeFile(previousFilePath);
+      updatedPath = await this._fileService.saveFile(file, Folder.CATEGORIES);
+    }
+
+    return await this._categoriesService.update(category, {
+      ...body,
+      path: updatedPath,
+    });
   }
 
   @Delete(':id')
@@ -137,35 +185,5 @@ export class CategoriesController {
       throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORY_NOT_EXIST);
     }
     return await this._categoriesService.remove(category);
-  }
-
-  @UseInterceptors(FileInterceptor('image'))
-  @Post('image')
-  @ApiOperation({ summary: 'Upload category image' })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({ description: 'The file and additional data to upload' })
-  @ApiResponse({
-    status: 201,
-    description: 'File successfully uploaded.',
-    type: PathDTO,
-  })
-  async uploadFile(
-    @UploadedFile(
-      new ParseFilePipeBuilder()
-        .addFileTypeValidator({
-          fileType: /.(jpg|jpeg|png)$/,
-        })
-        .addMaxSizeValidator({
-          maxSize: 5 * 1000 * 1000,
-        })
-        .build({
-          errorHttpStatusCode: HttpStatus.BAD_REQUEST,
-          fileIsRequired: true,
-        }),
-    )
-    file: Express.Multer.File,
-  ): Promise<PathDTO> {
-    const savedFilePath = await this._fileService.saveFile(file);
-    return { path: savedFilePath };
   }
 }

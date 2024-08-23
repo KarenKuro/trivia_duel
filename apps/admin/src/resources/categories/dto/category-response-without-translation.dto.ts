@@ -1,5 +1,5 @@
+import { IMedia } from '@common/models/media';
 import { ApiProperty } from '@nestjs/swagger';
-import { MediaResponseDTO } from './media.response.dto';
 
 export class CategoryResponseWithoutTranslationsDTO {
   @ApiProperty()
@@ -18,7 +18,7 @@ export class CategoryResponseWithoutTranslationsDTO {
   // isExclusive: boolean;
 
   @ApiProperty()
-  medias?: MediaResponseDTO[];
+  image?: IMedia | string;
 
   @ApiProperty()
   createdAt: Date;

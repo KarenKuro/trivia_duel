@@ -36,6 +36,8 @@ import {
   UserModule,
 } from './resources';
 import { LanguagesModule } from '@api-resources/languages/languages.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 const isProductionMode = process.env.NODE_ENV === NodeEnv.production;
 
@@ -97,6 +99,10 @@ const envFilePath = isProductionMode
         }
         return addTransactionalDataSource(new DataSource(options));
       },
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', '..', '..', 'uploads'), // Путь к папке uploads
+      serveRoot: '/uploads', // URL-адрес, по которому файлы будут доступны
     }),
   ],
   controllers: [AppController],

@@ -31,6 +31,5 @@ export class FileService {
   private getExtension(filename: string): string {
     return filename.substring(filename.lastIndexOf('.'));
   }
-
   // private getImagePath(fileName: string): string {}
 }

@@ -25,7 +25,7 @@ export class UserService {
   async findOne(id: number): Promise<IUser> {
     const user = await this._userRepository.findOne({
       where: { id },
-      relations: ['categories'],
+      relations: ['categories', 'categories.medias', 'categories.translatedCategories'],
     });
 
     if (user.status === UserStatus.LOCKED) {
@@ -44,7 +44,7 @@ export class UserService {
   async addCategoriesAfterRegistration(
     userPayload: IUserId,
     categoryId: IId,
-  ): Promise<ICategory[]> {
+  ): Promise<IUser> {
     const user = await this.findOne(userPayload.id);
 
     if (user.categories.length) {
@@ -68,7 +68,7 @@ export class UserService {
 
     await this._userRepository.save(user);
 
-    return user.categories;
+    return user;
   }
 
   @Transactional()

@@ -49,15 +49,18 @@ export class UserController {
     @AuthUser() token: TokenPayloadDTO,
     @Body() body: IdDTO,
   ): Promise<CategoryResponseDTO[]> {
-    const categories = await this._userService.addCategoriesAfterRegistration(
+    const user = await this._userService.addCategoriesAfterRegistration(
       { id: token.id },
       body,
     );
 
-    if (!(categories.length === 3)) {
+    if (!(user.categories.length === 3)) {
       throw ResponseManager.buildError(ERROR_MESSAGES.WRONG_CATEGORIES_COUNT);
     }
 
+    const categories = await this._userService.findAllAvailableCategory({
+      id: token.id,
+    });
     return categories;
   }
 

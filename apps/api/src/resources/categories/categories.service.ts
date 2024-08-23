@@ -6,7 +6,7 @@ import { Transactional } from 'typeorm-transactional';
 
 import { CategoryEntity, UserEntity } from '@common/database/entities';
 import { CurrencyTypes, UserStatus } from '@common/enums';
-import { ResponseManager } from '@common/helpers';
+import { FileHelpers, ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
 import { ICategory, IQueryBuilderCategory } from '@common/models';
 import { IBuyCategory } from '@common/models/category/buy-category';
@@ -33,6 +33,9 @@ export class CategoriesService {
           'category.id = uc.category_id AND uc.user_id = :id',
           { id },
         )
+        .leftJoinAndSelect('media_files', 'mf', 'category.image_id = mf.id', {
+          id,
+        })
         .addSelect(
           'CASE WHEN uc.user_id IS NULL THEN 0 ELSE 1 END AS category_isActive',
         )
@@ -46,11 +49,15 @@ export class CategoriesService {
       createdAt: category.category_created_at,
       updatedAt: category.category_updated_at,
       isActive: Boolean(Number(category.category_isActive)),
+      image: FileHelpers.generatePath(category.mf_path),
     })) as ICategory[];
   }
 
   async findOne(param: Partial<ICategory>): Promise<ICategory> {
-    const category = await this._categoryRepository.findOne({ where: param });
+    const category = await this._categoryRepository.findOne({
+      where: param,
+      relations: ['image'],
+    });
 
     return category;
   }

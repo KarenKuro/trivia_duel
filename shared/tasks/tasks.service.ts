@@ -50,16 +50,17 @@ export class TasksService {
   }
 
   // Force canceled match if the match continious more than 5 minutes
-  // TODO: Put EVERY_10_SECONDS, and change fiveMinutes const
+  // TODO: Put EVERY_10_SECONDS, and change interval to 5 minute
   @Cron(CronExpression.EVERY_10_MINUTES)
   async endMatches() {
     const matchesToUpdate = await this._matchRepository
       .createQueryBuilder('match')
-      .where('match.createdAt < DATE_SUB(now(), INTERVAL 5 MINUTE)')
+      .where('match.createdAt < DATE_SUB(now(), INTERVAL 10 MINUTE)')
       .andWhere('match.status IN (:...statuses)', {
         statuses: [
           MatchStatusType.PENDING,
           MatchStatusType.CATEGORY_CHOOSE,
+          // TODO: remove in process
           MatchStatusType.IN_PROCESS,
         ],
       })
@@ -76,6 +77,8 @@ export class TasksService {
       this._matchGateway.sendMessageToHandlers(endedMatchData);
     });
   }
+
+  // @Cron(CronExpression.EVERY_10_SECONDS)
 
   // add tiket, after 15 minutes, when match ended
   // TODO: change fifteenMinutesFromNow(uncomment: '* 60')

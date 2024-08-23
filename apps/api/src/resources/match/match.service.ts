@@ -162,7 +162,9 @@ export class MatchService {
 
     categoriesObj.categories.forEach((categoryId) => {
       if (!userCategoryIds.includes(categoryId)) {
-        throw ResponseManager.buildError(ERROR_MESSAGES.USER_CATEGORIES_NOT_EXISTS);
+        throw ResponseManager.buildError(
+          ERROR_MESSAGES.USER_CATEGORIES_NOT_EXISTS,
+        );
       }
     });
 
@@ -233,6 +235,13 @@ export class MatchService {
       console.log('questions', questions);
       match.questions = questions;
       match.status = MatchStatusType.IN_PROCESS;
+
+      //TODO
+      const [{ currTime }] = await this._entityManager.query(
+        `SELECT now() as "currTime";`,
+      );
+      console.log('currTime', currTime);
+      match.startedAt = currTime;
       await this._matchRepository.save(match);
 
       for (const user of match.users) {

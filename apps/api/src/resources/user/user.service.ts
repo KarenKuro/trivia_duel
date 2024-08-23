@@ -25,7 +25,11 @@ export class UserService {
   async findOne(id: number): Promise<IUser> {
     const user = await this._userRepository.findOne({
       where: { id },
-      relations: ['categories', 'categories.medias', 'categories.translatedCategories'],
+      relations: [
+        'categories',
+        'categories.translatedCategories',
+        'categories.image',
+      ],
     });
 
     if (user.status === UserStatus.LOCKED) {

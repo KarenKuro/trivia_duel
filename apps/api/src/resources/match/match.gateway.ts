@@ -10,8 +10,8 @@ import {
 import { omit } from 'lodash';
 import { Server, Socket } from 'socket.io';
 
-import { MatchEntity } from '@common/database/entities';
-import { ITokenPayload, IUser } from '@common/models';
+import { MatchEntity, UserEntity } from '@common/database/entities';
+import { ITokenPayload } from '@common/models';
 
 @WebSocketGateway(3001)
 export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -59,7 +59,7 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
         match.status,
         match.lastAnswer?.id,
       );
-      let users: IUser[] = [];
+      let users: UserEntity[] = [];
       users = [...match.users];
 
       // TODO не стоит ли добавить сюда хотя бы какую то инфу о юзере? чтобы перед началом матча показать инфу о юзере

@@ -161,7 +161,7 @@ export class CategoriesController {
       }
     }
 
-    let updatedPath: string = '';
+    let updatedPath: string = null;
 
     const previousFilePath = (category.image as IMedia).path;
 

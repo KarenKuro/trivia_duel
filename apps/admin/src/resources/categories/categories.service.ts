@@ -40,7 +40,7 @@ export class CategoriesService {
 
   @Transactional()
   async create(body: ICreateCategory): Promise<void> {
-    const iamge = await this._mediaRepository.save({
+    const image = await this._mediaRepository.save({
       path: body.path,
     });
     const category = (await this._categoryRepository.save({
@@ -48,7 +48,7 @@ export class CategoriesService {
       premiumPrice: body.premiumPrice,
       price: body.price,
       image: {
-        id: iamge.id,
+        id: image.id,
       },
     })) as CategoryEntity;
     const languages = await this._languagesService.findAll();
@@ -132,7 +132,7 @@ export class CategoriesService {
       }
     }
 
-    if (body.path.length > 0) {
+    if (body.path) {
       const categoryData = await this.findOne({ id: category.id });
       await this._mediaRepository.update(
         (categoryData.image as MediaEntity).id,

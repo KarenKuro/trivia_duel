@@ -72,4 +72,8 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
       console.log(e);
     }
   }
+
+  async sendUserData(user: UserEntity) {
+    this.server.to(user.id.toString()).emit('user', user);
+  }
 }

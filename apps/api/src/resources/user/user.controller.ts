@@ -65,13 +65,13 @@ export class UserController {
   }
 
   @Patch()
-  @ApiOperation({ summary: 'Update User example:add avatar link to user ' })
+  @ApiOperation({
+    summary: 'Update User example:add avatar link to user , tickets or name',
+  })
   async updateUser(
     @AuthUser() token: TokenPayloadDTO,
     @Body() body: UpdateUserDTO,
   ): Promise<SuccessDTO> {
-    console.log(body);
-
     await this._userService.updateUser(token.id, body);
 
     return { success: true };

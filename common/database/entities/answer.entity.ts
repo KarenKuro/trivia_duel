@@ -1,8 +1,8 @@
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 
-import { BaseEntity } from '../base';
 import { QuestionEntity } from './question.entity';
 import { TranslatedAnswerEntity } from './translated-answer.entity';
+import { BaseEntity } from '../base';
 
 @Entity({ name: 'answers' })
 export class AnswerEntity extends BaseEntity {

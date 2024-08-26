@@ -1,5 +1,6 @@
-import { IMetaResponse } from '@common/models';
 import { ApiProperty } from '@nestjs/swagger';
+
+import { IMetaResponse } from '@common/models';
 
 export class MetaResponseDTO implements IMetaResponse {
   @ApiProperty()

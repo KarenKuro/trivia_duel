@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { TranslatedCategoryResponseDTO } from './translated-category-response.dto';
 import { IMedia } from '@common/models/media';
+
+import { TranslatedCategoryResponseDTO } from './translated-category-response.dto';
 
 export class CategoryResponseDTO {
   @ApiProperty()

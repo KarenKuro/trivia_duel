@@ -1,11 +1,12 @@
+import { ApiHideProperty } from '@nestjs/swagger';
+
 import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
 
 import { UserStatus } from '@common/enums';
 
-import { BaseEntity } from '../base';
 import { CategoryEntity } from './category.entity';
 import { MatchEntity } from './match.entity';
-import { ApiHideProperty } from '@nestjs/swagger';
+import { BaseEntity } from '../base';
 
 @Entity({ name: 'users' })
 export class UserEntity extends BaseEntity {

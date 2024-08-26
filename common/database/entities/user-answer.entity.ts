@@ -1,9 +1,10 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { BaseEntity } from '../base';
-import { UserEntity } from './user.entity';
-import { MatchEntity } from './match.entity';
+
 import { AnswerEntity } from './answer.entity';
+import { MatchEntity } from './match.entity';
 import { QuestionEntity } from './question.entity';
+import { UserEntity } from './user.entity';
+import { BaseEntity } from '../base';
 
 @Entity({ name: 'users_answers' })
 export class UserAnswerEntity extends BaseEntity {

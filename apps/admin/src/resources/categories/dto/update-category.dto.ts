@@ -14,8 +14,7 @@ import {
 
 import { UpdateTranslatedCategoryDTO } from './update-translated-category.dto';
 
-
-export class UpdateCategoryDTO  {
+export class UpdateCategoryDTO {
   @IsString()
   @IsOptional()
   @Transform(({ value }) => {

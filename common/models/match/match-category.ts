@@ -1,6 +1,6 @@
+import { IMatch } from './match';
 import { ICategory } from '../category';
 import { IUser } from '../user';
-import { IMatch } from './match';
 
 export interface IMatchCategory {
   user?: IUser;

@@ -1,5 +1,6 @@
-import { IDatabaseConnection } from '@common/models';
 import { registerAs } from '@nestjs/config';
+
+import { IDatabaseConnection } from '@common/models';
 
 export default registerAs(
   'DB_CONFIG',

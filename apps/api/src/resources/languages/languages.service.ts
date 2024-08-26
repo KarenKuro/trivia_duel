@@ -1,8 +1,10 @@
-import { LanguageEntity } from '@common/database';
-import { ILanguage } from '@common/models';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+
 import { Repository } from 'typeorm';
+
+import { LanguageEntity } from '@common/database';
+import { ILanguage } from '@common/models';
 
 @Injectable()
 export class LanguagesService {

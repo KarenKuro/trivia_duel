@@ -3,16 +3,24 @@ import {
   ApiBearerAuth,
   ApiOperation,
   ApiParam,
+  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 
-import { AuthUser } from '@common/decorators';
+import { plainToInstance } from 'class-transformer';
+
+import { AuthUser, Language } from '@common/decorators';
 import { IdDTO, SuccessDTO, TokenPayloadDTO } from '@common/dtos';
 import { AuthUserGuard } from '@common/guards';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
 
-import { CategoriesDTO, MatchResponseDTO, UserAnswerDTO } from './dto';
+import {
+  CategoriesDTO,
+  MatchResponseDTO,
+  MatchStartResponseDTO,
+  UserAnswerDTO,
+} from './dto';
 import { MatchService } from './match.service';
 
 @Controller('matches')
@@ -26,15 +34,21 @@ export class MatchController {
   @ApiOperation({
     summary: 'Join to match, if can find, or not - create new match',
   })
+  @ApiResponse({ type: MatchStartResponseDTO, status: 201 })
   async createMatch(
     @AuthUser() token: TokenPayloadDTO,
-  ): Promise<MatchResponseDTO> {
+  ): Promise<MatchStartResponseDTO> {
     const match = await this._matchService.createOrJoinMatch(token);
     if (!match) {
       throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_MAKING);
     }
 
-    return match;
+    const matchStartResponse = {
+      id: match.id,
+      status: match.status,
+    } as MatchStartResponseDTO;
+
+    return matchStartResponse as MatchStartResponseDTO;
   }
 
   // categorynery kawelnan matchi mej // hamadzayn categoryi questionnery kkpnin matchin // u statusy kpoxe
@@ -58,10 +72,13 @@ export class MatchController {
   async get(
     @Param() param: IdDTO,
     @AuthUser() user: TokenPayloadDTO,
+    @Language() language: string,
   ): Promise<MatchResponseDTO> {
     console.log(param);
-
-    return await this._matchService.findOne(user, +param.id); /// user statistic.
+    const match = await this._matchService.findOne(user, +param.id, language); /// user statistic.
+    return plainToInstance(MatchResponseDTO, match, {
+      excludeExtraneousValues: true,
+    });
   }
 
   @Post(':id/answer')

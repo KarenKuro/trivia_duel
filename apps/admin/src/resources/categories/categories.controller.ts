@@ -13,6 +13,7 @@ import {
   HttpStatus,
   ParseFilePipeBuilder,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiConsumes,
@@ -22,11 +23,14 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import { FileService } from '@shared/file/file.service';
+
 import { IdDTO, PaginationQueryDTO, SuccessDTO } from '@common/dtos';
 import { Folder, TokenTypes } from '@common/enums';
 import { AuthUserGuard } from '@common/guards';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
+import { IMedia } from '@common/models/media';
 
 import { CategoriesService } from './categories.service';
 import {
@@ -34,9 +38,6 @@ import {
   CreateCategoryDTO,
   UpdateCategoryDTO,
 } from './dto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { FileService } from '@shared/file/file.service';
-import { IMedia } from '@common/models/media';
 
 @Controller('categories')
 @UseGuards(AuthUserGuard(TokenTypes.PRIMARY))

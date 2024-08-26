@@ -1,7 +1,8 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { BaseEntity } from '../base';
+
 import { CategoryEntity } from './category.entity';
 import { LanguageEntity } from './language.entity';
+import { BaseEntity } from '../base';
 
 @Entity({ name: 'translated_category' })
 export class TranslatedCategoryEntity extends BaseEntity {

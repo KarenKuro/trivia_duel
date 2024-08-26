@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Not, Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 
+import { MAIN_LANGUAGE } from '@common/constants';
 import { CategoryEntity, UserEntity } from '@common/database/entities';
 import { CurrencyTypes, UserStatus } from '@common/enums';
 import { FileHelpers, ResponseManager } from '@common/helpers';
@@ -22,32 +23,54 @@ export class CategoriesService {
     private readonly _categoryRepository: Repository<CategoryEntity>,
   ) {}
 
-  async findAllWithIsActive(userId: IUserId): Promise<ICategory[]> {
+  async findAllWithIsActive(
+    userId: IUserId,
+    language: string,
+  ): Promise<ICategory[]> {
     const id = userId.id;
     const allCategories: IQueryBuilderCategory[] =
       await this._categoryRepository
         .createQueryBuilder('category')
+        .select([
+          'category.id',
+          'category.price',
+          'category.premiumPrice',
+          'category.created_at',
+          'category.updated_at',
+        ])
+        .addSelect('mf.path')
+        .addSelect(
+          'CASE WHEN uc.user_id IS NULL THEN 0 ELSE 1 END AS category_isActive',
+        )
+        .addSelect(
+          `CASE WHEN '${language}' = '${MAIN_LANGUAGE}' THEN category.text ELSE tc.text END AS category_text`,
+        )
         .leftJoin(
           'users_categories',
           'uc',
           'category.id = uc.category_id AND uc.user_id = :id',
           { id },
         )
-        .leftJoinAndSelect('media_files', 'mf', 'category.image_id = mf.id', {
-          id,
-        })
-        .addSelect(
-          'CASE WHEN uc.user_id IS NULL THEN 0 ELSE 1 END AS category_isActive',
+        .leftJoin('translated_category', 'tc', 'category.id = tc.category_id')
+        .leftJoin('languages', 'l', 'tc.language_id = l.id')
+        .leftJoin('media_files', 'mf', 'category.image_id = mf.id')
+        .where(
+          `(CASE WHEN '${language}' = '${MAIN_LANGUAGE}' THEN TRUE ELSE l.key = '${language}' END)`,
         )
+        .distinct(true)
         .getRawMany();
+
+    console.log('allCategories', allCategories);
+
+    //TODO как здесь сделать, чтобы возвращалась вместе с транслэйтед???
 
     return allCategories.map((category) => ({
       id: category.category_id,
       text: category.category_text,
       price: category.category_price,
       premiumPrice: category.category_premiumPrice,
-      createdAt: category.category_created_at,
-      updatedAt: category.category_updated_at,
+      createdAt: category.created_at,
+      updatedAt: category.updated_at,
       isActive: Boolean(Number(category.category_isActive)),
       image: FileHelpers.generatePath(category.mf_path),
     })) as ICategory[];

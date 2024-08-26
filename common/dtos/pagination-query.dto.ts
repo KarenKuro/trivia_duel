@@ -1,6 +1,8 @@
-import { IPagination } from '@common/models';
 import { ApiProperty } from '@nestjs/swagger';
+
 import { IsNumberString } from 'class-validator';
+
+import { IPagination } from '@common/models';
 
 export class PaginationQueryDTO implements IPagination {
   @ApiProperty()

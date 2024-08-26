@@ -1,5 +1,6 @@
-import { IFacebookCredentials } from '@common/models';
 import { registerAs } from '@nestjs/config';
+
+import { IFacebookCredentials } from '@common/models';
 
 export default registerAs(
   'FACEBOOK_CONFIG',

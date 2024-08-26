@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { MatchEntity, UserEntity } from '@common/database';
-import { TasksService } from './tasks.service';
 import { MatchGateway, MatchModule } from '@api-resources/match';
 import { UserModule } from '@api-resources/user';
+
+import { MatchEntity, UserAnswerEntity, UserEntity } from '@common/database';
+
+import { TasksService } from './tasks.service';
 
 @Module({
   imports: [
@@ -20,7 +22,7 @@ import { UserModule } from '@api-resources/user';
       }),
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([MatchEntity, UserEntity]),
+    TypeOrmModule.forFeature([MatchEntity, UserEntity, UserAnswerEntity]),
     MatchModule,
     UserModule,
   ],

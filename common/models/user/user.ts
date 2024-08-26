@@ -1,4 +1,5 @@
 import { UserStatus } from '@common/enums';
+
 import { ICategory } from '../category';
 import { IMatch } from '../match';
 
@@ -20,4 +21,5 @@ export interface IUser {
   matches?: IMatch[];
   longestWinCount: number;
   currentWinCount: number;
+  avatar?: string;
 }

@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { CategoriesModule } from '@api-resources/categories';
 import { UserModule } from '@api-resources/user';
+import { DbMnagerModule } from '@shared/db-manager';
 
 import {
   CategoryEntity,
@@ -23,6 +24,7 @@ import { MatchService } from './match.service';
   imports: [
     UserModule,
     CategoriesModule,
+    DbMnagerModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({

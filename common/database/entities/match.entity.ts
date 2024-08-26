@@ -1,7 +1,8 @@
-import { MatchLevel, MatchStatusType } from '@common/enums';
-import { BaseEntity } from '../base';
+import { ApiHideProperty } from '@nestjs/swagger';
+
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   JoinTable,
@@ -10,11 +11,14 @@ import {
   OneToMany,
   OneToOne,
 } from 'typeorm';
-import { UserEntity } from './user.entity';
+
+import { MatchLevel, MatchStatusType } from '@common/enums';
+
+import { MatchCategoryEntity } from './match-category.entity';
 import { QuestionEntity } from './question.entity';
 import { UserAnswerEntity } from './user-answer.entity';
-import { MatchCategoryEntity } from './match-category.entity';
-import { ApiHideProperty } from '@nestjs/swagger';
+import { UserEntity } from './user.entity';
+import { BaseEntity } from '../base';
 
 @Entity({ name: 'matches' })
 export class MatchEntity extends BaseEntity {
@@ -24,6 +28,12 @@ export class MatchEntity extends BaseEntity {
     default: MatchStatusType.PENDING,
   })
   status: MatchStatusType;
+
+  @CreateDateColumn({
+    name: 'started_at',
+    type: 'datetime',
+  })
+  startedAt: Date;
 
   @ManyToMany(() => UserEntity)
   @JoinTable({

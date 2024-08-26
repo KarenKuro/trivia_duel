@@ -1,8 +1,22 @@
-import { Column, Entity, ManyToMany, OneToMany } from 'typeorm';
-import { BaseEntity } from '../base';
+import { ApiProperty } from '@nestjs/swagger';
+
+import { Transform } from 'class-transformer';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToMany,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
+
+import { FileHelpers } from '@common/helpers';
+
+import { MediaEntity } from './media.entity';
 import { QuestionEntity } from './question.entity';
-import { UserEntity } from './user.entity';
 import { TranslatedCategoryEntity } from './translated-category.entity';
+import { UserEntity } from './user.entity';
+import { BaseEntity } from '../base';
 
 @Entity({ name: 'categories' })
 export class CategoryEntity extends BaseEntity {
@@ -33,4 +47,12 @@ export class CategoryEntity extends BaseEntity {
     (translatedCategory) => translatedCategory.category,
   )
   translatedCategories: TranslatedCategoryEntity[];
+
+  @OneToOne(() => MediaEntity)
+  @JoinColumn({ name: 'image_id' })
+  @Transform(({ value }) => {
+    return FileHelpers.generatePath(value?.path);
+  })
+  @ApiProperty()
+  image: MediaEntity | string;
 }

@@ -1,5 +1,6 @@
-import { IGoogleCredentials } from '@common/models/google';
 import { registerAs } from '@nestjs/config';
+
+import { IGoogleCredentials } from '@common/models/google';
 
 export default registerAs(
   'GOOGLE_CONFIG',

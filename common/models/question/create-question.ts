@@ -1,6 +1,7 @@
 import { QuestionType } from '@common/enums';
-import { ICreateTranslatedQuestion } from '../translated-question';
+
 import { ICreateAnswer } from './create-answer';
+import { ICreateTranslatedQuestion } from '../translated-question';
 
 export interface ICreateQuestion {
   text: string;

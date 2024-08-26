@@ -53,4 +53,7 @@ export class UserResponseDTO implements IUser {
 
   @ApiProperty()
   updatedAt: Date;
+
+  @ApiProperty()
+  avatar?: string;
 }

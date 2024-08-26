@@ -10,3 +10,4 @@ export * from './language.entity';
 export * from './translated-category.entity';
 export * from './translated-question.entity';
 export * from './translated-answer.entity';
+export * from './media.entity';

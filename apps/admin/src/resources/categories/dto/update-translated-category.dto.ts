@@ -7,6 +7,9 @@ import { IUpdateTranslatedCategory } from '@common/models';
 
 export class UpdateTranslatedCategoryDTO implements IUpdateTranslatedCategory {
   @IsNumber()
+  @Transform(({ value }) => {
+    return !isNaN(value) ? Number(value) : value;
+  })
   @IsNotEmpty()
   @ApiProperty()
   id: number;

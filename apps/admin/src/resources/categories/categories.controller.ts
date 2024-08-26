@@ -8,20 +8,29 @@ import {
   Query,
   Patch,
   Delete,
+  UseInterceptors,
+  UploadedFile,
+  HttpStatus,
+  ParseFilePipeBuilder,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
+  ApiConsumes,
   ApiOperation,
   ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 
+import { FileService } from '@shared/file/file.service';
+
 import { IdDTO, PaginationQueryDTO, SuccessDTO } from '@common/dtos';
-import { TokenTypes } from '@common/enums';
+import { Folder, TokenTypes } from '@common/enums';
 import { AuthUserGuard } from '@common/guards';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
+import { IMedia } from '@common/models/media';
 
 import { CategoriesService } from './categories.service';
 import {
@@ -35,15 +44,36 @@ import {
 @ApiTags('Categories')
 @ApiBearerAuth()
 export class CategoriesController {
-  constructor(private readonly _categoriesService: CategoriesService) {}
+  constructor(
+    private readonly _categoriesService: CategoriesService,
+    private readonly _fileService: FileService,
+  ) {}
 
   @Post()
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Create a new category' })
   @ApiResponse({
     status: 201,
     type: SuccessDTO,
   })
-  async create(@Body() body: CreateCategoryDTO): Promise<SuccessDTO> {
+  async create(
+    @Body() body: CreateCategoryDTO,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: /.(jpg|jpeg|png)$/,
+        })
+        .addMaxSizeValidator({
+          maxSize: 5 * 1000 * 1000,
+        })
+        .build({
+          errorHttpStatusCode: HttpStatus.BAD_REQUEST,
+          fileIsRequired: true,
+        }),
+    )
+    file: Express.Multer.File,
+  ): Promise<SuccessDTO> {
     const existCategory = await this._categoriesService.findOne({
       text: body.text,
     });
@@ -52,7 +82,9 @@ export class CategoriesController {
       throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORY_ALREADY_EXIST);
     }
 
-    await this._categoriesService.create(body);
+    const filePath = await this._fileService.saveFile(file, Folder.CATEGORIES);
+
+    await this._categoriesService.create({ ...body, path: filePath });
     return { success: true };
   }
 
@@ -94,10 +126,26 @@ export class CategoriesController {
   }
 
   @Patch(':id')
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Update a category by id' })
   async update(
     @Param() param: IdDTO,
     @Body() body: UpdateCategoryDTO,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: /.(jpg|jpeg|png)$/,
+        })
+        .addMaxSizeValidator({
+          maxSize: 5 * 1000 * 1000,
+        })
+        .build({
+          errorHttpStatusCode: HttpStatus.BAD_REQUEST,
+          fileIsRequired: false,
+        }),
+    )
+    file: Express.Multer.File,
   ): Promise<SuccessDTO> {
     const category = await this._categoriesService.findOne({ id: +param.id });
 
@@ -114,7 +162,19 @@ export class CategoriesController {
       }
     }
 
-    return await this._categoriesService.update(category, body);
+    let updatedPath: string = null;
+
+    const previousFilePath = (category.image as IMedia).path;
+
+    if (file) {
+      await this._fileService.removeFile(previousFilePath);
+      updatedPath = await this._fileService.saveFile(file, Folder.CATEGORIES);
+    }
+
+    return await this._categoriesService.update(category, {
+      ...body,
+      path: updatedPath,
+    });
   }
 
   @Delete(':id')

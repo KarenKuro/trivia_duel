@@ -1,15 +1,15 @@
-import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Patch } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { CategoryResponseDTO } from '@api-resources/categories/dto';
 
 import { AuthUser } from '@common/decorators';
-import { IdDTO, TokenPayloadDTO } from '@common/dtos';
+import { IdDTO, SuccessDTO, TokenPayloadDTO } from '@common/dtos';
 import { AuthUserGuard } from '@common/guards';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
 
-import { UserResponseDTO } from './dto';
+import { UpdateUserDTO, UserResponseDTO } from './dto';
 import { UserService } from './user.service';
 
 @Controller('users')
@@ -49,15 +49,31 @@ export class UserController {
     @AuthUser() token: TokenPayloadDTO,
     @Body() body: IdDTO,
   ): Promise<CategoryResponseDTO[]> {
-    const categories = await this._userService.addCategoriesAfterRegistration(
+    const user = await this._userService.addCategoriesAfterRegistration(
       { id: token.id },
       body,
     );
 
-    if (!(categories.length === 3)) {
+    if (!(user.categories.length === 3)) {
       throw ResponseManager.buildError(ERROR_MESSAGES.WRONG_CATEGORIES_COUNT);
     }
 
+    const categories = await this._userService.findAllAvailableCategory({
+      id: token.id,
+    });
     return categories;
+  }
+
+  @Patch()
+  @ApiOperation({
+    summary: 'Update User example:add avatar link to user , tickets or name',
+  })
+  async updateUser(
+    @AuthUser() token: TokenPayloadDTO,
+    @Body() body: UpdateUserDTO,
+  ): Promise<SuccessDTO> {
+    await this._userService.updateUser(token.id, body);
+
+    return { success: true };
   }
 }

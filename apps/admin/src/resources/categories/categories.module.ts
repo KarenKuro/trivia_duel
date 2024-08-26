@@ -4,11 +4,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { LanguagesService } from '@admin-resources/languages';
+import { FileService } from '@shared/file/file.service';
 
 import {
   AnswerEntity,
   CategoryEntity,
   LanguageEntity,
+  MediaEntity,
   QuestionEntity,
   TranslatedCategoryEntity,
 } from '@common/database/entities';
@@ -24,6 +26,7 @@ import { CategoriesService } from './categories.service';
       AnswerEntity,
       TranslatedCategoryEntity,
       LanguageEntity,
+      MediaEntity,
     ]),
 
     JwtModule.registerAsync({
@@ -38,7 +41,7 @@ import { CategoriesService } from './categories.service';
     }),
   ],
   controllers: [CategoriesController],
-  providers: [CategoriesService, LanguagesService],
+  providers: [CategoriesService, LanguagesService, FileService],
   exports: [CategoriesService],
 })
 export class CategoriesModule {}

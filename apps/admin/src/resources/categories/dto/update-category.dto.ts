@@ -12,11 +12,9 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-import { IUpdateCategory } from '@common/models';
+import { UpdateTranslatedCategoryDTO } from './update-translated-category.dto';
 
-import { UpdateTranslatedCategoryDTO } from '.';
-
-export class UpdateCategoryDTO implements IUpdateCategory {
+export class UpdateCategoryDTO {
   @IsString()
   @IsOptional()
   @Transform(({ value }) => {
@@ -26,11 +24,17 @@ export class UpdateCategoryDTO implements IUpdateCategory {
   text: string;
 
   @IsNumber()
+  @Transform(({ value }) => {
+    return !isNaN(value) ? Number(value) : value;
+  })
   @IsOptional()
   @ApiPropertyOptional()
   price: number;
 
   @IsNumber()
+  @Transform(({ value }) => {
+    return !isNaN(value) ? Number(value) : value;
+  })
   @IsOptional()
   @ApiPropertyOptional()
   premiumPrice: number;
@@ -44,9 +48,9 @@ export class UpdateCategoryDTO implements IUpdateCategory {
   @ArrayMinSize(0)
   @IsArray()
   @ArrayUnique()
-  @ApiPropertyOptional({ uniqueItems: true, minItems: 0, maxItems: 2 })
   @ValidateNested({ each: true })
   @Type(() => UpdateTranslatedCategoryDTO)
   @IsOptional()
+  @ApiPropertyOptional({ uniqueItems: true, minItems: 0, maxItems: 2 })
   translatedCategories: UpdateTranslatedCategoryDTO[];
 }

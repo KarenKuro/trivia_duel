@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { join } from 'path';
 
 import { DataSource } from 'typeorm';
 import { addTransactionalDataSource } from 'typeorm-transactional';
@@ -12,6 +15,7 @@ import { ENV_CONST } from '@common/constants';
 import {
   MatchCategoryEntity,
   MatchEntity,
+  MediaEntity,
   UserAnswerEntity,
 } from '@common/database/entities';
 import { NodeEnv } from '@common/enums';
@@ -35,6 +39,10 @@ const envFilePath = isProductionMode
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', '..', '..', 'uploads'), // Путь к папке uploads
+      serveRoot: '/uploads', // URL-адрес, по которому файлы будут доступны
+    }),
     AuthModule,
     CategoriesModule,
     QuestionsModule,
@@ -71,7 +79,12 @@ const envFilePath = isProductionMode
           // Do not use synchronize in production mode
           // https://docs.nestjs.com/techniques/database
           synchronize: configService.get<boolean>(`DB_CONFIG.sync`),
-          entities: [MatchEntity, UserAnswerEntity, MatchCategoryEntity],
+          entities: [
+            MatchEntity,
+            UserAnswerEntity,
+            MatchCategoryEntity,
+            MediaEntity,
+          ],
         };
       },
       async dataSourceFactory(options) {

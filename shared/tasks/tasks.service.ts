@@ -1,20 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Cron, CronExpression } from '@nestjs/schedule';
 import { OnEvent } from '@nestjs/event-emitter';
-import * as schedule from 'node-schedule';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { InjectRepository } from '@nestjs/typeorm';
 
-import { MatchEntity, UserEntity } from '@common/database';
-import { MatchStatusType } from '@common/enums';
+import * as schedule from 'node-schedule';
+import { Repository } from 'typeorm';
+
 import { MatchGateway, MatchService } from '@api-resources/match';
 import { UserService } from '@api-resources/user';
+
+import { MatchEntity, UserAnswerEntity, UserEntity } from '@common/database';
+import { MatchStatusType } from '@common/enums';
 
 @Injectable()
 export class TasksService {
   constructor(
     @InjectRepository(MatchEntity)
     private readonly _matchRepository: Repository<MatchEntity>,
+
+    @InjectRepository(UserAnswerEntity)
+    private readonly _userAnswerRepository: Repository<UserAnswerEntity>,
 
     private readonly _userService: UserService,
     private readonly _matchService: MatchService,
@@ -50,18 +55,14 @@ export class TasksService {
   }
 
   // Force canceled match if the match continious more than 5 minutes
-  // TODO: Put EVERY_10_SECONDS, and change fiveMinutes const
+  // TODO: Put EVERY_10_SECONDS, and change interval to 5 minute  !!!!!!!!! change to 10 sec cron , interval - 15 sec match можно cancaled.
   @Cron(CronExpression.EVERY_10_MINUTES)
-  async endMatches() {
+  async canceledMatches() {
     const matchesToUpdate = await this._matchRepository
       .createQueryBuilder('match')
-      .where('match.createdAt < DATE_SUB(now(), INTERVAL 5 MINUTE)')
+      .where('match.createdAt < DATE_SUB(now(), INTERVAL 10 MINUTE)')
       .andWhere('match.status IN (:...statuses)', {
-        statuses: [
-          MatchStatusType.PENDING,
-          MatchStatusType.CATEGORY_CHOOSE,
-          MatchStatusType.IN_PROCESS,
-        ],
+        statuses: [MatchStatusType.PENDING, MatchStatusType.CATEGORY_CHOOSE],
       })
       .getMany();
 
@@ -74,6 +75,36 @@ export class TasksService {
         match.id,
       );
       this._matchGateway.sendMessageToHandlers(endedMatchData);
+    });
+  }
+
+  // Change match status to ended if match started more than 2 minute
+  // TODO Put EVERY_10_SECONDS, and change interval to time , how long should the match last(example: 2 minutes)
+  @Cron(CronExpression.EVERY_10_SECONDS)
+  async endMatches() {
+    const matchesToUpdate = await this._matchRepository
+      .createQueryBuilder('match')
+      .where('match.startedAt < DATE_SUB(now(), INTERVAL 10 MINUTE)')
+      .andWhere('match.status = :status', {
+        status: MatchStatusType.IN_PROCESS,
+      })
+      .getMany();
+
+    matchesToUpdate.map(async (match) => {
+      const endedMatchData = await this._matchService.getMatchDataToSend(
+        match.id,
+      );
+      const matchUserAnswers = await this._userAnswerRepository.find({
+        where: {
+          match: { id: match.id },
+        },
+        relations: ['user'],
+      });
+
+      await this._matchService.finishMatchWithRealOpponent(
+        endedMatchData,
+        matchUserAnswers,
+      );
     });
   }
 
@@ -91,6 +122,7 @@ export class TasksService {
           ++tickets;
           await this._userService.updateUser(user.id, { tickets }); // update user.tikets in db
         }
+        await this._matchGateway.sendUserData({ ...user, tickets });
       }
     });
   }

@@ -7,11 +7,12 @@ import {
   OneToOne,
 } from 'typeorm';
 
-import { BaseEntity } from '../base';
 import { QuestionType } from '@common/enums';
+
 import { AnswerEntity } from './answer.entity';
 import { CategoryEntity } from './category.entity';
 import { TranslatedQuestionEntity } from './translated-question.entity';
+import { BaseEntity } from '../base';
 
 @Entity({ name: 'questions' })
 export class QuestionEntity extends BaseEntity {

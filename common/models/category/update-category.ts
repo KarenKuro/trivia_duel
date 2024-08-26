@@ -5,4 +5,5 @@ export interface IUpdateCategory {
   price: number;
   premiumPrice: number;
   translatedCategories: IUpdateTranslatedCategory[];
+  path: string;
 }

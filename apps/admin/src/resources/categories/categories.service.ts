@@ -10,6 +10,7 @@ import { LanguagesService } from '@admin-resources/languages';
 import {
   CategoryEntity,
   LanguageEntity,
+  MediaEntity,
   TranslatedCategoryEntity,
 } from '@common/database/entities';
 import { ResponseManager } from '@common/helpers';
@@ -31,17 +32,25 @@ export class CategoriesService {
     @InjectRepository(TranslatedCategoryEntity)
     private readonly _translatedCategoryRepository: Repository<TranslatedCategoryEntity>,
 
+    @InjectRepository(MediaEntity)
+    private readonly _mediaRepository: Repository<MediaEntity>,
+
     private readonly _languagesService: LanguagesService,
   ) {}
 
   @Transactional()
   async create(body: ICreateCategory): Promise<void> {
+    const image = await this._mediaRepository.save({
+      path: body.path,
+    });
     const category = (await this._categoryRepository.save({
       text: body.text,
       premiumPrice: body.premiumPrice,
       price: body.price,
+      image: {
+        id: image.id,
+      },
     })) as CategoryEntity;
-
     const languages = await this._languagesService.findAll();
     const languagesIds = languages.map((language) => language.id);
 
@@ -67,7 +76,11 @@ export class CategoriesService {
     const categories = await this._categoryRepository.find({
       skip: +offset,
       take: +limit,
-      relations: ['translatedCategories', 'translatedCategories.language'],
+      relations: [
+        'translatedCategories',
+        'translatedCategories.language',
+        'image',
+      ],
     });
 
     return categories;
@@ -76,7 +89,11 @@ export class CategoriesService {
   async findOne(param: Partial<ICategory>): Promise<ICategory> {
     const category = await this._categoryRepository.findOne({
       where: param,
-      relations: ['translatedCategories', 'translatedCategories.language'],
+      relations: [
+        'translatedCategories',
+        'translatedCategories.language',
+        'image',
+      ],
     });
 
     return category;
@@ -115,9 +132,19 @@ export class CategoriesService {
       }
     }
 
+    if (body.path) {
+      const categoryData = await this.findOne({ id: category.id });
+      await this._mediaRepository.update(
+        (categoryData.image as MediaEntity).id,
+        {
+          path: body.path,
+        },
+      );
+    }
+
     await this._categoryRepository.update(
       category.id,
-      omit(body, ['translatedCategories']),
+      omit(body, ['translatedCategories', 'path']),
     );
 
     return { success: true };

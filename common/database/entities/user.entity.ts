@@ -1,10 +1,12 @@
+import { ApiHideProperty } from '@nestjs/swagger';
+
 import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
 
-import { BaseEntity } from '../base';
 import { UserStatus } from '@common/enums';
+
 import { CategoryEntity } from './category.entity';
 import { MatchEntity } from './match.entity';
-import { ApiHideProperty } from '@nestjs/swagger';
+import { BaseEntity } from '../base';
 
 @Entity({ name: 'users' })
 export class UserEntity extends BaseEntity {
@@ -61,4 +63,7 @@ export class UserEntity extends BaseEntity {
 
   @Column({ default: 0, name: 'current_win_count' })
   currentWinCount: number;
+
+  @Column()
+  avatar?: string;
 }

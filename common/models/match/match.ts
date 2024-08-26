@@ -1,8 +1,9 @@
 import { MatchLevel, MatchStatusType } from '@common/enums';
-import { IUser } from '../user';
-import { IQuestion } from '../question';
-import { IUserAnswerData } from './user-answer-data';
+
 import { IMatchCategory } from './match-category';
+import { IUserAnswerData } from './user-answer-data';
+import { IQuestion } from '../question';
+import { IUser } from '../user';
 
 export interface IMatch {
   id: number;

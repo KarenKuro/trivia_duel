@@ -6,7 +6,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { AuthUser } from '@common/decorators';
+import { AuthUser, Language } from '@common/decorators';
 import { TokenPayloadDTO } from '@common/dtos';
 import { AuthUserGuard } from '@common/guards';
 import { ResponseManager } from '@common/helpers';
@@ -30,10 +30,14 @@ export class CategoriesController {
   @ApiOperation({ summary: 'Get all categories with the isActive field' })
   async findAllWithIsActive(
     @AuthUser() token: TokenPayloadDTO,
+    @Language() language: string,
   ): Promise<CategoryWithIsActiveDTO[]> {
-    const categories = await this._categoriesService.findAllWithIsActive({
-      id: token.id,
-    });
+    const categories = await this._categoriesService.findAllWithIsActive(
+      {
+        id: token.id,
+      },
+      language,
+    );
 
     if (!categories.length) {
       throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORIES_NOT_EXISTS);

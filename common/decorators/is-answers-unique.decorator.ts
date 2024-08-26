@@ -1,5 +1,6 @@
-import { ICreateAnswer } from '@common/models/question/create-answer';
 import { registerDecorator, ValidationOptions } from 'class-validator';
+
+import { ICreateAnswer } from '@common/models/question/create-answer';
 
 export function ValidateIsAnswersUnique(validationOptions?: ValidationOptions) {
   return function (object: object, propertyName: string) {

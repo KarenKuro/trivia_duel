@@ -1,5 +1,6 @@
-import { IJwt } from '@common/models';
 import { registerAs } from '@nestjs/config';
+
+import { IJwt } from '@common/models';
 
 export default registerAs(
   'JWT_CONFIG',

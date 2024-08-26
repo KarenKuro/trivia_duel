@@ -4,7 +4,8 @@ export const API_VALIDATIONS = Joi.object({
   NODE_ENV: Joi.string()
     .valid('development', 'production')
     .default('development'),
-  API_PORT: Joi.number().default(3005),
+  PORT: Joi.number().default(3000),
+  MEDIA_HOST: Joi.string().default('localhost:3000'),
   ENVIRONMENT: Joi.string()
     .valid('development', 'staging', 'production')
     .default('development'),

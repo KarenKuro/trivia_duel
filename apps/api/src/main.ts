@@ -15,7 +15,7 @@ import { IValidationErrors } from '@common/models';
 
 import { AppModule } from './app.module';
 
-const PORT = process.env.API_PORT;
+const PORT = process.env.PORT;
 
 // process.env.TZ = 'Etc/UTC';
 
@@ -43,13 +43,13 @@ async function bootstrap() {
         enableImplicitConversion: true,
       },
       exceptionFactory: (errors) => {
-        const errorResponce: IValidationErrors[] = [];
+        const errorResponse: IValidationErrors[] = [];
         errors.forEach((e) => {
           if (e.constraints) {
-            errorResponce.push(...ResponseManager.validationHandler([e]));
+            errorResponse.push(...ResponseManager.validationHandler([e]));
           }
           if (e.children) {
-            errorResponce.push(
+            errorResponse.push(
               ...ResponseManager.validationHandler(
                 e.children,
                 e.property?.toLowerCase(),
@@ -58,7 +58,7 @@ async function bootstrap() {
           }
         });
         throw ResponseManager.buildError(
-          { errors: errorResponce, message: 'ValidationError' },
+          { errors: errorResponse, message: 'ValidationError' },
           HttpStatus.UNPROCESSABLE_ENTITY,
         );
       },

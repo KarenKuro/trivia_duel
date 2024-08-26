@@ -8,4 +8,7 @@ export const LANGUAGE_ERROR_MESSAGES = {
   LANGUAGE_NOT_EXIST: {
     message: 'err_language_not_exist',
   },
+  LANGUAGES_NOT_EXISTS: {
+    message: 'err_languages_not_exists',
+  },
 };

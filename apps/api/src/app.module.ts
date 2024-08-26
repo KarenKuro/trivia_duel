@@ -2,11 +2,15 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { join } from 'path';
 
 import { DataSource } from 'typeorm';
 import { addTransactionalDataSource } from 'typeorm-transactional';
 
+import { LanguagesModule } from '@api-resources/languages/languages.module';
 import { TasksModule } from '@shared/tasks';
 
 import {
@@ -19,7 +23,7 @@ import {
 } from '@common/config';
 import { ENV_CONST } from '@common/constants';
 import {
-  LanguageEntity,
+  MediaEntity,
   TranslatedAnswerEntity,
   TranslatedCategoryEntity,
   TranslatedQuestionEntity,
@@ -49,6 +53,7 @@ const envFilePath = isProductionMode
     UserModule,
     MatchModule,
     TasksModule,
+    LanguagesModule,
     ScheduleModule.forRoot(),
     EventEmitterModule.forRoot(),
     ConfigModule.forRoot({
@@ -85,7 +90,7 @@ const envFilePath = isProductionMode
             TranslatedAnswerEntity,
             TranslatedCategoryEntity,
             TranslatedQuestionEntity,
-            LanguageEntity,
+            MediaEntity,
           ],
         };
       },
@@ -95,6 +100,10 @@ const envFilePath = isProductionMode
         }
         return addTransactionalDataSource(new DataSource(options));
       },
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', '..', '..', 'uploads'), // Путь к папке uploads
+      serveRoot: '/uploads', // URL-адрес, по которому файлы будут доступны
     }),
   ],
   controllers: [AppController],

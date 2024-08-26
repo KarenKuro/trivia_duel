@@ -1,9 +1,10 @@
-import { ICreateAnswer } from '@common/models/question/create-answer';
 import {
   registerDecorator,
   ValidationOptions,
   ValidationArguments,
 } from 'class-validator';
+
+import { ICreateAnswer } from '@common/models/question/create-answer';
 
 export function ValidateIsAnswerIncluded(
   validationOptions?: ValidationOptions,

@@ -2,13 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { EntityManager, In, Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 
 import { CategoriesService } from '@api-resources/categories';
 import { UserService } from '@api-resources/user';
+import { DbManagerService } from '@shared/db-manager';
 
 import {
+  MAIN_LANGUAGE,
   MATCH_CATEGORIES_MAX_LENGTH,
   MATCH_USER_CATEGORIES_MAX_LENGTH,
 } from '@common/constants';
@@ -54,7 +56,7 @@ export class MatchService {
 
     private readonly _matchGateway: MatchGateway,
 
-    private readonly _entityManager: EntityManager,
+    private readonly _dbManagerService: DbManagerService,
 
     private readonly _eventEmitter: EventEmitter2,
   ) {}
@@ -162,7 +164,9 @@ export class MatchService {
 
     categoriesObj.categories.forEach((categoryId) => {
       if (!userCategoryIds.includes(categoryId)) {
-        throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORY_NOT_EXIST);
+        throw ResponseManager.buildError(
+          ERROR_MESSAGES.USER_CATEGORIES_NOT_EXISTS,
+        );
       }
     });
 
@@ -170,7 +174,7 @@ export class MatchService {
       (matchCategory) => matchCategory.category.id,
     );
 
-    // TODO: здесь нужно добавить две случайные категории от бота
+    // TODO: здесь нужно добавить две случайные категории от бота или если юзер вышел, и остался один юзер, подключился бот!!!!!!!!!!!!
 
     const hasOpponentChoose = Boolean(match.categories?.length);
 
@@ -233,6 +237,12 @@ export class MatchService {
       console.log('questions', questions);
       match.questions = questions;
       match.status = MatchStatusType.IN_PROCESS;
+
+      //TODO
+      const currTime = await this._dbManagerService.getTime();
+
+      console.log('currTime', currTime);
+      match.startedAt = currTime;
       await this._matchRepository.save(match);
 
       for (const user of match.users) {
@@ -272,7 +282,7 @@ export class MatchService {
 
     console.log('queryString', queryString);
 
-    const rawData: IId[] = await this._entityManager.query(queryString);
+    const rawData = await this._dbManagerService.runQuery<IId[]>(queryString);
 
     const questionIds = rawData.map((raw) => Number(raw.id));
 
@@ -382,11 +392,11 @@ export class MatchService {
       });
 
     if (questionsLength * usersLength === matchUserAnswersLength) {
-      await this.finishingMatchWithRealOpponent(match, matchUserAnswers);
+      await this.finishMatchWithRealOpponent(match, matchUserAnswers);
     }
   }
 
-  async finishingMatchWithRealOpponent(
+  async finishMatchWithRealOpponent(
     match: MatchEntity,
     matchUserAnswers: UserAnswerEntity[],
   ): Promise<void> {
@@ -479,25 +489,46 @@ export class MatchService {
     return match;
   }
 
-  async findOne(userPayload: IUserId, id: number): Promise<MatchEntity> {
+  async findOne(
+    userPayload: IUserId,
+    id: number,
+    language: string,
+  ): Promise<MatchEntity> {
     const match = await this._matchRepository.findOne({
       where: { id },
       relations: [
         'users',
-        'lastAnswer',
-        'lastAnswer.user',
-        'lastAnswer.question',
-        'lastAnswer.answer',
-        'users.categories',
+        // 'lastAnswer',
+        // 'lastAnswer.user',   зачем это????????????
+        // 'lastAnswer.question',
+        // 'lastAnswer.answer',
         'questions',
+        'questions.translatedQuestions',
+        'questions.translatedQuestions.language',
         'questions.correctAnswer',
+        'questions.correctAnswer.translatedAnswers',
+        'questions.correctAnswer.translatedAnswers.language',
         'questions.category',
+        'questions.category.image',
         'questions.answers',
+        'questions.answers.translatedAnswers',
+        'questions.answers.translatedAnswers.language',
         'userAsnwers',
         'userAsnwers.answer',
         'userAsnwers.question',
         'userAsnwers.user',
+        'userAsnwers.match',
+        'categories',
+        'categories.user',
+        'categories.category',
+        'categories.category.translatedCategories',
+        'categories.category.translatedCategories.language',
+        'categories.category.image',
+        'categories.match',
         'nextMatch',
+        'previousMatch',
+        'winner',
+        'looser',
       ],
     });
 
@@ -505,7 +536,9 @@ export class MatchService {
       throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_ID);
     }
 
-    return match;
+    const matchData = this.prepareDataInRequiredLanguage(match, language);
+
+    return matchData;
   }
 
   @Transactional()
@@ -609,5 +642,24 @@ export class MatchService {
     }
     const previousMatchData = await this.getMatchDataToSend(matchId);
     this._matchGateway.sendMessageToHandlers(previousMatchData);
+  }
+
+  prepareDataInRequiredLanguage(
+    match: MatchEntity,
+    language: string,
+  ): MatchEntity {
+    if (language !== MAIN_LANGUAGE) {
+      match.categories = match.categories.map((matchCategory) => {
+        const category = matchCategory.category;
+        const translatedCategory = category.translatedCategories.find(
+          (translatedCategory) => translatedCategory.language.key === language,
+        );
+
+        matchCategory.category.text = translatedCategory.text;
+
+        return matchCategory;
+      });
+    }
+    return match;
   }
 }

@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import { IMedia } from '@common/models/media';
+
 export class CategoryResponseWithoutTranslationsDTO {
   @ApiProperty()
   id: number;
@@ -15,6 +17,9 @@ export class CategoryResponseWithoutTranslationsDTO {
 
   // @ApiProperty()
   // isExclusive: boolean;
+
+  @ApiProperty()
+  image?: IMedia | string;
 
   @ApiProperty()
   createdAt: Date;

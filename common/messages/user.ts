@@ -11,4 +11,7 @@ export const USER_ERROR_MESSAGES = {
   ALL_USER_CATEGORIES_SELECTED: {
     message: 'all_user_categories_are_selected',
   },
+  USER_CATEGORIES_NOT_EXISTS: {
+    message: 'err_user_categories_not_exists',
+  },
 };

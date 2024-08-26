@@ -1,10 +1,12 @@
-import { AuthUserGuard } from '@common/guards';
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { LanguagesService } from './languages.service';
-import { LanguageResponseDTO } from './dto';
+
+import { AuthUserGuard } from '@common/guards';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
+
+import { LanguageResponseDTO } from './dto';
+import { LanguagesService } from './languages.service';
 
 @Controller('languages')
 @UseGuards(AuthUserGuard())

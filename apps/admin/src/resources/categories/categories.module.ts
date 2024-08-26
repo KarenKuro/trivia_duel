@@ -4,6 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { LanguagesService } from '@admin-resources/languages';
+import { FileService } from '@shared/file/file.service';
 
 import {
   AnswerEntity,
@@ -16,7 +17,6 @@ import {
 
 import { CategoriesController } from './categories.controller';
 import { CategoriesService } from './categories.service';
-import { FileService } from '@shared/file/file.service';
 
 @Module({
   imports: [

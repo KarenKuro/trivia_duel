@@ -1,5 +1,3 @@
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
 import {
   ExecutionContext,
   CanActivate,
@@ -7,10 +5,12 @@ import {
   HttpStatus,
   mixin,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 
+import { TokenTypes } from '@common/enums/jwt-token';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
-import { TokenTypes } from '@common/enums/jwt-token';
 import { IJwt, ITokenPayload } from '@common/models';
 
 export const AuthUserGuard = (tokenType: TokenTypes = TokenTypes.PRIMARY) => {

@@ -2,11 +2,15 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { join } from 'path';
 
 import { DataSource } from 'typeorm';
 import { addTransactionalDataSource } from 'typeorm-transactional';
 
+import { LanguagesModule } from '@api-resources/languages/languages.module';
 import { TasksModule } from '@shared/tasks';
 
 import {
@@ -35,9 +39,6 @@ import {
   MatchModule,
   UserModule,
 } from './resources';
-import { LanguagesModule } from '@api-resources/languages/languages.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
 
 const isProductionMode = process.env.NODE_ENV === NodeEnv.production;
 

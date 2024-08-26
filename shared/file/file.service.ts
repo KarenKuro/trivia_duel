@@ -1,8 +1,11 @@
-import { Folder } from '@common/enums';
 import { Injectable } from '@nestjs/common';
+
 import { promises as fs } from 'fs';
 import { join } from 'path';
+
 import { v4 as uuidv4 } from 'uuid';
+
+import { Folder } from '@common/enums';
 
 @Injectable()
 export class FileService {

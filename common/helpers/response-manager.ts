@@ -1,12 +1,14 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
+
 import { ValidationError } from 'class-validator';
+import { round } from 'lodash';
+
 import {
   IMessageResponse,
   IMetaResponse,
   IValidationErrors,
   IValidationErrorsResponse,
 } from '@common/models';
-import { round } from 'lodash';
 
 export class ResponseManager {
   static buildError(

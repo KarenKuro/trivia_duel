@@ -1,7 +1,8 @@
 import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+
+import { CategoryEntity } from './category.entity';
 import { MatchEntity } from './match.entity';
 import { UserEntity } from './user.entity';
-import { CategoryEntity } from './category.entity';
 
 @Entity({ name: 'match_category' })
 export class MatchCategoryEntity {

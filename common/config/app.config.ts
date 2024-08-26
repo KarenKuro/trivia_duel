@@ -1,5 +1,6 @@
-import { IApp } from '@common/models';
 import { registerAs } from '@nestjs/config';
+
+import { IApp } from '@common/models';
 
 export default registerAs(
   'APP_CONFIG',

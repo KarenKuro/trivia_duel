@@ -1,20 +1,26 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { UserResponseDTO } from '@admin-resources/user/dto';
-import { CategoryResponseDTO } from '@api-resources/categories/dto';
+import { Expose, Type } from 'class-transformer';
 
-import { MatchResponseDTO } from './match-response.dto';
+import { IdResponseDTO, MatchCategoryResponseDTO } from '@common/dtos';
 
 export class MatchCategoryDTO {
+  @Expose()
   @ApiProperty()
   id: number;
 
-  @ApiProperty()
-  user: UserResponseDTO;
+  @Expose()
+  @Type(() => IdResponseDTO)
+  @ApiProperty({ type: IdResponseDTO })
+  user: IdResponseDTO;
 
-  @ApiProperty()
-  category: CategoryResponseDTO;
+  @Expose()
+  @Type(() => MatchCategoryResponseDTO)
+  @ApiProperty({ type: MatchCategoryResponseDTO })
+  category: MatchCategoryResponseDTO;
 
-  @ApiProperty()
-  match: MatchResponseDTO;
+  @Expose()
+  @Type(() => IdResponseDTO)
+  @ApiProperty({ type: IdResponseDTO })
+  match: IdResponseDTO;
 }

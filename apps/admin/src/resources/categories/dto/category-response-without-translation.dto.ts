@@ -1,5 +1,6 @@
-import { IMedia } from '@common/models/media';
 import { ApiProperty } from '@nestjs/swagger';
+
+import { IMedia } from '@common/models/media';
 
 export class CategoryResponseWithoutTranslationsDTO {
   @ApiProperty()

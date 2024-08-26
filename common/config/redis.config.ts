@@ -1,5 +1,6 @@
-import { IRedisConfig } from '@common/models';
 import { registerAs } from '@nestjs/config';
+
+import { IRedisConfig } from '@common/models';
 
 export default registerAs('REDIS_CONFIG', (): IRedisConfig => {
   return {

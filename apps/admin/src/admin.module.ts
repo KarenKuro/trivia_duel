@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { join } from 'path';
 
 import { DataSource } from 'typeorm';
 import { addTransactionalDataSource } from 'typeorm-transactional';
@@ -27,8 +30,6 @@ import {
   QuestionsModule,
 } from './resources';
 import { UserModule } from './resources/user/user.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
 
 const isProductionMode = process.env.NODE_ENV === NodeEnv.production;
 

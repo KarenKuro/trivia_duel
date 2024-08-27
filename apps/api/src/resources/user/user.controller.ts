@@ -1,10 +1,22 @@
 import { Controller, Get, Post, Body, UseGuards, Patch } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiHeader,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+
+import { plainToInstance } from 'class-transformer';
 
 import { CategoryResponseDTO } from '@api-resources/categories/dto';
 
-import { AuthUser } from '@common/decorators';
-import { IdDTO, SuccessDTO, TokenPayloadDTO } from '@common/dtos';
+import { AuthUser, Language } from '@common/decorators';
+import {
+  CategoryResponseWithoutTranslationsDTO,
+  IdDTO,
+  SuccessDTO,
+  TokenPayloadDTO,
+} from '@common/dtos';
 import { AuthUserGuard } from '@common/guards';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
@@ -16,6 +28,10 @@ import { UserService } from './user.service';
 @UseGuards(AuthUserGuard())
 @ApiTags('Users')
 @ApiBearerAuth()
+@ApiHeader({
+  name: 'x-language',
+  example: { name: 'x-language', value: 'arm' },
+})
 export class UserController {
   constructor(private readonly _userService: UserService) {}
 
@@ -23,24 +39,33 @@ export class UserController {
   @ApiOperation({ summary: 'Get all categories that the user has' })
   async findAllAvailibleCategories(
     @AuthUser() token: TokenPayloadDTO,
+    @Language() language: string,
   ): Promise<CategoryResponseDTO[]> {
-    const categories = await this._userService.findAllAvailableCategory({
-      id: token.id,
-    });
+    const categories = await this._userService.findAllAvailableCategory(
+      { id: token.id },
+      language,
+    );
 
     if (!categories.length) {
       throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORIES_NOT_EXISTS);
     }
 
-    return categories;
+    return plainToInstance(CategoryResponseWithoutTranslationsDTO, categories, {
+      excludeExtraneousValues: true,
+    });
   }
 
   @Get()
   @ApiOperation({ summary: 'Get User' })
-  async findUser(@AuthUser() token: TokenPayloadDTO): Promise<UserResponseDTO> {
-    const user = await this._userService.findOne(token.id);
+  async findUser(
+    @AuthUser() token: TokenPayloadDTO,
+    @Language() language: string,
+  ): Promise<UserResponseDTO> {
+    const user = await this._userService.findOne(token.id, language);
 
-    return user;
+    return plainToInstance(UserResponseDTO, user, {
+      excludeExtraneousValues: true,
+    });
   }
 
   @Post('categories')
@@ -48,20 +73,19 @@ export class UserController {
   async addCategoriesAfterRegistration(
     @AuthUser() token: TokenPayloadDTO,
     @Body() body: IdDTO,
-  ): Promise<CategoryResponseDTO[]> {
+    @Language() language: string,
+  ): Promise<SuccessDTO> {
     const user = await this._userService.addCategoriesAfterRegistration(
       { id: token.id },
       body,
+      language,
     );
 
     if (!(user.categories.length === 3)) {
       throw ResponseManager.buildError(ERROR_MESSAGES.WRONG_CATEGORIES_COUNT);
     }
 
-    const categories = await this._userService.findAllAvailableCategory({
-      id: token.id,
-    });
-    return categories;
+    return { success: true };
   }
 
   @Patch()

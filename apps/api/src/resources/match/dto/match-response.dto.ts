@@ -2,9 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { Expose, Type } from 'class-transformer';
 
-import { QuestionResponseDTO } from '@common/dtos';
+import { QuestionResponseDTO, RelatedMatchResponseDTO } from '@common/dtos';
 import { MatchUserResponseDTO } from '@common/dtos/match-response/match-user-response.dto';
-import { NextOrPreviousMatchResponseDTO } from '@common/dtos/match-response/next-match.response.dto';
 import { MatchLevel, MatchStatusType } from '@common/enums';
 
 import { MatchCategoryDTO } from './match-category.dto';
@@ -24,8 +23,9 @@ export class MatchResponseDTO {
   @ApiProperty({ type: MatchUserResponseDTO, isArray: true })
   users: MatchUserResponseDTO[];
 
-  // @Expose()
-  @ApiProperty()
+  @Expose()
+  @Type(() => QuestionResponseDTO)
+  @ApiProperty({ type: QuestionResponseDTO, isArray: true })
   questions: QuestionResponseDTO[];
 
   // @ApiProperty({ type: UserAnswerResponseDTO })
@@ -56,14 +56,14 @@ export class MatchResponseDTO {
   userAsnwers: UserAnswerResponseDTO[];
 
   @Expose()
-  @Type(() => NextOrPreviousMatchResponseDTO)
-  @ApiProperty({ type: NextOrPreviousMatchResponseDTO, nullable: true })
-  previousMatch: NextOrPreviousMatchResponseDTO;
+  @Type(() => RelatedMatchResponseDTO)
+  @ApiProperty({ type: RelatedMatchResponseDTO, nullable: true })
+  previousMatch: RelatedMatchResponseDTO;
 
   @Expose()
-  @Type(() => NextOrPreviousMatchResponseDTO)
-  @ApiProperty({ type: NextOrPreviousMatchResponseDTO, nullable: true })
-  nextMatch: NextOrPreviousMatchResponseDTO;
+  @Type(() => RelatedMatchResponseDTO)
+  @ApiProperty({ type: RelatedMatchResponseDTO, nullable: true })
+  nextMatch: RelatedMatchResponseDTO;
 
   @Expose()
   @ApiProperty()

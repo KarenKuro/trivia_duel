@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 
 import { Expose, Transform, Type } from 'class-transformer';
 
@@ -23,17 +23,7 @@ export class CategoryResponseDTO {
   // @ApiProperty()
   // isExclusive: boolean;
 
-  @ApiProperty()
-  createdAt: Date;
-
-  @ApiProperty()
-  updatedAt: Date;
-
-  @ApiProperty({
-    uniqueItems: true,
-    maxItems: 2,
-    minItems: 2,
-  })
+  @ApiHideProperty()
   translatedCategories?: TranslatedCategoryResponseDTO[];
 
   @Expose()
@@ -45,4 +35,10 @@ export class CategoryResponseDTO {
   @Type(() => MediaResponseDTO)
   @ApiProperty({ type: String })
   image?: MediaResponseDTO | string;
+
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
 }

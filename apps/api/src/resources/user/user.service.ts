@@ -7,6 +7,7 @@ import { Transactional } from 'typeorm-transactional';
 
 import { CategoriesService } from '@api-resources/categories';
 
+import { MAIN_LANGUAGE } from '@common/constants';
 import { CategoryEntity, UserEntity } from '@common/database/entities';
 import { UserStatus } from '@common/enums';
 import { ResponseManager } from '@common/helpers';
@@ -22,14 +23,40 @@ export class UserService {
     private readonly _userRepository: Repository<UserEntity>,
   ) {}
 
-  async findOne(id: number): Promise<IUser> {
+  async findOne(id: number, language: string): Promise<IUser> {
+    if (language !== MAIN_LANGUAGE) {
+      const user = await this._userRepository.findOne({
+        where: { id },
+        relations: [
+          'categories',
+          'categories.translatedCategories',
+          'categories.translatedCategories.language',
+          'categories.image',
+        ],
+      });
+
+      if (user.status === UserStatus.LOCKED) {
+        throw ResponseManager.buildError(ERROR_MESSAGES.USER_ARE_BLOCKED);
+      }
+
+      const categories = user.categories.map((userCategory) => {
+        const translatedCategory = userCategory.translatedCategories.find(
+          (translatedCategory) => translatedCategory.language.key === language,
+        );
+
+        userCategory.text = translatedCategory.text;
+        // userCategory.image =
+
+        return userCategory;
+      });
+
+      user.categories = categories;
+      return user;
+    }
+
     const user = await this._userRepository.findOne({
       where: { id },
-      relations: [
-        'categories',
-        'categories.translatedCategories',
-        'categories.image',
-      ],
+      relations: ['categories', 'categories.image'],
     });
 
     if (user.status === UserStatus.LOCKED) {
@@ -39,8 +66,11 @@ export class UserService {
     return user;
   }
 
-  async findAllAvailableCategory(userId: IUserId): Promise<ICategory[]> {
-    const userWithCategories = await this.findOne(userId.id);
+  async findAllAvailableCategory(
+    userId: IUserId,
+    language: string,
+  ): Promise<ICategory[]> {
+    const userWithCategories = await this.findOne(userId.id, language);
 
     return userWithCategories.categories;
   }
@@ -48,8 +78,9 @@ export class UserService {
   async addCategoriesAfterRegistration(
     userPayload: IUserId,
     categoryId: IId,
+    language: string,
   ): Promise<IUser> {
-    const user = await this.findOne(userPayload.id);
+    const user = await this.findOne(userPayload.id, language);
 
     if (user.categories.length) {
       throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORY_ALREADY_EXIST);

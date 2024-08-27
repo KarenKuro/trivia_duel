@@ -2,8 +2,8 @@ import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 
 import { Expose, Type } from 'class-transformer';
 
-import { CategoryResponseDTO } from './category-response.dto';
-import { LanguageResponseDTO } from './language-response.dto';
+import { CategoryResponseDTO } from '../category-response.dto';
+import { LanguageResponseDTO } from '../language-response.dto';
 
 export class TranslatedCategoryResponseDTO {
   @Expose()

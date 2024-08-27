@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiHeader,
   ApiOperation,
   ApiParam,
   ApiResponse,
@@ -27,6 +28,10 @@ import { MatchService } from './match.service';
 @UseGuards(AuthUserGuard())
 @ApiTags('Matches')
 @ApiBearerAuth()
+@ApiHeader({
+  name: 'x-language',
+  example: { name: 'x-language', value: 'arm' },
+})
 export class MatchController {
   constructor(private readonly _matchService: MatchService) {}
 
@@ -37,8 +42,9 @@ export class MatchController {
   @ApiResponse({ type: MatchStartResponseDTO, status: 201 })
   async createMatch(
     @AuthUser() token: TokenPayloadDTO,
+    @Language() language: string,
   ): Promise<MatchStartResponseDTO> {
-    const match = await this._matchService.createOrJoinMatch(token);
+    const match = await this._matchService.createOrJoinMatch(token, language);
     if (!match) {
       throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_MAKING);
     }
@@ -74,7 +80,6 @@ export class MatchController {
     @AuthUser() user: TokenPayloadDTO,
     @Language() language: string,
   ): Promise<MatchResponseDTO> {
-    console.log(param);
     const match = await this._matchService.findOne(user, +param.id, language); /// user statistic.
     return plainToInstance(MatchResponseDTO, match, {
       excludeExtraneousValues: true,
@@ -84,6 +89,7 @@ export class MatchController {
   @Post(':id/answer')
   @ApiOperation({ summary: 'Add answer to match questions' })
   @ApiParam({ name: 'id', description: 'Match Id' })
+  @ApiResponse({ type: SuccessDTO })
   async asnwer(
     @AuthUser() user: TokenPayloadDTO,
     @Param() match: IdDTO,
@@ -97,6 +103,7 @@ export class MatchController {
   @Post(':id/restart')
   @ApiOperation({ summary: 'Restart match' })
   @ApiParam({ name: 'id', description: 'Match Id' })
+  @ApiResponse({ type: SuccessDTO })
   async restart(@AuthUser() user: TokenPayloadDTO, @Param() match: IdDTO) {
     await this._matchService.startNewMatchWithSameOpponent(user, +match.id);
 
@@ -106,6 +113,7 @@ export class MatchController {
   @Post(':id/cancel')
   @ApiOperation({ summary: 'Match restart cancellation' })
   @ApiParam({ name: 'id', description: 'Match Id' })
+  @ApiResponse({ type: SuccessDTO })
   async cancelRestart(
     @AuthUser() user: TokenPayloadDTO,
     @Param() match: IdDTO,

@@ -62,8 +62,11 @@ export class MatchService {
   ) {}
 
   @Transactional()
-  async createOrJoinMatch(userPayload: IUserId): Promise<MatchEntity> {
-    const user = await this._userService.findOne(userPayload.id);
+  async createOrJoinMatch(
+    userPayload: IUserId,
+    language: string,
+  ): Promise<MatchEntity> {
+    const user = await this._userService.findOne(userPayload.id, language);
 
     if (user.tickets <= 0) {
       throw ResponseManager.buildError(ERROR_MESSAGES.USER_DONT_HAVE_LIVE);
@@ -498,10 +501,6 @@ export class MatchService {
       where: { id },
       relations: [
         'users',
-        // 'lastAnswer',
-        // 'lastAnswer.user',   зачем это????????????
-        // 'lastAnswer.question',
-        // 'lastAnswer.answer',
         'questions',
         'questions.translatedQuestions',
         'questions.translatedQuestions.language',
@@ -509,6 +508,8 @@ export class MatchService {
         'questions.correctAnswer.translatedAnswers',
         'questions.correctAnswer.translatedAnswers.language',
         'questions.category',
+        'questions.category.translatedCategories',
+        'questions.category.translatedCategories.language',
         'questions.category.image',
         'questions.answers',
         'questions.answers.translatedAnswers',
@@ -656,8 +657,32 @@ export class MatchService {
         );
 
         matchCategory.category.text = translatedCategory.text;
-
         return matchCategory;
+      });
+
+      match.questions = match.questions.map((matchQuestion) => {
+        const translatedQuestion = matchQuestion.translatedQuestions.find(
+          (translatedQuestion) => translatedQuestion.language.key === language,
+        );
+        matchQuestion.text = translatedQuestion.text;
+
+        const translatedCategory =
+          matchQuestion.category.translatedCategories.find(
+            (translatedCategory) =>
+              translatedCategory.language.key === language,
+          );
+
+        const translatedAnswers = matchQuestion.answers.map((answer) => {
+          const translatedAnswer = answer.translatedAnswers.find(
+            (translatedAnsw) => translatedAnsw.language.key === language,
+          );
+          answer.text = translatedAnswer.text;
+          return answer;
+        });
+
+        matchQuestion.category.text = translatedCategory.text;
+        matchQuestion.answers = translatedAnswers;
+        return matchQuestion;
       });
     }
     return match;

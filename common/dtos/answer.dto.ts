@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsNumber, IsString } from 'class-validator';
 
-import { TranslatedAnswerResponseDTO } from './translated-answer-response.dto';
+import { TranslatedAnswerResponseDTO } from './match-response/translated-answer-response.dto';
 
 export class AnswerDTO {
   @IsNumber()

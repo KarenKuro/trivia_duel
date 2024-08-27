@@ -27,6 +27,6 @@ export class CategoryWithIsActiveDTO {
   @IsBoolean()
   isActive?: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ type: String })
   image?: MediaResponseDTO | string;
 }

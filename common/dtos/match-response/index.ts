@@ -1,6 +1,6 @@
 export * from './id-response.dto';
 export * from './match-user-response.dto';
-export * from './next-or-previous-match.response.dto';
+export * from './related-match-response.dto';
 export * from './match-category-response.dto';
 export * from './question-response.dto';
 export * from './translated-question-response.dto';

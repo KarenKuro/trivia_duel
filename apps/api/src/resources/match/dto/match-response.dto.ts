@@ -2,10 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { Expose, Type } from 'class-transformer';
 
-import {
-  NextOrPreviousMatchResponseDTO,
-  QuestionResponseDTO,
-} from '@common/dtos';
+import { QuestionResponseDTO, RelatedMatchResponseDTO } from '@common/dtos';
 import { MatchUserResponseDTO } from '@common/dtos/match-response/match-user-response.dto';
 import { MatchLevel, MatchStatusType } from '@common/enums';
 
@@ -59,14 +56,14 @@ export class MatchResponseDTO {
   userAsnwers: UserAnswerResponseDTO[];
 
   @Expose()
-  @Type(() => NextOrPreviousMatchResponseDTO)
-  @ApiProperty({ type: NextOrPreviousMatchResponseDTO, nullable: true })
-  previousMatch: NextOrPreviousMatchResponseDTO;
+  @Type(() => RelatedMatchResponseDTO)
+  @ApiProperty({ type: RelatedMatchResponseDTO, nullable: true })
+  previousMatch: RelatedMatchResponseDTO;
 
   @Expose()
-  @Type(() => NextOrPreviousMatchResponseDTO)
-  @ApiProperty({ type: NextOrPreviousMatchResponseDTO, nullable: true })
-  nextMatch: NextOrPreviousMatchResponseDTO;
+  @Type(() => RelatedMatchResponseDTO)
+  @ApiProperty({ type: RelatedMatchResponseDTO, nullable: true })
+  nextMatch: RelatedMatchResponseDTO;
 
   @Expose()
   @ApiProperty()

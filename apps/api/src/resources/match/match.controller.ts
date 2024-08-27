@@ -30,7 +30,7 @@ import { MatchService } from './match.service';
 @ApiBearerAuth()
 @ApiHeader({
   name: 'x-language',
-  example: { name: 'x-language', value: 'arm' },
+  example: { name: 'x-language', value: 'eng' },
 })
 export class MatchController {
   constructor(private readonly _matchService: MatchService) {}

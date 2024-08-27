@@ -4,7 +4,7 @@ import { Expose } from 'class-transformer';
 
 import { MatchLevel, MatchStatusType } from '@common/enums';
 
-export class NextOrPreviousMatchResponseDTO {
+export class RelatedMatchResponseDTO {
   @Expose()
   @ApiProperty()
   id: number;

@@ -64,6 +64,6 @@ export class UserEntity extends BaseEntity {
   @Column({ default: 0, name: 'current_win_count' })
   currentWinCount: number;
 
-  @Column()
+  @Column({ default: 'assets/images/Avatars-4.svg' })
   avatar?: string;
 }

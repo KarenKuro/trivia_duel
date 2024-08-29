@@ -123,7 +123,6 @@ export class UserService {
     }
   }
 
-  @Transactional()
   async updateStatistics(
     id: number,
     newStatisticsData: QueryDeepPartialEntity<IStatistics>,

@@ -6,6 +6,8 @@ import { CategoryResponseWithoutTranslationsDTO } from '@common/dtos';
 import { UserStatus } from '@common/enums';
 import { IUser } from '@common/models';
 
+import { StatisticsResponseDTO } from './statistics-response.dto';
+
 export class UserResponseDTO implements IUser {
   @Expose()
   @ApiProperty()
@@ -57,12 +59,9 @@ export class UserResponseDTO implements IUser {
   tickets: number;
 
   @Expose()
+  @Type(() => StatisticsResponseDTO)
   @ApiProperty()
-  longestWinCount: number;
-
-  @Expose()
-  @ApiProperty()
-  currentWinCount: number;
+  statistics: StatisticsResponseDTO;
 
   @Expose()
   @ApiProperty()

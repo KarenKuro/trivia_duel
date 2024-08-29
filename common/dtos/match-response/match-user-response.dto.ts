@@ -1,8 +1,9 @@
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 
 import { CategoryResponseDTO } from '@api-resources/categories/dto';
+import { StatisticsResponseDTO } from '@api-resources/user/dto';
 
 import { UserStatus } from '@common/enums';
 
@@ -52,12 +53,9 @@ export class MatchUserResponseDTO {
   tickets: number;
 
   @Expose()
+  @Type(() => StatisticsResponseDTO)
   @ApiProperty()
-  longestWinCount: number;
-
-  @Expose()
-  @ApiProperty()
-  currentWinCount: number;
+  statistics: StatisticsResponseDTO;
 
   @Expose()
   @ApiProperty()

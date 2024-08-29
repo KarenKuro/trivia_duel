@@ -60,10 +60,6 @@ export class CategoriesService {
         .distinct(true)
         .getRawMany();
 
-    console.log('allCategories', allCategories);
-
-    //TODO как здесь сделать, чтобы возвращалась вместе с транслэйтед???
-
     return allCategories.map((category) => ({
       id: category.category_id,
       text: category.category_text,

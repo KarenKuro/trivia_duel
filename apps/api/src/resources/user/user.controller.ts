@@ -21,7 +21,7 @@ import { AuthUserGuard } from '@common/guards';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
 
-import { UpdateUserDTO, UserResponseDTO } from './dto';
+import { UpdateUserDTO, UserResponseDTO, LeaderBoardUserDataDTO } from './dto';
 import { UserService } from './user.service';
 
 @Controller('users')
@@ -99,5 +99,13 @@ export class UserController {
     await this._userService.updateUser(token.id, body);
 
     return { success: true };
+  }
+
+  @Get('leaderboard')
+  @ApiOperation({ summary: 'Return Leader Board' })
+  async getLeaderboard(
+    @AuthUser() token: TokenPayloadDTO,
+  ): Promise<LeaderBoardUserDataDTO[]> {
+    return await this._userService.getLeaderboard(token.id);
   }
 }

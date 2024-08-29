@@ -237,14 +237,11 @@ export class MatchService {
       }
 
       const questions = await this.getRandomQuestionsByMatch(match);
-      console.log('questions', questions);
       match.questions = questions;
       match.status = MatchStatusType.IN_PROCESS;
 
-      //TODO
       const currTime = await this._dbManagerService.getTime();
 
-      console.log('currTime', currTime);
       match.startedAt = currTime;
       await this._matchRepository.save(match);
 
@@ -283,8 +280,6 @@ export class MatchService {
         WHERE q.rn = 1;
     `;
 
-    console.log('queryString', queryString);
-
     const rawData = await this._dbManagerService.runQuery<IId[]>(queryString);
 
     const questionIds = rawData.map((raw) => Number(raw.id));
@@ -308,6 +303,7 @@ export class MatchService {
       where: { id: matchId, status: MatchStatusType.IN_PROCESS },
       relations: [
         'users',
+        'users.statistics',
         'questions',
         'questions.correctAnswer',
         'questions.answers',
@@ -403,7 +399,6 @@ export class MatchService {
     match: MatchEntity,
     matchUserAnswers: UserAnswerEntity[],
   ): Promise<void> {
-    console.log('MATCH ENDED');
     const [firstUser, secondUser] = match.users;
 
     const firstUserCorrectAnswersCount = matchUserAnswers.filter(
@@ -431,36 +426,8 @@ export class MatchService {
       looser,
     });
 
-    if (winner) {
-      if (winner.currentWinCount === winner.longestWinCount) {
-        await this._userService.updateUser(winner.id, {
-          longestWinCount() {
-            return 'longest_win_count + 1';
-          },
-        });
-      }
-      await this._userService.updateUser(winner.id, {
-        currentWinCount() {
-          return 'current_win_count + 1';
-        },
-      });
-    }
+    await this.updateStatistics(winner, looser, [firstUser, secondUser]);
 
-    if (looser) {
-      await this._userService.updateUser(looser.id, {
-        currentWinCount: 0,
-      });
-    }
-
-    if (!looser && !winner) {
-      await this._userService.updateUser(firstUser.id, {
-        currentWinCount: 0,
-      });
-
-      await this._userService.updateUser(secondUser.id, {
-        currentWinCount: 0,
-      });
-    }
     const matchData = await this.getMatchDataToSend(match.id);
 
     this._matchGateway.sendMessageToHandlers({
@@ -501,6 +468,7 @@ export class MatchService {
       where: { id },
       relations: [
         'users',
+        'users.statistics',
         'questions',
         'questions.translatedQuestions',
         'questions.translatedQuestions.language',
@@ -686,5 +654,41 @@ export class MatchService {
       });
     }
     return match;
+  }
+
+  async updateStatistics(
+    winner: UserEntity,
+    looser: UserEntity,
+    users: UserEntity[],
+  ) {
+    if (winner) {
+      const winnerStat = winner.statistics;
+
+      if (winnerStat.currentWinCount === winnerStat.longestWinCount) {
+        winnerStat.longestWinCount += 1;
+      }
+
+      winnerStat.currentWinCount += 1;
+      winnerStat.victories += 1;
+
+      await this._userService.updateStatistics(winnerStat.id, winnerStat);
+    }
+
+    if (looser) {
+      const looserStat = looser.statistics;
+      looserStat.currentWinCount = 0;
+      looserStat.defeats += 1;
+      await this._userService.updateStatistics(looserStat.id, looserStat);
+    }
+
+    if (!looser && !winner) {
+      for (const user of users) {
+        const userStat = user.statistics;
+
+        userStat.currentWinCount = 0;
+        userStat.draws += 1;
+        await this._userService.updateStatistics(userStat.id, userStat);
+      }
+    }
   }
 }

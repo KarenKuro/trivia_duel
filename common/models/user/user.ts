@@ -1,5 +1,6 @@
 import { UserStatus } from '@common/enums';
 
+import { IStatistics } from './statistics';
 import { ICategory } from '../category';
 import { IMatch } from '../match';
 
@@ -19,7 +20,6 @@ export interface IUser {
   createdAt: Date;
   updatedAt: Date;
   matches?: IMatch[];
-  longestWinCount: number;
-  currentWinCount: number;
+  statistics: IStatistics;
   avatar?: string;
 }

@@ -23,4 +23,7 @@ export const AUTH_ERROR_MESSAGES = {
   USER_ARE_BLOCKED: {
     message: 'err_users_are_blocked',
   },
+  STATISTICS_NOT_EXISTS: {
+    message: 'err_statistics_not_exists',
+  },
 };

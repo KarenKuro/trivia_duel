@@ -20,6 +20,7 @@ import {
   ICategory,
   IId,
   ILeaderBoardUserData,
+  IPosition,
   IQueryBuilderUser,
   IStatistics,
   IUser,
@@ -39,10 +40,6 @@ export class UserService {
   ) {}
 
   async findOne(id: number, language?: string): Promise<IUser> {
-    if (!language) {
-      language === MAIN_LANGUAGE;
-    }
-
     if (language !== MAIN_LANGUAGE) {
       const user = await this._userRepository.findOne({
         where: { id },
@@ -173,8 +170,7 @@ export class UserService {
       .from(`(${subquery.getQuery()})`, 'users')
       .where('users.users_id = :id', { id: userId });
 
-    const myPositionResult: { position: string } =
-      await myPositionQuery.getRawOne();
+    const myPositionResult: IPosition = await myPositionQuery.getRawOne();
     const myPosition = myPositionResult
       ? Number(myPositionResult.position)
       : null;

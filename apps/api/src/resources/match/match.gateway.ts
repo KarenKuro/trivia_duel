@@ -62,8 +62,6 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
       let users: UserEntity[] = [];
       users = [...match.users];
 
-      // TODO не стоит ли добавить сюда хотя бы какую то инфу о юзере? чтобы перед началом матча показать инфу о юзере
-      // или лучше создать отдельный метод, для момента начала матча?
       match = omit(match, ['users']) as MatchEntity;
       users.map((user) => {
         this.server.to(user.id.toString()).emit('message', match);

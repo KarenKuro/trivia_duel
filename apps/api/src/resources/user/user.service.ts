@@ -16,7 +16,16 @@ import {
 import { UserStatus } from '@common/enums';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
-import { ICategory, IId, IStatistics, IUser, IUserId } from '@common/models';
+import {
+  ICategory,
+  IId,
+  ILeaderBoardUserData,
+  IPosition,
+  IQueryBuilderUser,
+  IStatistics,
+  IUser,
+  IUserId,
+} from '@common/models';
 
 @Injectable()
 export class UserService {
@@ -30,7 +39,7 @@ export class UserService {
     private readonly _statisticsRepository: Repository<StatisticsEntity>,
   ) {}
 
-  async findOne(id: number, language: string): Promise<IUser> {
+  async findOne(id: number, language?: string): Promise<IUser> {
     if (language !== MAIN_LANGUAGE) {
       const user = await this._userRepository.findOne({
         where: { id },
@@ -144,4 +153,61 @@ export class UserService {
   // level: newLevel
   // await this.updateUser(user.id, { points });
   // }
+
+  public async getLeaderboard(userId: number): Promise<ILeaderBoardUserData[]> {
+    const entityManager = this._userRepository.manager;
+    const count: number = await this._userRepository.count();
+
+    const subquery = entityManager
+      .createQueryBuilder()
+      .select('users')
+      .addSelect('ROW_NUMBER() OVER (ORDER BY users.points DESC)', 'position')
+      .from(UserEntity, 'users');
+
+    const myPositionQuery = entityManager
+      .createQueryBuilder()
+      .select('position')
+      .from(`(${subquery.getQuery()})`, 'users')
+      .where('users.users_id = :id', { id: userId });
+
+    const myPositionResult: IPosition = await myPositionQuery.getRawOne();
+    const myPosition = myPositionResult
+      ? Number(myPositionResult.position)
+      : null;
+
+    const leaders: ILeaderBoardUserData[] = [];
+
+    let offset = 0;
+    const take = 10;
+
+    if (myPosition - 6 > 0) {
+      offset = myPosition - 6;
+    }
+
+    if (myPosition + 5 > count) {
+      offset = count - 10;
+    }
+
+    const leadersQuery = entityManager
+      .createQueryBuilder()
+      .select('*')
+      .addSelect('position')
+      .from(`(${subquery.getQuery()})`, 'users')
+      .skip(offset)
+      .take(take)
+      .orderBy('position', 'ASC');
+
+    const leadersData: IQueryBuilderUser[] = await leadersQuery.getRawMany();
+
+    for (const user of leadersData) {
+      leaders.push({
+        position: Number(user.position),
+        id: user.users_id,
+        name: user.users_name,
+        points: user.users_points,
+      });
+    }
+
+    return leaders;
+  }
 }

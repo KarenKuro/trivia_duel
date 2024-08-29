@@ -55,8 +55,8 @@ export class TasksService {
   }
 
   // Force canceled match if the match continious more than 5 minutes
-  // TODO: Put EVERY_10_SECONDS, and change interval to 5 minute  !!!!!!!!! change to 10 sec cron , interval - 30 sec match можно cancaled.
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  // TODO: Put EVERY_10_SECONDS, and change interval to 30 sec
+  @Cron(CronExpression.EVERY_10_SECONDS)
   async canceledMatches() {
     const matchesToUpdate = await this._matchRepository
       .createQueryBuilder('match')

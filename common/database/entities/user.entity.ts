@@ -1,11 +1,19 @@
 import { ApiHideProperty } from '@nestjs/swagger';
 
-import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  OneToOne,
+} from 'typeorm';
 
 import { UserStatus } from '@common/enums';
 
 import { CategoryEntity } from './category.entity';
 import { MatchEntity } from './match.entity';
+import { StatisticsEntity } from './statistics.entity';
 import { BaseEntity } from '../base';
 
 @Entity({ name: 'users' })
@@ -58,11 +66,12 @@ export class UserEntity extends BaseEntity {
   @Column({ default: 5 })
   tickets: number;
 
-  @Column({ default: 0, name: 'longest_win_count' })
-  longestWinCount: number;
-
-  @Column({ default: 0, name: 'current_win_count' })
-  currentWinCount: number;
+  @OneToOne(() => StatisticsEntity, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
+  statistics: StatisticsEntity;
 
   @Column({ default: 'assets/images/Avatars-4.svg' })
   avatar?: string;

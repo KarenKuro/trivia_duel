@@ -8,11 +8,15 @@ import { Transactional } from 'typeorm-transactional';
 import { CategoriesService } from '@api-resources/categories';
 
 import { MAIN_LANGUAGE } from '@common/constants';
-import { CategoryEntity, UserEntity } from '@common/database/entities';
+import {
+  CategoryEntity,
+  StatisticsEntity,
+  UserEntity,
+} from '@common/database/entities';
 import { UserStatus } from '@common/enums';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
-import { ICategory, IId, IUser, IUserId } from '@common/models';
+import { ICategory, IId, IStatistics, IUser, IUserId } from '@common/models';
 
 @Injectable()
 export class UserService {
@@ -21,6 +25,9 @@ export class UserService {
 
     @InjectRepository(UserEntity)
     private readonly _userRepository: Repository<UserEntity>,
+
+    @InjectRepository(StatisticsEntity)
+    private readonly _statisticsRepository: Repository<StatisticsEntity>,
   ) {}
 
   async findOne(id: number, language: string): Promise<IUser> {
@@ -32,6 +39,7 @@ export class UserService {
           'categories.translatedCategories',
           'categories.translatedCategories.language',
           'categories.image',
+          'statistics',
         ],
       });
 
@@ -45,8 +53,6 @@ export class UserService {
         );
 
         userCategory.text = translatedCategory.text;
-        // userCategory.image =
-
         return userCategory;
       });
 
@@ -56,7 +62,7 @@ export class UserService {
 
     const user = await this._userRepository.findOne({
       where: { id },
-      relations: ['categories', 'categories.image'],
+      relations: ['categories', 'categories.image', 'statistics'],
     });
 
     if (user.status === UserStatus.LOCKED) {
@@ -114,6 +120,19 @@ export class UserService {
     const updatedUser = await this._userRepository.update(userId, newUserData);
     if (updatedUser.affected === 0) {
       throw ResponseManager.buildError(ERROR_MESSAGES.USER_NOT_EXISTS);
+    }
+  }
+
+  async updateStatistics(
+    id: number,
+    newStatisticsData: QueryDeepPartialEntity<IStatistics>,
+  ): Promise<void> {
+    const updatedStatistics = await this._statisticsRepository.update(
+      id,
+      newStatisticsData,
+    );
+    if (updatedStatistics.affected === 0) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.STATISTICS_NOT_EXISTS);
     }
   }
 

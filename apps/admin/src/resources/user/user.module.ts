@@ -3,14 +3,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { UserEntity } from '@common/database/entities';
+import { StatisticsEntity, UserEntity } from '@common/database/entities';
 
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity]),
+    TypeOrmModule.forFeature([UserEntity, StatisticsEntity]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({

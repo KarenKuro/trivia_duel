@@ -57,7 +57,7 @@ export class UserEntity extends BaseEntity {
   @ApiHideProperty()
   matches: MatchEntity[];
 
-  @Column({ default: 1 })
+  @Column({ default: 0 })
   level: number;
 
   @Column({ default: 0 })

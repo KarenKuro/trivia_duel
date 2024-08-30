@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { MatchGateway, MatchModule } from '@api-resources/match';
+import { MatchModule } from '@api-resources/match';
 import { UserModule } from '@api-resources/user';
 
 import { MatchEntity, UserAnswerEntity, UserEntity } from '@common/database';
@@ -26,6 +26,6 @@ import { TasksService } from './tasks.service';
     MatchModule,
     UserModule,
   ],
-  providers: [TasksService, MatchGateway],
+  providers: [TasksService],
 })
 export class TasksModule {}

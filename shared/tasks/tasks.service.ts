@@ -113,7 +113,6 @@ export class TasksService {
   @OnEvent('task.trigger')
   handleTaskTrigger(users: UserEntity[]) {
     const fifteenMinutesFromNow = new Date(Date.now() + 15 * 1000); // * 60);
-    console.log('event', users);
 
     schedule.scheduleJob(fifteenMinutesFromNow, async () => {
       for (const user of users) {
@@ -125,5 +124,17 @@ export class TasksService {
         await this._matchGateway.sendUserData({ ...user, tickets });
       }
     });
+
+    (async () => {
+      for (const user of users) {
+        let tickets = user.tickets;
+        if (tickets < 5) {
+          ++tickets;
+          await this._userService.updateUser(user.id, { tickets }); // обновление user.tickets в базе данных
+        }
+        await this._matchGateway.sendUserData({ ...user, tickets });
+      }
+    })();
   }
 }
+// в юзер сервисе сделаю метод

@@ -210,4 +210,10 @@ export class UserService {
 
     return leaders;
   }
+
+  // async didUserPlayFiveDays(user: UserEntity): Promise<boolean> {
+  //   const howManyDaysUserPlay = 0;
+
+  //   return true;
+  // }
 }

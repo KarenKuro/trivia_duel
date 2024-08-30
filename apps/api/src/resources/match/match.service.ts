@@ -572,7 +572,7 @@ export class MatchService {
     }
     const previousMatchData = await this.getMatchDataToSend(previousMatch.id);
     this._matchGateway.sendMessageToHandlers(previousMatchData);
-    // В которой есть инфа о next.match. и если статус category_choose- они переходят в next match ?????
+    // В которой есть инфа о next.match. и если статус category_choose- они переходят в next match
   }
 
   @Transactional()

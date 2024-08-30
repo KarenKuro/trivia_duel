@@ -8,7 +8,7 @@ export * from './path.dto';
 export * from './correct-answer.dto';
 export * from './category-response-without-translation.dto';
 export * from './language-response.dto';
-export * from './match-response/translated-category-response.dto';
 export * from './media.response.dto';
 export * from './category-response.dto';
+export * from './statistics-response.dto';
 export * from './match-response';

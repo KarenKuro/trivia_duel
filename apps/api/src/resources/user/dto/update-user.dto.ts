@@ -27,4 +27,20 @@ export class UpdateUserDTO {
   @IsOptional()
   @ApiPropertyOptional()
   avatar: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Transform(({ value }) => {
+    return !isNaN(value) ? Number(value) : value;
+  })
+  @ApiPropertyOptional()
+  coins: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Transform(({ value }) => {
+    return !isNaN(value) ? Number(value) : value;
+  })
+  @ApiPropertyOptional()
+  premiumCoins: number;
 }

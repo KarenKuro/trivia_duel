@@ -691,4 +691,6 @@ export class MatchService {
       }
     }
   }
+
+  async bonusesBasedOnMatchResults() {}
 }

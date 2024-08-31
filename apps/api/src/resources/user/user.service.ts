@@ -145,15 +145,6 @@ export class UserService {
     }
   }
 
-  // @Transactional()
-  // async addPoints(users: IUser[], matchData: IMatch): Promise<void> {
-  // TODO add points and if need level up;
-  //
-  //
-  // level: newLevel
-  // await this.updateUser(user.id, { points });
-  // }
-
   public async getLeaderboard(userId: number): Promise<ILeaderBoardUserData[]> {
     const entityManager = this._userRepository.manager;
     const count: number = await this._userRepository.count();
@@ -210,6 +201,15 @@ export class UserService {
 
     return leaders;
   }
+
+  // @Transactional()
+  // async addPoints(users: IUser[], matchData: IMatch): Promise<void> {
+  // TODO add points and if need level up;
+  //
+  //
+  // level: newLevel
+  // await this.updateUser(user.id, { points });
+  // }
 
   // async didUserPlayFiveDays(user: UserEntity): Promise<boolean> {
   //   const howManyDaysUserPlay = 0;

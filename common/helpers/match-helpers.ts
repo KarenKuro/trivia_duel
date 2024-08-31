@@ -6,7 +6,7 @@ export class MatchHelpers {
     if (!userLevel) return MatchLevel.BRONZE;
     let matchStatus = MatchLevel.BRONZE;
     for (const key in MATCH_LEVELS_MAP) {
-      if (userLevel >= MATCH_LEVELS_MAP[key]) {
+      if (userLevel > MATCH_LEVELS_MAP[key]) {
         matchStatus = key as MatchLevel;
       }
     }

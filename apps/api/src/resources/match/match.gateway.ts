@@ -13,6 +13,8 @@ import { Server, Socket } from 'socket.io';
 import { MatchEntity, UserEntity } from '@common/database/entities';
 import { ITokenPayload } from '@common/models';
 
+import { BonusesDTO } from './dto';
+
 @WebSocketGateway(3001)
 export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
@@ -72,5 +74,9 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async sendUserData(user: UserEntity) {
     this.server.to(user.id.toString()).emit('user', user);
+  }
+
+  async sendBonusesAfterMatch(user: UserEntity, bonuses: BonusesDTO) {
+    this.server.to(user.id.toString()).emit('bonuses', bonuses);
   }
 }

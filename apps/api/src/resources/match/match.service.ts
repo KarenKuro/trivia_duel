@@ -26,6 +26,7 @@ import { MatchLevel, MatchStatusType, QuestionType } from '@common/enums';
 import { MatchHelpers, ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
 import {
+  IBonuses,
   ICategories,
   ICategory,
   IId,
@@ -437,7 +438,11 @@ export class MatchService {
     });
 
     // TODO add user points and levelup
-    // this._userService.addPoints(users, matchData);
+    const usersBonuses = await this.bonusesBasedOnMatchResults(match);
+
+    for (const userBonuses of usersBonuses) {
+      this._matchGateway.sendBonusesAfterMatch(userBonuses);
+    }
 
     // add tiket, after 15 minutes, when match ended
     this._eventEmitter.emit('task.trigger', match.users);
@@ -692,5 +697,22 @@ export class MatchService {
     }
   }
 
-  async bonusesBasedOnMatchResults() {}
+  async bonusesBasedOnMatchResults(match: MatchEntity): Promise<IBonuses[]> {
+    const usersAnswers = await this._userAnswerRepository.find({
+      where: { match: { id: match.id } },
+      relations: ['user'],
+    });
+
+    const usersBonuses: IBonuses[] = [];
+
+    for (const user of match.users) {
+      // здесь нужно высчитать бонус за непрерывную игру, добавить в usersBonuses по каждому юзеру эти данные
+
+      usersBonuses.push(
+        await this._userService.calculateMatchBonuses(user, usersAnswers),
+      );
+    }
+
+    return usersBonuses;
+  }
 }

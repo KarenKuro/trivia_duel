@@ -26,6 +26,7 @@ import { MatchLevel, MatchStatusType, QuestionType } from '@common/enums';
 import { MatchHelpers, ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
 import {
+  IBonuses,
   ICategories,
   ICategory,
   IId,
@@ -428,6 +429,13 @@ export class MatchService {
 
     await this.updateStatistics(winner, looser, [firstUser, secondUser]);
 
+    // TODO add user points and levelup
+    const usersBonuses = await this.bonusesBasedOnMatchResults(match);
+
+    for (const userBonuses of usersBonuses) {
+      this._matchGateway.sendBonusesAfterMatch(userBonuses);
+    }
+
     const matchData = await this.getMatchDataToSend(match.id);
 
     this._matchGateway.sendMessageToHandlers({
@@ -435,9 +443,6 @@ export class MatchService {
       status: MatchStatusType.ENDED,
       winner,
     });
-
-    // TODO add user points and levelup
-    // this._userService.addPoints(users, matchData);
 
     // add tiket, after 15 minutes, when match ended
     this._eventEmitter.emit('task.trigger', match.users);
@@ -660,7 +665,7 @@ export class MatchService {
     winner: UserEntity,
     looser: UserEntity,
     users: UserEntity[],
-  ) {
+  ): Promise<void> {
     if (winner) {
       const winnerStat = winner.statistics;
 
@@ -671,6 +676,14 @@ export class MatchService {
       winnerStat.currentWinCount += 1;
       winnerStat.victories += 1;
 
+      const data = await this._dbManagerService.getUserMatchesByDay(winner.id);
+
+      const yesterdayCount = data.yesterday_count ?? 0;
+      const todayCount = data.today_count ?? 0;
+
+      if (yesterdayCount != 0 && todayCount == 1) {
+        winnerStat.playedContinuouslyDays += 1;
+      }
       await this._userService.updateStatistics(winnerStat.id, winnerStat);
     }
 
@@ -678,6 +691,15 @@ export class MatchService {
       const looserStat = looser.statistics;
       looserStat.currentWinCount = 0;
       looserStat.defeats += 1;
+
+      const data = await this._dbManagerService.getUserMatchesByDay(looser.id);
+
+      const yesterdayCount = data.yesterday_count ?? 0;
+      const todayCount = data.today_count ?? 0;
+
+      if (yesterdayCount != 0 && todayCount == 1) {
+        looserStat.playedContinuouslyDays += 1;
+      }
       await this._userService.updateStatistics(looserStat.id, looserStat);
     }
 
@@ -687,8 +709,35 @@ export class MatchService {
 
         userStat.currentWinCount = 0;
         userStat.draws += 1;
+
+        const data = await this._dbManagerService.getUserMatchesByDay(user.id);
+
+        const yesterdayCount = data.yesterday_count ?? 0;
+        const todayCount = data.today_count ?? 0;
+
+        if (yesterdayCount != 0 && todayCount == 1) {
+          userStat.playedContinuouslyDays += 1;
+        }
         await this._userService.updateStatistics(userStat.id, userStat);
       }
     }
+  }
+
+  async bonusesBasedOnMatchResults(match: MatchEntity): Promise<IBonuses[]> {
+    const usersAnswers = await this._userAnswerRepository.find({
+      where: { match: { id: match.id } },
+      relations: ['user'],
+    });
+    console.log(usersAnswers.length);
+    const usersBonuses: IBonuses[] = [];
+
+    // for (const user of match.users) {
+    // здесь нужно высчитать бонус за непрерывную игру, добавить в usersBonuses по каждому юзеру эти данные
+    // usersBonuses.push(
+    //   await this._userService.calculateMatchBonuses(user, usersAnswers),
+    // );
+    // }
+
+    return usersBonuses;
   }
 }

@@ -1,4 +1,5 @@
 docker.env
+/uploads
 
 # compiled output
 /dist

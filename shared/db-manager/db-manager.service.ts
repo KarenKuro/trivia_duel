@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 
 import { EntityManager } from 'typeorm';
 
+import { IPlayedCount } from '@common/models';
+
 @Injectable()
 export class DbManagerService {
   constructor(private readonly _entityManager: EntityManager) {}
@@ -16,5 +18,28 @@ export class DbManagerService {
     );
 
     return currTime;
+  }
+
+  async getUserMatchesByDay(userId: number): Promise<IPlayedCount> {
+    const queryString = `
+    SELECT COALESCE(today_matches.total,0) as today_count, COALESCE(yesterday_matches.total,0) as yesterday_count FROM matches m
+      JOIN match_users mu 
+        ON m.id = mu.match_id 
+      LEFT JOIN (
+                  SELECT COUNT(*) as total, mu.user_id FROM matches m join match_users mu on m.id = mu.match_id 
+                  WHERE m.created_at > CURDATE() AND mu.user_id = ${userId} group by mu.user_id
+                ) today_matches
+         ON today_matches.user_id = mu.user_id
+      LEFT JOIN (
+                  SELECT COUNT(*) as total, mu.user_id FROM matches m join match_users mu on m.id = mu.match_id 
+                  WHERE m.created_at > (CURDATE() - INTERVAL ${userId} DAY) AND m.created_at < CURDATE() AND mu.user_id = ${userId} group by mu.user_id
+                ) yesterday_matches
+          ON yesterday_matches.user_id = mu.user_id
+      WHERE mu.user_id = ${userId}
+      GROUP BY mu.user_id;`;
+
+    const [data] = await this.runQuery<[IPlayedCount]>(queryString);
+
+    return data;
   }
 }

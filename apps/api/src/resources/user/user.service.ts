@@ -145,15 +145,6 @@ export class UserService {
     }
   }
 
-  // @Transactional()
-  // async addPoints(users: IUser[], matchData: IMatch): Promise<void> {
-  // TODO add points and if need level up;
-  //
-  //
-  // level: newLevel
-  // await this.updateUser(user.id, { points });
-  // }
-
   public async getLeaderboard(userId: number): Promise<ILeaderBoardUserData[]> {
     const entityManager = this._userRepository.manager;
     const count: number = await this._userRepository.count();
@@ -186,6 +177,9 @@ export class UserService {
 
     if (myPosition + 5 > count) {
       offset = count - 10;
+      if (offset < 0) {
+        offset = 0;
+      }
     }
 
     const leadersQuery = entityManager
@@ -205,11 +199,21 @@ export class UserService {
         id: user.users_id,
         name: user.users_name,
         points: user.users_points,
+        avatar: user.users_avatar,
       });
     }
 
     return leaders;
   }
+
+  // @Transactional()
+  // async addPoints(users: IUser[], matchData: IMatch): Promise<void> {
+  // TODO add points and if need level up;
+  //
+  //
+  // level: newLevel
+  // await this.updateUser(user.id, { points });
+  // }
 
   // async didUserPlayFiveDays(user: UserEntity): Promise<boolean> {
   //   const howManyDaysUserPlay = 0;

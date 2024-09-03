@@ -27,10 +27,6 @@ export class AuthService {
   ) {}
 
   async syncUser(data: ISyncUser): Promise<IAuthTokens> {
-    if (!data.email) {
-      data.email = '';
-    }
-
     let user = await this._userRepository.findOne({
       where: {
         uid: String(data.id),

@@ -14,4 +14,7 @@ export class LeaderBoardUserDataDTO implements ILeaderBoardUserData {
 
   @ApiProperty()
   points: number;
+
+  @ApiProperty()
+  avatar: string;
 }

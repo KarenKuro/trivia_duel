@@ -3,4 +3,5 @@ export interface ILeaderBoardUserData {
   position: number;
   name: string;
   points: number;
+  avatar: string;
 }

@@ -5,6 +5,7 @@ export interface IStatistics {
   defeats: number;
   longestWinCount: number;
   currentWinCount: number;
+  playedContinuouslyDays: number;
   createdAt: Date;
   updatedAt: Date;
 }

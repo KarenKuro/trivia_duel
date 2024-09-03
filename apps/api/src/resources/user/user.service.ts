@@ -177,6 +177,9 @@ export class UserService {
 
     if (myPosition + 5 > count) {
       offset = count - 10;
+      if (offset < 0) {
+        offset = 0;
+      }
     }
 
     const leadersQuery = entityManager
@@ -196,6 +199,7 @@ export class UserService {
         id: user.users_id,
         name: user.users_name,
         points: user.users_points,
+        avatar: user.users_avatar,
       });
     }
 

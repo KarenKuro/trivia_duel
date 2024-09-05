@@ -5,3 +5,5 @@ export * from './queri-builder-user';
 export * from './position';
 export * from './bonuses';
 export * from './played-count';
+export * from './level-info';
+export * from './bonus-items';

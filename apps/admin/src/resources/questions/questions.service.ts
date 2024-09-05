@@ -139,6 +139,7 @@ export class QuestionsService {
         'answers',
         'correctAnswer',
         'category',
+        'category.image',
         'translatedQuestions',
         'answers.translatedAnswers',
         'answers.translatedAnswers.language',
@@ -157,6 +158,7 @@ export class QuestionsService {
         'answers',
         'correctAnswer',
         'category',
+        'category.image',
         'translatedQuestions',
         'answers.translatedAnswers',
         'answers.translatedAnswers.language',
@@ -304,7 +306,7 @@ export class QuestionsService {
 
   @Transactional()
   async remove(question: IQuestion): Promise<IMessageSuccess> {
-    await this._questionRepository.delete(question.id);
+    await this._questionRepository.softDelete(question.id);
 
     return { success: true };
   }

@@ -19,6 +19,6 @@ export class StatisticsEntity extends BaseEntity {
   @Column({ default: 0, name: 'current_win_count' })
   currentWinCount: number;
 
-  @Column({ default: 0, name: 'played_continuously' })
+  @Column({ type: 'tinyint', default: 0, name: 'played_continuously' })
   playedContinuouslyDays: number;
 }

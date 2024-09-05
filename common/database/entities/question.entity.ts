@@ -1,5 +1,9 @@
+import { ApiHideProperty } from '@nestjs/swagger';
+
+import { Exclude } from 'class-transformer';
 import {
   Column,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -46,4 +50,11 @@ export class QuestionEntity extends BaseEntity {
     (translatedQuestion) => translatedQuestion.question,
   )
   translatedQuestions: TranslatedQuestionEntity[];
+
+  @ApiHideProperty()
+  @Exclude()
+  @DeleteDateColumn({
+    name: 'deleted_at',
+  })
+  deletedAt?: Date;
 }

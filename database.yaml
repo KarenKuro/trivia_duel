@@ -6,9 +6,9 @@ volumes:
 
 services:
   db:
-    image: mysql:8.0
+    image: mysql:8.0.29
     ports:
-      - 3306:3306
+      - 3333:3306
     volumes:
       - mysql_data:/var/lib/mysql_data/
     env_file:

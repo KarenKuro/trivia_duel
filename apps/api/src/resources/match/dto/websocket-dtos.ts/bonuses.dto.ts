@@ -5,7 +5,7 @@ export class BonusesDTO {
   userId: number;
 
   @ApiProperty()
-  points: number;
+  matchPoints: number;
 
   @ApiProperty()
   level: number;

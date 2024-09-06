@@ -7,3 +7,4 @@ export * from './bonuses';
 export * from './played-count';
 export * from './level-info';
 export * from './bonus-items';
+export * from './user-and-statistics-data';

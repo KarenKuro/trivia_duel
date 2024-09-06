@@ -1,5 +1,5 @@
 export interface IUserBonusItems {
-  points: number;
+  matchPoints: number;
   level: number;
   coins: number;
 }

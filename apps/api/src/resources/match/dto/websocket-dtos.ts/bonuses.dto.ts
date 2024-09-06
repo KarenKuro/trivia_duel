@@ -5,23 +5,23 @@ export class BonusesDTO {
   userId: number;
 
   @ApiProperty()
-  pointsForCorrectAnswers: number;
+  points: number;
 
   @ApiProperty()
-  requiredPointsToLevelUp: number;
+  level: number;
 
   @ApiProperty()
-  coinsForEveryTenLevelUp: number;
+  pointsToLevelUp: number;
+
+  @ApiProperty()
+  totalCoins: number;
+
+  @ApiProperty()
+  coinsForBigLevelUp: number;
 
   @ApiProperty()
   coinsForCurrentWinningStreak: number;
 
   @ApiProperty()
-  coinsForPlayedContinuouslyForFiveDays: number;
-
-  @ApiProperty()
-  levelAfterGame: number;
-
-  @ApiProperty()
-  coinsAfterGame: number;
+  coinsForPlayedContinuously: number;
 }

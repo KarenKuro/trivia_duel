@@ -17,7 +17,7 @@ export class UserService {
   async findAll(pagination: IPagination): Promise<[IUser[], number]> {
     const { offset, limit } = pagination;
     const [users, count] = await this._userRepository.findAndCount({
-      relations: ['categories'],
+      relations: ['categories', 'statistics'],
       skip: +offset,
       take: +limit,
     });
@@ -28,7 +28,7 @@ export class UserService {
   async findOne(param: Partial<IUser>): Promise<IUser> {
     const user = this._userRepository.findOne({
       where: param,
-      relations: ['categories'],
+      relations: ['categories', 'statistics'],
     });
 
     return user;

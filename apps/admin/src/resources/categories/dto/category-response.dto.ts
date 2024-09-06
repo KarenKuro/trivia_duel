@@ -20,7 +20,10 @@ export class CategoryResponseDTO {
   // @ApiProperty()
   // isExclusive: boolean;
 
-  @ApiProperty()
+  @ApiProperty({
+    example:
+      'localhost:3007/uploads/categories/5284d013-93fa-425d-8af6-7d2cefdcc7da.png',
+  })
   image?: IMedia | string;
 
   @ApiProperty()

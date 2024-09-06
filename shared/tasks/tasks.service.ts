@@ -80,7 +80,7 @@ export class TasksService {
 
   // Change match status to ended if match started more than 2 minute
   // TODO Put EVERY_10_SECONDS, and change interval to time , how long should the match last(example: 2 minutes)
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron(CronExpression.EVERY_YEAR)
   async endMatches() {
     const matchesToUpdate = await this._matchRepository
       .createQueryBuilder('match')
@@ -91,9 +91,16 @@ export class TasksService {
       .getMany();
 
     matchesToUpdate.map(async (match) => {
-      const endedMatchData = await this._matchService.getMatchDataToSend(
-        match.id,
-      );
+      const endedMatchData = await this._matchRepository.findOne({
+        where: { id: match.id, status: MatchStatusType.IN_PROCESS },
+        relations: [
+          'users',
+          'users.statistics',
+          'questions',
+          'questions.correctAnswer',
+          'questions.answers',
+        ],
+      });
       const matchUserAnswers = await this._userAnswerRepository.find({
         where: {
           match: { id: match.id },

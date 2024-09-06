@@ -1,31 +1,40 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
+import { sum } from 'lodash';
 import { Repository } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
-import { Transactional } from 'typeorm-transactional';
 
 import { CategoriesService } from '@api-resources/categories';
 
-import { MAIN_LANGUAGE } from '@common/constants';
+import {
+  MAIN_LANGUAGE,
+  MAX_PLAYED_CONTINUOUSLY,
+  MULTIPLY_FOR_ADD_COINS,
+} from '@common/constants';
 import {
   CategoryEntity,
   StatisticsEntity,
+  UserAnswerEntity,
   UserEntity,
 } from '@common/database/entities';
-import { UserStatus } from '@common/enums';
+import { MatchLevel, PointsForCorrectAnswers, UserStatus } from '@common/enums';
 import { ResponseManager } from '@common/helpers';
+import { LevelHelpers } from '@common/helpers/level-helpers';
 import { ERROR_MESSAGES } from '@common/messages';
 import {
   ICategory,
   IId,
   ILeaderBoardUserData,
+  ILevelInfo,
   IPosition,
   IQueryBuilderUser,
   IStatistics,
   IUser,
+  IUserBonusItems,
   IUserId,
 } from '@common/models';
+import { ICoinsForBonuses } from '@common/models/user/coins-for-bonuses';
 
 @Injectable()
 export class UserService {
@@ -121,7 +130,6 @@ export class UserService {
     return user;
   }
 
-  @Transactional()
   async updateUser(
     userId: number,
     newUserData: QueryDeepPartialEntity<IUser>,
@@ -130,6 +138,19 @@ export class UserService {
     if (updatedUser.affected === 0) {
       throw ResponseManager.buildError(ERROR_MESSAGES.USER_NOT_EXISTS);
     }
+  }
+
+  async increaseBonusItems(userId: number, bonusItems: IUserBonusItems) {
+    const { points, coins, level } = bonusItems;
+    await this._userRepository.update(userId, {
+      coins() {
+        return `coins + ${coins}`;
+      },
+      points() {
+        return `points + ${points}`;
+      },
+      level,
+    });
   }
 
   async updateStatistics(
@@ -206,18 +227,66 @@ export class UserService {
     return leaders;
   }
 
-  // @Transactional()
-  // async addPoints(users: IUser[], matchData: IMatch): Promise<void> {
-  // TODO add points and if need level up;
-  //
-  //
-  // level: newLevel
-  // await this.updateUser(user.id, { points });
-  // }
+  calculatePoints(
+    userAnswers: UserAnswerEntity[],
+    matchLevel: MatchLevel,
+  ): { points: number } {
+    const pointsForOneCorrectAnswer: number =
+      PointsForCorrectAnswers[matchLevel];
 
-  // async didUserPlayFiveDays(user: UserEntity): Promise<boolean> {
-  //   const howManyDaysUserPlay = 0;
+    const points = userAnswers.reduce((acc, val) => {
+      if (val.isCorrect) {
+        return (acc += pointsForOneCorrectAnswer);
+      }
+      return acc;
+    }, 0);
+    return { points };
+  }
 
-  //   return true;
-  // }
+  getLevelInfo(points: number): ILevelInfo {
+    return LevelHelpers.getLevelInfo(points);
+  }
+
+  calculateCoinsInfo(
+    user: UserEntity,
+    levelInfo: ILevelInfo,
+    flag: boolean,
+  ): ICoinsForBonuses {
+    const coinsForBonuses = {
+      totalCoins: 0,
+      coinsForBigLevelUp: 0,
+      coinsForCurrentWinningStreak: 0,
+      coinsForPlayedContinuously: 0,
+    };
+
+    // calculate bonus for every ten levels
+    if (levelInfo.level % 10 === 0 && user.level % 10 !== 0) {
+      const whichIsTenLevel = levelInfo.level;
+      coinsForBonuses.coinsForBigLevelUp =
+        whichIsTenLevel * MULTIPLY_FOR_ADD_COINS;
+    }
+
+    // calculate bonus for every ten longest win count
+    if (
+      user.statistics.currentWinCount % 10 === 0 &&
+      user.statistics.currentWinCount !== 0 &&
+      flag
+    ) {
+      coinsForBonuses.coinsForCurrentWinningStreak =
+        user.statistics.currentWinCount * MULTIPLY_FOR_ADD_COINS;
+    }
+
+    // calculate bonus if user played continuously five days
+    if (
+      user.statistics.playedContinuouslyDays !== 0 &&
+      user.statistics.playedContinuouslyDays % MAX_PLAYED_CONTINUOUSLY === 0
+    ) {
+      coinsForBonuses.coinsForPlayedContinuously =
+        MAX_PLAYED_CONTINUOUSLY * MULTIPLY_FOR_ADD_COINS;
+    }
+
+    coinsForBonuses.totalCoins = sum(Object.values(coinsForBonuses));
+
+    return coinsForBonuses;
+  }
 }

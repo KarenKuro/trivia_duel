@@ -31,6 +31,7 @@ import {
   ICategory,
   IId,
   IUserAnswer,
+  IUserBonusItems,
   IUserId,
 } from '@common/models';
 
@@ -276,7 +277,7 @@ export class MatchService {
         FROM (
             SELECT q.*, 
                    ROW_NUMBER() OVER (PARTITION BY q.category_id ORDER BY RAND()) AS rn
-            FROM questions q WHERE q.category_id IN (${categoryIdsString}) AND ${additionalCondition}
+            FROM questions q WHERE q.category_id IN (${categoryIdsString}) AND ${additionalCondition} AND q.deleted_at is NULL
         ) q
         WHERE q.rn = 1;
     `;
@@ -427,14 +428,9 @@ export class MatchService {
       looser,
     });
 
+    await this.sendMatchBonuses(match, matchUserAnswers, winner?.id);
+
     await this.updateStatistics(winner, looser, [firstUser, secondUser]);
-
-    // TODO add user points and levelup
-    const usersBonuses = await this.bonusesBasedOnMatchResults(match);
-
-    for (const userBonuses of usersBonuses) {
-      this._matchGateway.sendBonusesAfterMatch(userBonuses);
-    }
 
     const matchData = await this.getMatchDataToSend(match.id);
 
@@ -668,7 +664,6 @@ export class MatchService {
   ): Promise<void> {
     if (winner) {
       const winnerStat = winner.statistics;
-
       if (winnerStat.currentWinCount === winnerStat.longestWinCount) {
         winnerStat.longestWinCount += 1;
       }
@@ -681,14 +676,19 @@ export class MatchService {
       const yesterdayCount = data.yesterday_count ?? 0;
       const todayCount = data.today_count ?? 0;
 
-      if (yesterdayCount != 0 && todayCount == 1) {
-        winnerStat.playedContinuouslyDays += 1;
+      if (todayCount == 1) {
+        if (yesterdayCount != 0) {
+          winnerStat.playedContinuouslyDays += 1;
+        } else {
+          winnerStat.playedContinuouslyDays = 1;
+        }
       }
       await this._userService.updateStatistics(winnerStat.id, winnerStat);
     }
 
     if (looser) {
       const looserStat = looser.statistics;
+
       looserStat.currentWinCount = 0;
       looserStat.defeats += 1;
 
@@ -697,8 +697,12 @@ export class MatchService {
       const yesterdayCount = data.yesterday_count ?? 0;
       const todayCount = data.today_count ?? 0;
 
-      if (yesterdayCount != 0 && todayCount == 1) {
-        looserStat.playedContinuouslyDays += 1;
+      if (todayCount == 1) {
+        if (yesterdayCount != 0) {
+          looserStat.playedContinuouslyDays += 1;
+        } else {
+          looserStat.playedContinuouslyDays = 1;
+        }
       }
       await this._userService.updateStatistics(looserStat.id, looserStat);
     }
@@ -715,29 +719,64 @@ export class MatchService {
         const yesterdayCount = data.yesterday_count ?? 0;
         const todayCount = data.today_count ?? 0;
 
-        if (yesterdayCount != 0 && todayCount == 1) {
-          userStat.playedContinuouslyDays += 1;
+        if (todayCount == 1) {
+          if (yesterdayCount != 0) {
+            userStat.playedContinuouslyDays += 1;
+          } else {
+            userStat.playedContinuouslyDays = 1;
+          }
         }
         await this._userService.updateStatistics(userStat.id, userStat);
       }
     }
   }
 
-  async bonusesBasedOnMatchResults(match: MatchEntity): Promise<IBonuses[]> {
-    const usersAnswers = await this._userAnswerRepository.find({
-      where: { match: { id: match.id } },
-      relations: ['user'],
-    });
-    console.log(usersAnswers.length);
-    const usersBonuses: IBonuses[] = [];
+  async sendMatchBonuses(
+    match: MatchEntity,
+    matchUserAnswers: UserAnswerEntity[],
+    winnerId?: number,
+  ): Promise<void> {
+    const matchLevel = match.matchLevel;
 
-    // for (const user of match.users) {
-    // здесь нужно высчитать бонус за непрерывную игру, добавить в usersBonuses по каждому юзеру эти данные
-    // usersBonuses.push(
-    //   await this._userService.calculateMatchBonuses(user, usersAnswers),
-    // );
-    // }
+    for (const user of match.users) {
+      const flag =
+        user.id === winnerId &&
+        user.statistics.longestWinCount === user.statistics.currentWinCount &&
+        (user.statistics.longestWinCount + 1) % 10 === 0;
 
-    return usersBonuses;
+      const userAnswers = matchUserAnswers.filter(
+        (el) => el.user.id === user.id,
+      );
+
+      const pointsInfo = this._userService.calculatePoints(
+        userAnswers,
+        matchLevel,
+      );
+      const { points } = pointsInfo;
+
+      const levelInfo = this._userService.getLevelInfo(points);
+      const coinsInfo = this._userService.calculateCoinsInfo(
+        user,
+        levelInfo,
+        flag,
+      );
+
+      const bonusItems: IUserBonusItems = {
+        points,
+        level: levelInfo.level,
+        coins: coinsInfo.totalCoins,
+      };
+
+      await this._userService.increaseBonusItems(user.id, bonusItems);
+
+      const data: IBonuses = {
+        userId: user.id,
+        ...pointsInfo,
+        ...levelInfo,
+        ...coinsInfo,
+      };
+
+      this._matchGateway.sendBonusesAfterMatch(data);
+    }
   }
 }

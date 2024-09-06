@@ -1,11 +1,12 @@
+/* eslint-disable import/namespace */
 import * as Joi from 'joi';
 
 export const API_VALIDATIONS = Joi.object({
   NODE_ENV: Joi.string()
     .valid('development', 'production')
     .default('development'),
-  PORT: Joi.number().default(3000),
-  MEDIA_HOST: Joi.string().default('localhost:3000'),
+  PORT: Joi.number().default(3002),
+  MEDIA_HOST: Joi.string().default('localhost:3002'),
   ENVIRONMENT: Joi.string()
     .valid('development', 'staging', 'production')
     .default('development'),

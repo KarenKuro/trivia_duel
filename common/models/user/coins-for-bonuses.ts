@@ -1,8 +1,4 @@
-export interface IBonuses {
-  userId: number;
-  points: number;
-  level: number;
-  pointsToLevelUp: number;
+export interface ICoinsForBonuses {
   totalCoins: number;
   coinsForBigLevelUp: number;
   coinsForCurrentWinningStreak: number;

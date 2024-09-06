@@ -34,4 +34,8 @@ export class StatisticsResponseDTO {
   @Expose()
   @ApiProperty()
   updatedAt: Date;
+
+  @Expose()
+  @ApiProperty()
+  playedContinuouslyDays: number;
 }

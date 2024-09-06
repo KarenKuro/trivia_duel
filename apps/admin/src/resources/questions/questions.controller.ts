@@ -83,7 +83,7 @@ export class QuestionsController {
   @Get(':id')
   @ApiOperation({ summary: 'Get a question by id' })
   async findOne(@Param() param: IdDTO): Promise<QuestionResponseDTO> {
-    const question = this._questionsService.findOne({ id: +param.id });
+    const question = await this._questionsService.findOne({ id: +param.id });
 
     if (!question) {
       throw ResponseManager.buildError(ERROR_MESSAGES.QUESTION_NOT_EXIST);

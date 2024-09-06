@@ -1,3 +1,4 @@
+/* eslint-disable import/namespace */
 import * as Joi from 'joi';
 
 export const ADMIN_VALIDATIONS = Joi.object({

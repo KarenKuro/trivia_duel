@@ -30,6 +30,8 @@ import {
   ICategories,
   ICategory,
   IId,
+  IUserAndStatisticsData,
+  IUserAndStatisticsMetaData,
   IUserAnswer,
   IUserBonusItems,
   IUserId,
@@ -428,9 +430,16 @@ export class MatchService {
       looser,
     });
 
-    await this.sendMatchBonuses(match, matchUserAnswers, winner?.id);
+    const updatedUsers = await this.updateStatistics(winner, looser, [
+      firstUser,
+      secondUser,
+    ]);
 
-    await this.updateStatistics(winner, looser, [firstUser, secondUser]);
+    await this.sendMatchBonuses(
+      match.matchLevel,
+      matchUserAnswers,
+      updatedUsers,
+    );
 
     const matchData = await this.getMatchDataToSend(match.id);
 
@@ -657,93 +666,82 @@ export class MatchService {
     return match;
   }
 
+  async updateStatisticsByType(
+    user: UserEntity,
+    isWinner: boolean = false,
+    isLooser: boolean = false,
+  ): Promise<IUserAndStatisticsData> {
+    const userStatistics = user.statistics;
+
+    const meta: IUserAndStatisticsMetaData = {
+      oldUserLevel: user.level,
+      oldLongestWinCount: userStatistics.longestWinCount,
+      oldPlayedContinuouslyDays: userStatistics.playedContinuouslyDays,
+    };
+
+    const data = await this._dbManagerService.getUserMatchesByDay(user.id);
+
+    const yesterdayCount = data.yesterday_count ?? 0;
+    const todayCount = data.today_count ?? 0;
+
+    if (todayCount == 1) {
+      if (yesterdayCount != 0) {
+        userStatistics.playedContinuouslyDays += 1;
+      } else {
+        userStatistics.playedContinuouslyDays = 1;
+      }
+    }
+
+    if (isWinner) {
+      if (userStatistics.currentWinCount === userStatistics.longestWinCount) {
+        userStatistics.longestWinCount += 1;
+      }
+
+      userStatistics.currentWinCount += 1;
+      userStatistics.victories += 1;
+    } else {
+      userStatistics.currentWinCount = 0;
+      if (isLooser) {
+        userStatistics.defeats += 1;
+      } else {
+        userStatistics.draws += 1;
+      }
+    }
+
+    await this._userService.updateStatistics(userStatistics.id, userStatistics);
+
+    return { ...user, meta };
+  }
+
   async updateStatistics(
     winner: UserEntity,
     looser: UserEntity,
     users: UserEntity[],
-  ): Promise<void> {
+  ): Promise<IUserAndStatisticsData[]> {
+    const updatedUsers: IUserAndStatisticsData[] = [];
+
     if (winner) {
-      const winnerStat = winner.statistics;
-      if (winnerStat.currentWinCount === winnerStat.longestWinCount) {
-        winnerStat.longestWinCount += 1;
-      }
-
-      winnerStat.currentWinCount += 1;
-      winnerStat.victories += 1;
-
-      const data = await this._dbManagerService.getUserMatchesByDay(winner.id);
-
-      const yesterdayCount = data.yesterday_count ?? 0;
-      const todayCount = data.today_count ?? 0;
-
-      if (todayCount == 1) {
-        if (yesterdayCount != 0) {
-          winnerStat.playedContinuouslyDays += 1;
-        } else {
-          winnerStat.playedContinuouslyDays = 1;
-        }
-      }
-      await this._userService.updateStatistics(winnerStat.id, winnerStat);
+      updatedUsers.push(await this.updateStatisticsByType(winner, true));
     }
 
     if (looser) {
-      const looserStat = looser.statistics;
-
-      looserStat.currentWinCount = 0;
-      looserStat.defeats += 1;
-
-      const data = await this._dbManagerService.getUserMatchesByDay(looser.id);
-
-      const yesterdayCount = data.yesterday_count ?? 0;
-      const todayCount = data.today_count ?? 0;
-
-      if (todayCount == 1) {
-        if (yesterdayCount != 0) {
-          looserStat.playedContinuouslyDays += 1;
-        } else {
-          looserStat.playedContinuouslyDays = 1;
-        }
-      }
-      await this._userService.updateStatistics(looserStat.id, looserStat);
+      updatedUsers.push(await this.updateStatisticsByType(looser, false, true));
     }
 
     if (!looser && !winner) {
       for (const user of users) {
-        const userStat = user.statistics;
-
-        userStat.currentWinCount = 0;
-        userStat.draws += 1;
-
-        const data = await this._dbManagerService.getUserMatchesByDay(user.id);
-
-        const yesterdayCount = data.yesterday_count ?? 0;
-        const todayCount = data.today_count ?? 0;
-
-        if (todayCount == 1) {
-          if (yesterdayCount != 0) {
-            userStat.playedContinuouslyDays += 1;
-          } else {
-            userStat.playedContinuouslyDays = 1;
-          }
-        }
-        await this._userService.updateStatistics(userStat.id, userStat);
+        updatedUsers.push(await this.updateStatisticsByType(user));
       }
     }
+    return updatedUsers;
   }
 
   async sendMatchBonuses(
-    match: MatchEntity,
+    matchLevel: MatchLevel,
     matchUserAnswers: UserAnswerEntity[],
-    winnerId?: number,
+    updatedUsers: IUserAndStatisticsData[],
   ): Promise<void> {
-    const matchLevel = match.matchLevel;
-
-    for (const user of match.users) {
-      const flag =
-        user.id === winnerId &&
-        user.statistics.longestWinCount === user.statistics.currentWinCount &&
-        (user.statistics.longestWinCount + 1) % 10 === 0;
-
+    for (const user of updatedUsers) {
       const userAnswers = matchUserAnswers.filter(
         (el) => el.user.id === user.id,
       );
@@ -752,17 +750,14 @@ export class MatchService {
         userAnswers,
         matchLevel,
       );
-      const { points } = pointsInfo;
+      const userPoints = user.points + pointsInfo.matchPoints;
 
-      const levelInfo = this._userService.getLevelInfo(points);
-      const coinsInfo = this._userService.calculateCoinsInfo(
-        user,
-        levelInfo,
-        flag,
-      );
+      const levelInfo = this._userService.getLevelInfo(userPoints);
+
+      const coinsInfo = this._userService.calculateCoinsInfo(user, levelInfo);
 
       const bonusItems: IUserBonusItems = {
-        points,
+        matchPoints: pointsInfo.matchPoints,
         level: levelInfo.level,
         coins: coinsInfo.totalCoins,
       };

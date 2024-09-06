@@ -31,6 +31,7 @@ import {
   IQueryBuilderUser,
   IStatistics,
   IUser,
+  IUserAndStatisticsData,
   IUserBonusItems,
   IUserId,
 } from '@common/models';
@@ -141,13 +142,13 @@ export class UserService {
   }
 
   async increaseBonusItems(userId: number, bonusItems: IUserBonusItems) {
-    const { points, coins, level } = bonusItems;
+    const { matchPoints, coins, level } = bonusItems;
     await this._userRepository.update(userId, {
       coins() {
         return `coins + ${coins}`;
       },
       points() {
-        return `points + ${points}`;
+        return `points + ${matchPoints}`;
       },
       level,
     });
@@ -230,7 +231,7 @@ export class UserService {
   calculatePoints(
     userAnswers: UserAnswerEntity[],
     matchLevel: MatchLevel,
-  ): { points: number } {
+  ): { matchPoints: number } {
     const pointsForOneCorrectAnswer: number =
       PointsForCorrectAnswers[matchLevel];
 
@@ -240,7 +241,7 @@ export class UserService {
       }
       return acc;
     }, 0);
-    return { points };
+    return { matchPoints: points };
   }
 
   getLevelInfo(points: number): ILevelInfo {
@@ -248,9 +249,8 @@ export class UserService {
   }
 
   calculateCoinsInfo(
-    user: UserEntity,
+    user: IUserAndStatisticsData,
     levelInfo: ILevelInfo,
-    flag: boolean,
   ): ICoinsForBonuses {
     const coinsForBonuses = {
       totalCoins: 0,
@@ -260,25 +260,26 @@ export class UserService {
     };
 
     // calculate bonus for every ten levels
-    if (levelInfo.level % 10 === 0 && user.level % 10 !== 0) {
+    if (levelInfo.level % 10 === 0 && user.meta.oldUserLevel % 10 !== 0) {
       const whichIsTenLevel = levelInfo.level;
+
       coinsForBonuses.coinsForBigLevelUp =
         whichIsTenLevel * MULTIPLY_FOR_ADD_COINS;
     }
 
     // calculate bonus for every ten longest win count
     if (
-      user.statistics.currentWinCount % 10 === 0 &&
-      user.statistics.currentWinCount !== 0 &&
-      flag
+      user.statistics.longestWinCount !== user.meta.oldLongestWinCount &&
+      user.statistics.longestWinCount % 10 === 0
     ) {
       coinsForBonuses.coinsForCurrentWinningStreak =
-        user.statistics.currentWinCount * MULTIPLY_FOR_ADD_COINS;
+        user.statistics.longestWinCount * MULTIPLY_FOR_ADD_COINS;
     }
 
     // calculate bonus if user played continuously five days
     if (
-      user.statistics.playedContinuouslyDays !== 0 &&
+      user.meta.oldPlayedContinuouslyDays !==
+        user.statistics.playedContinuouslyDays &&
       user.statistics.playedContinuouslyDays % MAX_PLAYED_CONTINUOUSLY === 0
     ) {
       coinsForBonuses.coinsForPlayedContinuously =

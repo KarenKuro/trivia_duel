@@ -1,6 +1,6 @@
 export interface IBonuses {
   userId: number;
-  points: number;
+  matchPoints: number;
   level: number;
   pointsToLevelUp: number;
   totalCoins: number;

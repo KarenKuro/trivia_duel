@@ -72,11 +72,16 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  async sendUserData(user: UserEntity) {
-    this.server.to(user.id.toString()).emit('user', user);
-  }
+  // this method will be needed if the user needs to receive a notification that tickets have been added to him
+  // async sendUserData(user: UserEntity) {
+  //   this.server.to(user.id.toString()).emit('user', user);
+  // }
 
   async sendBonusesAfterMatch(bonuses: BonusesDTO) {
-    this.server.to(bonuses.userId.toString()).emit('bonuses', bonuses);
+    try {
+      this.server.to(bonuses.userId.toString()).emit('bonuses', bonuses);
+    } catch (e) {
+      console.log(e);
+    }
   }
 }

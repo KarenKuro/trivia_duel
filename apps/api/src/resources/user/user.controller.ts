@@ -9,13 +9,15 @@ import {
 import { plainToInstance } from 'class-transformer';
 
 import { CategoryResponseDTO } from '@api-resources/categories/dto';
-import { MatchDataToSendInSocketDTO } from '@api-resources/match/dto';
+import {
+  BonusesDTO,
+  MatchDataToSendInSocketDTO,
+} from '@api-resources/match/dto';
 
 import { AuthUser, Language } from '@common/decorators';
 import {
   CategoryResponseWithoutTranslationsDTO,
   IdDTO,
-  MatchUserResponseDTO,
   SuccessDTO,
   TokenPayloadDTO,
 } from '@common/dtos';
@@ -124,9 +126,9 @@ export class UserController {
 
   @Patch('websocket-dto')
   @ApiOperation({
-    summary: 'For WS documentation. UserData. Event: user',
+    summary: 'For WS documentation. Bonuses after match. Event: bonuses',
   })
-  documentWebSocketUserDTO(@Body() dto: MatchUserResponseDTO): void {
+  documentWebSocketUserDTO(@Body() dto: BonusesDTO): void {
     // Этот метод никогда не будет вызываться, он служит только для документации
     console.log(dto);
   }

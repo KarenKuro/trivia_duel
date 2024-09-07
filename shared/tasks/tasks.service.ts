@@ -54,7 +54,8 @@ export class TasksService {
     });
   }
 
-  // Force canceled match if the match continious more than 5 minutes
+  // Force canceled match if the match in status CATEGORY_CHOOSE continious more than 30 second from createdAt
+  // TODO убрать отсюда pending потому что для этого у нас будет отдельный cron, чтобы подключал бота!!!!!!!!!!!!!!!!
   // TODO: Put EVERY_10_SECONDS, and change interval to 30 sec
   @Cron(CronExpression.EVERY_10_SECONDS)
   async canceledMatches() {
@@ -128,7 +129,7 @@ export class TasksService {
           ++tickets;
           await this._userService.updateUser(user.id, { tickets }); // update user.tikets in db
         }
-        await this._matchGateway.sendUserData({ ...user, tickets });
+        // await this._matchGateway.sendUserData({ ...user, tickets });
       }
     });
   }

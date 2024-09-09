@@ -5,3 +5,5 @@ export * from './match-user-categories-max-length';
 export * from './main-language';
 export * from './max-played-continuously';
 export * from './multiply-for-add-coins';
+export * from './bot-correct-answers-count';
+export * from './points-for-correct-answer';

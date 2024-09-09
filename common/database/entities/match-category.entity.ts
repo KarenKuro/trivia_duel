@@ -18,6 +18,6 @@ export class MatchCategoryEntity {
   category: CategoryEntity;
 
   @JoinColumn({ name: 'match_id' })
-  @ManyToOne(() => MatchEntity)
+  @ManyToOne(() => MatchEntity, { onDelete: 'CASCADE' })
   match: MatchEntity;
 }

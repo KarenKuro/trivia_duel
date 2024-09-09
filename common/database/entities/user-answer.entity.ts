@@ -13,7 +13,7 @@ export class UserAnswerEntity extends BaseEntity {
   user: UserEntity;
 
   @JoinColumn({ name: 'match_id' })
-  @ManyToOne(() => MatchEntity)
+  @ManyToOne(() => MatchEntity, { onDelete: 'CASCADE' })
   match: MatchEntity;
 
   @JoinColumn({ name: 'answer_id' })

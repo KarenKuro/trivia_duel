@@ -12,6 +12,7 @@ import {
   UploadedFile,
   HttpStatus,
   ParseFilePipeBuilder,
+  HttpCode,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -187,13 +188,14 @@ export class CategoriesController {
   }
 
   @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a category by id' })
-  async remove(@Param() param: IdDTO): Promise<SuccessDTO> {
+  async remove(@Param() param: IdDTO): Promise<void> {
     const category = await this._categoriesService.findOne({ id: +param.id });
 
     if (!category) {
       throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORY_NOT_EXIST);
     }
-    return await this._categoriesService.remove(category);
+    await this._categoriesService.remove(category);
   }
 }

@@ -8,6 +8,8 @@ import {
   UseGuards,
   Patch,
   Delete,
+  HttpStatus,
+  HttpCode,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -177,13 +179,14 @@ export class QuestionsController {
   }
 
   @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a question by id' })
-  async remove(@Param() param: IdDTO): Promise<SuccessDTO> {
+  async remove(@Param() param: IdDTO): Promise<void> {
     const question = await this._questionsService.findOne({ id: +param.id });
 
     if (!question) {
       throw ResponseManager.buildError(ERROR_MESSAGES.QUESTION_NOT_EXIST);
     }
-    return await this._questionsService.remove(question);
+    await this._questionsService.remove(question);
   }
 }

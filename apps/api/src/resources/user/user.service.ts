@@ -11,6 +11,7 @@ import {
   MAIN_LANGUAGE,
   MAX_PLAYED_CONTINUOUSLY,
   MULTIPLY_FOR_ADD_COINS,
+  POINTS_FOR_CORRECT_ANSWERS,
 } from '@common/constants';
 import {
   CategoryEntity,
@@ -18,7 +19,7 @@ import {
   UserAnswerEntity,
   UserEntity,
 } from '@common/database/entities';
-import { MatchLevel, PointsForCorrectAnswers, UserStatus } from '@common/enums';
+import { MatchLevel, UserStatus } from '@common/enums';
 import { ResponseManager } from '@common/helpers';
 import { LevelHelpers } from '@common/helpers/level-helpers';
 import { ERROR_MESSAGES } from '@common/messages';
@@ -233,7 +234,7 @@ export class UserService {
     matchLevel: MatchLevel,
   ): { matchPoints: number } {
     const pointsForOneCorrectAnswer: number =
-      PointsForCorrectAnswers[matchLevel];
+      POINTS_FOR_CORRECT_ANSWERS[matchLevel];
 
     const points = userAnswers.reduce((acc, val) => {
       if (val.isCorrect) {

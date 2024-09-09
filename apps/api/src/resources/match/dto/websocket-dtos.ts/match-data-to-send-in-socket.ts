@@ -33,7 +33,7 @@ export class MatchDataToSendInSocketDTO {
   nextMatch?: NextMatchDataToSendDTO;
 
   @ApiProperty()
-  againstBot: boolean;
+  botName: string;
 
   @ApiProperty()
   startedAt: Date;

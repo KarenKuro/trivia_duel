@@ -67,7 +67,7 @@ export class MatchResponseDTO {
 
   @Expose()
   @ApiProperty()
-  againstBot: boolean;
+  botName: string;
 
   @Expose()
   @ApiProperty()

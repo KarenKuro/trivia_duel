@@ -9,13 +9,11 @@ import {
 import { plainToInstance } from 'class-transformer';
 
 import { CategoryResponseDTO } from '@api-resources/categories/dto';
-import { MatchDataToSendInSocketDTO } from '@api-resources/match/dto';
 
 import { AuthUser, Language } from '@common/decorators';
 import {
   CategoryResponseWithoutTranslationsDTO,
   IdDTO,
-  MatchUserResponseDTO,
   SuccessDTO,
   TokenPayloadDTO,
 } from '@common/dtos';
@@ -111,23 +109,23 @@ export class UserController {
     return await this._userService.getLeaderboard(token.id);
   }
 
-  @Post('websocket-dto')
-  @ApiOperation({
-    summary: 'For WS documentation. MatchData. Event: message',
-    description:
-      'Attention! The winner field of the object will exist only when the match is in the status "ENDED"',
-  })
-  documentWebSocketDTO(@Body() dto: MatchDataToSendInSocketDTO): void {
-    // Этот метод никогда не будет вызываться, он служит только для документации
-    console.log(dto);
-  }
+  // @Post('websocket-dto')
+  // @ApiOperation({
+  //   summary: 'For WS documentation. MatchData. Event: message',
+  //   description:
+  //     'Attention! The winner field of the object will exist only when the match is in the status "ENDED"',
+  // })
+  // documentWebSocketDTO(@Body() dto: MatchDataToSendInSocketDTO): void {
+  //   // Этот метод никогда не будет вызываться, он служит только для документации
+  //   console.log(dto);
+  // }
 
-  @Patch('websocket-dto')
-  @ApiOperation({
-    summary: 'For WS documentation. UserData. Event: user',
-  })
-  documentWebSocketUserDTO(@Body() dto: MatchUserResponseDTO): void {
-    // Этот метод никогда не будет вызываться, он служит только для документации
-    console.log(dto);
-  }
+  // @Patch('websocket-dto')
+  // @ApiOperation({
+  //   summary: 'For WS documentation. Bonuses after match. Event: bonuses',
+  // })
+  // documentWebSocketUserDTO(@Body() dto: BonusesDTO): void {
+  //   // Этот метод никогда не будет вызываться, он служит только для документации
+  //   console.log(dto);
+  // }
 }

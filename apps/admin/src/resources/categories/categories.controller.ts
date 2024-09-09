@@ -16,6 +16,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiConsumes,
   ApiOperation,
   ApiQuery,
@@ -53,6 +54,10 @@ export class CategoriesController {
   @UseInterceptors(FileInterceptor('image'))
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Create a new category' })
+  @ApiBody({
+    description: 'Create category and upload file',
+    type: CreateCategoryDTO,
+  })
   @ApiResponse({
     status: 201,
     type: SuccessDTO,
@@ -127,6 +132,10 @@ export class CategoriesController {
 
   @Patch(':id')
   @UseInterceptors(FileInterceptor('image'))
+  @ApiBody({
+    description: 'Update category',
+    type: UpdateCategoryDTO,
+  })
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Update a category by id' })
   async update(

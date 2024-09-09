@@ -116,11 +116,13 @@ export class MatchService {
       newMatch = await this._matchRepository.save({
         users: [user as UserEntity],
         matchLevel,
+        lastAnswer: null,
+        nextMatch: null,
       });
     }
     await this._matchGateway.sendMessageToHandlers(newMatch);
 
-    return newMatch; // TODO: Крон джоб, или event чтобы юзер не ждал больше 10 секунд и подключался бот
+    return newMatch;
   }
 
   @Transactional()
@@ -150,13 +152,25 @@ export class MatchService {
       throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_ID);
     }
 
+    if (match.againstBot) {
+      for (const category of user.categories) {
+        if (categoriesObj.categories.includes(category.id)) {
+          const matchCategory = await this._matchCategoryRepository.save({
+            category: category as CategoryEntity,
+            match: match,
+          });
+          match.categories.push(matchCategory);
+        }
+      }
+    }
+
     if (match.categories.length >= MATCH_CATEGORIES_MAX_LENGTH) {
       throw ResponseManager.buildError(ERROR_MESSAGES.ALL_CATEGORIES_SELECTED);
     }
 
     const userSelectedCategories: MatchCategoryEntity[] =
       match.categories.filter(
-        (category) => category.user.id === userPayload.id,
+        (category) => category.user?.id === userPayload.id,
       );
 
     if (userSelectedCategories?.length >= MATCH_USER_CATEGORIES_MAX_LENGTH) {
@@ -180,8 +194,6 @@ export class MatchService {
     const matchCategoryIds: number[] = match.categories.map(
       (matchCategory) => matchCategory.category.id,
     );
-
-    // TODO: здесь нужно добавить две случайные категории от бота или если юзер вышел, и остался один юзер, подключился бот!!!!!!!!!!!!
 
     const hasOpponentChoose = Boolean(match.categories?.length);
 

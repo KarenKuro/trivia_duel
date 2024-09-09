@@ -26,14 +26,39 @@ export class TasksService {
     private readonly _matchGateway: MatchGateway,
   ) {}
 
-  // To change the match to closed if the opponent does not agree to a replay within 10 seconds
-  // TODO: Put EVERY_10_SECONDS
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  // To attach a bot to a match and move the match to the CATEGORY_CHOOSE stage
+  // @Cron('*/3 * * * * *')
+  // async attachBot() {
+  //   const matches = await this._matchRepository
+  //     .createQueryBuilder('match')
+  //     .where('match.createdAt < DATE_SUB(now(), INTERVAL 10 SECOND)')
+  //     .andWhere('match.status = :status', {
+  //       status: MatchStatusType.PENDING,
+  //     })
+  //     .getMany();
+
+  //   matches.map(async (match) => {
+  //     await this._matchRepository.update(match.id, {
+  //       status: MatchStatusType.CATEGORY_CHOOSE,
+  //       againstBot: true,
+  //     });
+
+  //     const updatedMatch = await this._matchService.getMatchDataToSend(
+  //       match.id,
+  //     );
+
+  //     this._matchGateway.sendMessageToHandlers(updatedMatch);
+  //   });
+  // }
+
+  // To change the match to closed if the opponent does not agree to a replay within 5 seconds
+  // TODO: Put EVERY_5_SECONDS
+  @Cron(CronExpression.EVERY_5_MINUTES)
   async closeNextMatches() {
     const matches = await this._matchRepository
       .createQueryBuilder('match')
       .leftJoinAndSelect('match.nextMatch', 'nextMatch')
-      .where('nextMatch.createdAt < DATE_SUB(now(), INTERVAL 10 SECOND)')
+      .where('nextMatch.createdAt < DATE_SUB(now(), INTERVAL 5 SECOND)')
       .andWhere('nextMatch.status = :status', {
         status: MatchStatusType.PENDING,
       })
@@ -54,15 +79,15 @@ export class TasksService {
     });
   }
 
-  // Force canceled match if the match continious more than 5 minutes
-  // TODO: Put EVERY_10_SECONDS, and change interval to 30 sec
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  // Force canceled match if the match in status CATEGORY_CHOOSE continious more than 5 second from createdAt
+  // TODO: Put EVERY_5_SECONDS, and change interval to 20 sec
+  @Cron(CronExpression.EVERY_5_SECONDS)
   async canceledMatches() {
     const matchesToUpdate = await this._matchRepository
       .createQueryBuilder('match')
-      .where('match.createdAt < DATE_SUB(now(), INTERVAL 30 MINUTE)')
-      .andWhere('match.status IN (:...statuses)', {
-        statuses: [MatchStatusType.PENDING, MatchStatusType.CATEGORY_CHOOSE],
+      .where('match.createdAt < DATE_SUB(now(), INTERVAL 20 MINUTE)')
+      .andWhere('match.status = :status', {
+        status: MatchStatusType.CATEGORY_CHOOSE,
       })
       .getMany();
 
@@ -79,7 +104,7 @@ export class TasksService {
   }
 
   // Change match status to ended if match started more than 2 minute
-  // TODO Put EVERY_10_SECONDS, and change interval to time , how long should the match last(example: 2 minutes)
+  // TODO Put EVERY_5_SECONDS, and change interval to time , how long should the match last(2 minutes)
   @Cron(CronExpression.EVERY_YEAR)
   async endMatches() {
     const matchesToUpdate = await this._matchRepository
@@ -128,7 +153,7 @@ export class TasksService {
           ++tickets;
           await this._userService.updateUser(user.id, { tickets }); // update user.tikets in db
         }
-        await this._matchGateway.sendUserData({ ...user, tickets });
+        // await this._matchGateway.sendUserData({ ...user, tickets });
       }
     });
   }

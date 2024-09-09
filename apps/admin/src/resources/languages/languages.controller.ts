@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -58,5 +68,18 @@ export class LanguagesController {
     }
 
     return language;
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a language by id' })
+  async remove(@Param() param: IdDTO): Promise<void> {
+    const language = await this._languagesService.findOne({ id: +param.id });
+
+    if (!language) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.LANGUAGE_NOT_EXIST);
+    }
+
+    await this._languagesService.remove(language);
   }
 }

@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { Type } from 'class-transformer';
 
-import { MatchUserResponseDTO } from '@common/dtos';
+import { IdResponseDTO } from '@common/dtos';
 import { MatchLevel, MatchStatusType } from '@common/enums';
 
 import { LastAnswerInSocketDTO } from './last-answer-in-socket.dto';
@@ -15,9 +15,12 @@ export class MatchDataToSendInSocketDTO {
   @ApiProperty()
   status: MatchStatusType;
 
-  @Type(() => MatchUserResponseDTO)
-  @ApiProperty({ type: MatchUserResponseDTO, nullable: true })
-  winner?: Omit<MatchUserResponseDTO, 'categories'>;
+  // @Type(() => MatchUserResponseDTO)
+  // @ApiProperty({ type: MatchUserResponseDTO, nullable: true })
+  // winner?: Omit<MatchUserResponseDTO, 'categories'>;
+
+  @ApiProperty()
+  winner: IdResponseDTO;
 
   @ApiProperty()
   matchLevel: MatchLevel;

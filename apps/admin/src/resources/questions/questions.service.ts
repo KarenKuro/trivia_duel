@@ -131,10 +131,10 @@ export class QuestionsService {
     await this._translatedAnswersRepository.save(allTranslatedAnswers);
   }
 
-  async findAll(pagination: IPagination): Promise<IQuestion[]> {
+  async findAll(pagination: IPagination): Promise<[IQuestion[], number]> {
     const { offset, limit } = pagination;
 
-    const questions = await this._questionRepository.find({
+    const [questions, count] = await this._questionRepository.findAndCount({
       relations: [
         'answers',
         'correctAnswer',
@@ -148,7 +148,7 @@ export class QuestionsService {
       take: +limit,
     });
 
-    return questions;
+    return [questions, count];
   }
 
   async findOne(param: Partial<IQuestion>): Promise<IQuestion> {
@@ -167,8 +167,13 @@ export class QuestionsService {
     return question;
   }
 
-  async findAllByCategory(param: Partial<ICategory>): Promise<IQuestion[]> {
-    const questions = await this._questionRepository.find({
+  async findAllByCategory(
+    param: Partial<ICategory>,
+    pagination: IPagination,
+  ): Promise<[IQuestion[], number]> {
+    const { offset, limit } = pagination;
+
+    const [questions, count] = await this._questionRepository.findAndCount({
       where: { category: param },
       relations: [
         'answers',
@@ -178,9 +183,11 @@ export class QuestionsService {
         'answers.translatedAnswers',
         'answers.translatedAnswers.language',
       ],
+      skip: +offset,
+      take: +limit,
     });
 
-    return questions;
+    return [questions, count];
   }
 
   async findOneByQuestion(text: string): Promise<IQuestion> {

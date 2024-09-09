@@ -24,7 +24,11 @@ import { AuthUserGuard } from '@common/guards';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
 
-import { QuestionResponseDTO, UpdateQuestionDTO } from './dto';
+import {
+  AllQuestionsResponseDTO,
+  QuestionResponseDTO,
+  UpdateQuestionDTO,
+} from './dto';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { QuestionsService } from './questions.service';
 
@@ -76,8 +80,17 @@ export class QuestionsController {
   })
   async findAll(
     @Query() pagination: PaginationQueryDTO,
-  ): Promise<QuestionResponseDTO[]> {
-    return this._questionsService.findAll(pagination);
+  ): Promise<AllQuestionsResponseDTO> {
+    const [questions, count] = await this._questionsService.findAll(pagination);
+
+    const { offset, limit } = pagination;
+
+    const meta = ResponseManager.generateMetaResponse(
+      Number(offset),
+      Number(limit),
+      count,
+    );
+    return { questions: questions, meta };
   }
 
   @Get(':id')
@@ -94,23 +107,42 @@ export class QuestionsController {
 
   @Get('category/:id')
   @ApiOperation({ summary: 'Get all questions by category id' })
+  @ApiQuery({
+    name: 'offset',
+    required: false,
+    type: Number,
+    description: 'Number of records to skip',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Maximum number of records to return',
+  })
   async findAllByCategory(
+    @Query() pagination: PaginationQueryDTO,
     @Param() param: IdDTO,
-  ): Promise<QuestionResponseDTO[]> {
+  ): Promise<AllQuestionsResponseDTO> {
     const category = await this._categoriesService.findOne({ id: +param.id });
     if (!category) {
       throw ResponseManager.buildError(ERROR_MESSAGES.CATEGORY_NOT_EXIST);
     }
 
-    const questions = await this._questionsService.findAllByCategory({
-      id: +param.id,
-    });
+    const [questions, count] = await this._questionsService.findAllByCategory(
+      {
+        id: +param.id,
+      },
+      pagination,
+    );
 
-    if (!questions.length) {
-      throw ResponseManager.buildError(ERROR_MESSAGES.QUESTIONS_NOT_EXISTS);
-    }
+    const { offset, limit } = pagination;
 
-    return questions;
+    const meta = ResponseManager.generateMetaResponse(
+      Number(offset),
+      Number(limit),
+      count,
+    );
+    return { questions: questions, meta };
   }
 
   @Patch(':id')

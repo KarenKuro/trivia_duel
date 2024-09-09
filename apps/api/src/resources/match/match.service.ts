@@ -10,6 +10,7 @@ import { UserService } from '@api-resources/user';
 import { DbManagerService } from '@shared/db-manager';
 
 import {
+  BOT_CORRECT_ANSWERS_COUNT,
   MAIN_LANGUAGE,
   MATCH_CATEGORIES_MAX_LENGTH,
   MATCH_USER_CATEGORIES_MAX_LENGTH,
@@ -22,12 +23,7 @@ import {
   UserAnswerEntity,
   UserEntity,
 } from '@common/database/entities';
-import {
-  BotCorrectAnswersCount,
-  MatchLevel,
-  MatchStatusType,
-  QuestionType,
-} from '@common/enums';
+import { MatchLevel, MatchStatusType, QuestionType } from '@common/enums';
 import { MatchHelpers, ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
 import {
@@ -807,7 +803,7 @@ export class MatchService {
     const userCorrectAnswersCount = matchUserAnswers.filter(
       (answer) => answer.isCorrect,
     ).length;
-    const botCorrectAnswersCount = BotCorrectAnswersCount[match.matchLevel];
+    const botCorrectAnswersCount = BOT_CORRECT_ANSWERS_COUNT[match.matchLevel];
 
     let winner: UserEntity = null;
     let looser: UserEntity = null;

@@ -19,5 +19,5 @@ export class RelatedMatchResponseDTO {
 
   @Expose()
   @ApiProperty()
-  againstBot: boolean;
+  botName: string;
 }

@@ -22,7 +22,12 @@ import {
   UserAnswerEntity,
   UserEntity,
 } from '@common/database/entities';
-import { MatchLevel, MatchStatusType, QuestionType } from '@common/enums';
+import {
+  BotCorrectAnswersCount,
+  MatchLevel,
+  MatchStatusType,
+  QuestionType,
+} from '@common/enums';
 import { MatchHelpers, ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
 import {
@@ -152,7 +157,7 @@ export class MatchService {
       throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_ID);
     }
 
-    if (match.againstBot) {
+    if (match.botName) {
       for (const category of user.categories) {
         if (categoriesObj.categories.includes(category.id)) {
           const matchCategory = await this._matchCategoryRepository.save({
@@ -326,8 +331,6 @@ export class MatchService {
       ],
     });
 
-    // TODO: написать функцию, если against bot - true
-
     if (!match) {
       throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_ID);
     }
@@ -406,8 +409,16 @@ export class MatchService {
         relations: ['user'],
       });
 
-    if (questionsLength * usersLength === matchUserAnswersLength) {
+    if (
+      questionsLength * usersLength === matchUserAnswersLength &&
+      !match.botName
+    ) {
       await this.finishMatchWithRealOpponent(match, matchUserAnswers);
+    } else if (
+      questionsLength * usersLength === matchUserAnswersLength &&
+      match.botName
+    ) {
+      await this.finishMatchWithBot(match, matchUserAnswers);
     }
   }
 
@@ -553,7 +564,7 @@ export class MatchService {
       throw ResponseManager.buildError(ERROR_MESSAGES.USER_DONT_HAVE_LIVE);
     }
 
-    if (previousMatch.againstBot) {
+    if (previousMatch.botName) {
       throw ResponseManager.buildError(
         ERROR_MESSAGES.PREVIOUS_MATCH_AGAINST_BOT,
       );
@@ -612,7 +623,7 @@ export class MatchService {
       throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_ID);
     }
 
-    if (previousMatch.againstBot) {
+    if (previousMatch.botName) {
       throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_MAKING);
     }
 
@@ -785,5 +796,50 @@ export class MatchService {
 
       this._matchGateway.sendBonusesAfterMatch(data);
     }
+  }
+
+  async finishMatchWithBot(
+    match: MatchEntity,
+    matchUserAnswers: UserAnswerEntity[],
+  ): Promise<void> {
+    const user = match.users[0];
+
+    const userCorrectAnswersCount = matchUserAnswers.filter(
+      (answer) => answer.isCorrect,
+    ).length;
+    const botCorrectAnswersCount = BotCorrectAnswersCount[match.matchLevel];
+
+    let winner: UserEntity = null;
+    let looser: UserEntity = null;
+
+    if (userCorrectAnswersCount > botCorrectAnswersCount) {
+      winner = user;
+    } else if (userCorrectAnswersCount < botCorrectAnswersCount) {
+      looser = user;
+    }
+
+    await this._matchRepository.update(match.id, {
+      status: MatchStatusType.ENDED,
+      winner,
+      looser,
+    });
+
+    const updatedUser = await this.updateStatistics(winner, looser, [user]);
+
+    await this.sendMatchBonuses(
+      match.matchLevel,
+      matchUserAnswers,
+      updatedUser,
+    );
+
+    const matchData = await this.getMatchDataToSend(match.id);
+
+    this._matchGateway.sendMessageToHandlers({
+      ...matchData,
+      status: MatchStatusType.ENDED,
+      winner,
+    });
+
+    this._eventEmitter.emit('task.trigger', match.users);
   }
 }

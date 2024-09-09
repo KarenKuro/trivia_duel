@@ -51,7 +51,7 @@ export class MatchEntity extends BaseEntity {
   })
   questions: QuestionEntity[];
 
-  @OneToOne(() => UserAnswerEntity)
+  @OneToOne(() => UserAnswerEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'last_answer_id' })
   lastAnswer: UserAnswerEntity;
 
@@ -80,6 +80,6 @@ export class MatchEntity extends BaseEntity {
   @JoinColumn({ name: 'next_match_id' })
   nextMatch: MatchEntity;
 
-  @Column({ default: false, name: 'against_bot' })
-  againstBot: boolean;
+  @Column({ nullable: true, name: 'bot_name' })
+  botName: string;
 }

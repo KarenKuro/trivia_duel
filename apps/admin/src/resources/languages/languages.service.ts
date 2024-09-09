@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { LanguageEntity } from '@common/database';
+import { IMessageSuccess } from '@common/models';
 import { ICreateLanguage, ILanguage } from '@common/models/language';
 
 @Injectable()
@@ -29,5 +30,11 @@ export class LanguagesService {
     const language = await this._languageRepository.findOne({ where: param });
 
     return language;
+  }
+
+  async remove(language: ILanguage): Promise<IMessageSuccess> {
+    await this._languageRepository.delete(language.id);
+
+    return { success: true };
   }
 }

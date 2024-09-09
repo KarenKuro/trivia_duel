@@ -13,7 +13,7 @@ export class NextMatchDataToSendDTO {
   matchLevel: MatchLevel;
 
   @ApiProperty()
-  againstBot: boolean;
+  botName: string;
 
   @ApiProperty()
   startedAt: Date;

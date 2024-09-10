@@ -39,7 +39,6 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.join(userId.toString());
 
       this.clients.add(client);
-      console.log(`Client connected: ${client?.id}`);
     } catch (error) {
       console.log('socket error', error);
       client.disconnect();

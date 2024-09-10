@@ -28,7 +28,7 @@ import { ERROR_MESSAGES } from '@common/messages';
 
 import {
   AllQuestionsResponseDTO,
-  QuestionResponseDTO,
+  QuestionByIdResponseDTO,
   UpdateQuestionDTO,
 } from './dto';
 import { CreateQuestionDto } from './dto/create-question.dto';
@@ -97,7 +97,7 @@ export class QuestionsController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a question by id' })
-  async findOne(@Param() param: IdDTO): Promise<QuestionResponseDTO> {
+  async findOne(@Param() param: IdDTO): Promise<QuestionByIdResponseDTO> {
     const question = await this._questionsService.findOne({ id: +param.id });
 
     if (!question) {

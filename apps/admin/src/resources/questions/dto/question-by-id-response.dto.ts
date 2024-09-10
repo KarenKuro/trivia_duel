@@ -4,9 +4,13 @@ import { CategoryResponseWithoutTranslationsDTO } from '@admin-resources/categor
 
 import { QuestionType } from '@common/enums';
 
-import { AnswerDTO, CorrectAnswerDTO, TranslatedQuestionResponseDTO } from './';
+import {
+  AnswerDTO,
+  CorrectAnswerDTO,
+  TranslatedQuestionResponseWithLanguageDTO,
+} from './';
 
-export class QuestionResponseDTO {
+export class QuestionByIdResponseDTO {
   @ApiProperty()
   id: number;
 
@@ -38,11 +42,11 @@ export class QuestionResponseDTO {
   updatedAt: Date;
 
   @ApiProperty({
-    type: () => TranslatedQuestionResponseDTO,
+    type: () => TranslatedQuestionResponseWithLanguageDTO,
     isArray: true,
     uniqueItems: true,
     maxItems: 2,
     minItems: 2,
   })
-  translatedQuestions?: TranslatedQuestionResponseDTO[];
+  translatedQuestions?: TranslatedQuestionResponseWithLanguageDTO[];
 }

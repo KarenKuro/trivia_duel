@@ -160,6 +160,7 @@ export class QuestionsService {
         'category',
         'category.image',
         'translatedQuestions',
+        'translatedQuestions.language',
         'answers.translatedAnswers',
         'answers.translatedAnswers.language',
       ],

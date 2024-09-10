@@ -28,9 +28,8 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
   server: Server;
 
   async handleConnection(client: Socket) {
-    const accessToken = client.handshake.headers.bearer.toString();
-
     try {
+      const accessToken = client.handshake.headers.bearer?.toString();
       await this.jwtService.verify(accessToken);
       const payload = this.jwtService.decode(accessToken) as ITokenPayload;
 

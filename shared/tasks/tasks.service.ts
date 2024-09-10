@@ -84,8 +84,7 @@ export class TasksService {
   async canceledMatches(): Promise<void> {
     const matchesToUpdate = await this._matchRepository
       .createQueryBuilder('match')
-      // TODO change 20 sec in production
-      .where('match.createdAt < DATE_SUB(now(), INTERVAL 20 MINUTE)')
+      .where('match.createdAt < DATE_SUB(now(), INTERVAL 20 SECOND)')
       .andWhere('match.status = :status', {
         status: MatchStatusType.CATEGORY_CHOOSE,
       })

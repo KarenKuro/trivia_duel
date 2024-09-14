@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,15 +6,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as schedule from 'node-schedule';
 import { Repository } from 'typeorm';
 
+import { LanguagesService } from '@api-resources/languages';
 import { MatchGateway, MatchService } from '@api-resources/match';
 import { UserService } from '@api-resources/user';
 
 import { MatchEntity, UserAnswerEntity, UserEntity } from '@common/database';
 import { MatchStatusType } from '@common/enums';
 import { StringHelpers } from '@common/helpers';
+import { LANGUAGES } from '@common/sets';
 
 @Injectable()
-export class TasksService {
+export class TasksService implements OnModuleInit {
   constructor(
     @InjectRepository(MatchEntity)
     private readonly _matchRepository: Repository<MatchEntity>,
@@ -25,6 +27,7 @@ export class TasksService {
     private readonly _userService: UserService,
     private readonly _matchService: MatchService,
     private readonly _matchGateway: MatchGateway,
+    private readonly _languagesService: LanguagesService,
   ) {}
 
   //To attach a bot to a match and move the match to the CATEGORY_CHOOSE stage
@@ -183,5 +186,20 @@ export class TasksService {
 
       await this._matchRepository.delete(match.id);
     }
+  }
+
+  @Cron(CronExpression.EVERY_10_MINUTES)
+  async checkLanguages(): Promise<void> {
+    const languages = await this._languagesService.findAll();
+
+    for (const language of languages) {
+      if (!LANGUAGES.has(language.key)) {
+        LANGUAGES.add(language.key);
+      }
+    }
+  }
+
+  async onModuleInit(): Promise<void> {
+    await this.checkLanguages();
   }
 }

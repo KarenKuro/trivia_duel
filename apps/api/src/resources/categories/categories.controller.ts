@@ -6,11 +6,13 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import { MAIN_LANGUAGE } from '@common/constants';
 import { AuthUser, Language } from '@common/decorators';
 import { SuccessDTO, TokenPayloadDTO } from '@common/dtos';
 import { AuthUserGuard } from '@common/guards';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
+import { LANGUAGES } from '@common/sets';
 
 import { CategoriesService } from './categories.service';
 import { BuyCategoryDTO, CategoryWithIsActiveDTO } from './dto';
@@ -28,6 +30,10 @@ export class CategoriesController {
     @AuthUser() token: TokenPayloadDTO,
     @Language() language: string,
   ): Promise<CategoryWithIsActiveDTO[]> {
+    if (!LANGUAGES.has(language)) {
+      language = MAIN_LANGUAGE;
+    }
+
     const categories = await this._categoriesService.findAllWithIsActive(
       {
         id: token.id,

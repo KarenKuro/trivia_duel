@@ -32,7 +32,6 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
       accessToken,
       refreshToken,
     };
-    console.log(payload);
 
     done(null, payload);
   }

@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { LanguagesModule } from '@api-resources/languages';
 import { MatchModule } from '@api-resources/match';
 import { UserModule } from '@api-resources/user';
 
@@ -25,6 +26,7 @@ import { TasksService } from './tasks.service';
     TypeOrmModule.forFeature([MatchEntity, UserEntity, UserAnswerEntity]),
     MatchModule,
     UserModule,
+    LanguagesModule,
   ],
   providers: [TasksService],
 })

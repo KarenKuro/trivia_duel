@@ -10,6 +10,7 @@ import { plainToInstance } from 'class-transformer';
 
 import { CategoryResponseDTO } from '@api-resources/categories/dto';
 
+import { MAIN_LANGUAGE } from '@common/constants';
 import { AuthUser, Language } from '@common/decorators';
 import {
   CategoryResponseWithoutTranslationsDTO,
@@ -20,6 +21,7 @@ import {
 import { AuthUserGuard } from '@common/guards';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
+import { LANGUAGES } from '@common/sets';
 
 import { UpdateUserDTO, UserResponseDTO, LeaderBoardUserDataDTO } from './dto';
 import { UserService } from './user.service';
@@ -41,6 +43,10 @@ export class UserController {
     @AuthUser() token: TokenPayloadDTO,
     @Language() language: string,
   ): Promise<CategoryResponseDTO[]> {
+    if (!LANGUAGES.has(language)) {
+      language = MAIN_LANGUAGE;
+    }
+
     const categories = await this._userService.findAllAvailableCategory(
       { id: token.id },
       language,
@@ -61,6 +67,10 @@ export class UserController {
     @AuthUser() token: TokenPayloadDTO,
     @Language() language: string,
   ): Promise<UserResponseDTO> {
+    if (!LANGUAGES.has(language)) {
+      language = MAIN_LANGUAGE;
+    }
+
     const user = await this._userService.findOne(token.id, language);
 
     return plainToInstance(UserResponseDTO, user, {
@@ -75,6 +85,10 @@ export class UserController {
     @Body() body: IdDTO,
     @Language() language: string,
   ): Promise<SuccessDTO> {
+    if (!LANGUAGES.has(language)) {
+      language = MAIN_LANGUAGE;
+    }
+
     const user = await this._userService.addCategoriesAfterRegistration(
       { id: token.id },
       body,

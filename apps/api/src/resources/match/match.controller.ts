@@ -10,11 +10,13 @@ import {
 
 import { plainToInstance } from 'class-transformer';
 
+import { MAIN_LANGUAGE } from '@common/constants';
 import { AuthUser, Language } from '@common/decorators';
 import { IdDTO, SuccessDTO, TokenPayloadDTO } from '@common/dtos';
 import { AuthUserGuard } from '@common/guards';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
+import { LANGUAGES } from '@common/sets';
 
 import {
   CategoriesDTO,
@@ -44,6 +46,10 @@ export class MatchController {
     @AuthUser() token: TokenPayloadDTO,
     @Language() language: string,
   ): Promise<MatchStartResponseDTO> {
+    if (!LANGUAGES.has(language)) {
+      language = MAIN_LANGUAGE;
+    }
+
     const match = await this._matchService.createOrJoinMatch(token, language);
     if (!match) {
       throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_MAKING);
@@ -80,6 +86,10 @@ export class MatchController {
     @AuthUser() user: TokenPayloadDTO,
     @Language() language: string,
   ): Promise<MatchResponseDTO> {
+    if (!LANGUAGES.has(language)) {
+      language = MAIN_LANGUAGE;
+    }
+
     const match = await this._matchService.findOne(user, +param.id, language); /// user statistic.
 
     return plainToInstance(MatchResponseDTO, match, {

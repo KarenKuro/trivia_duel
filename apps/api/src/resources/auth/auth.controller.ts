@@ -6,7 +6,6 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -21,7 +20,6 @@ import { AuthToken, AuthUser } from '@common/decorators';
 import { TokenTypes } from '@common/enums';
 import { AuthUserGuard } from '@common/guards';
 import {
-  IFacebookPayload,
   IFacebookProfile,
   IGoogleProfile,
   IRefreshPayload,
@@ -46,12 +44,10 @@ export class AuthController {
   // }
 
   @Get('facebook/login')
-  @UseGuards(AuthGuard('facebook'))
+  // @UseGuards(AuthGuard('facebook'))
   async facebookLoginCallback(@Req() req): Promise<AuthTokensDTO> {
     try {
-      const payload: IFacebookPayload = await req.user;
-
-      const { accessToken } = payload;
+      const accessToken = req.headers.user;
 
       // Use access_token to fetch user profile
       const response = await axios.get(

@@ -1,1 +1,1 @@
-export const MAIN_LANGUAGE: string = 'eng';
+export const MAIN_LANGUAGE: string = 'en';

@@ -79,12 +79,13 @@ export class TasksService {
     });
   }
 
+  //TODO 5 second!!!
   // Force canceled match if the match in status CATEGORY_CHOOSE continious more than 5 second from createdAt
   @Cron(CronExpression.EVERY_5_SECONDS)
   async canceledMatches(): Promise<void> {
     const matchesToUpdate = await this._matchRepository
       .createQueryBuilder('match')
-      .where('match.createdAt < DATE_SUB(now(), INTERVAL 20 SECOND)')
+      .where('match.createdAt < DATE_SUB(now(), INTERVAL 5 MINUTE)')
       .andWhere('match.status = :status', {
         status: MatchStatusType.CATEGORY_CHOOSE,
       })
@@ -131,10 +132,17 @@ export class TasksService {
         relations: ['user'],
       });
 
-      await this._matchService.finishMatchWithRealOpponent(
-        endedMatchData,
-        matchUserAnswers,
-      );
+      if (!match.botName) {
+        await this._matchService.finishMatchWithRealOpponent(
+          endedMatchData,
+          matchUserAnswers,
+        );
+      } else {
+        await this._matchService.finishMatchWithBot(
+          endedMatchData,
+          matchUserAnswers,
+        );
+      }
     });
   }
 

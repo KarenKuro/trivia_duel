@@ -6,7 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 
-import { UserEntity } from '@common/database/entities';
+import { StatisticsEntity, UserEntity } from '@common/database/entities';
 import { UserStatus } from '@common/enums';
 import { ResponseManager } from '@common/helpers';
 import { ERROR_MESSAGES } from '@common/messages';
@@ -21,6 +21,9 @@ export class AuthService {
     @InjectRepository(UserEntity)
     private _userRepository: Repository<UserEntity>,
 
+    @InjectRepository(StatisticsEntity)
+    private _statisticsRepository: Repository<StatisticsEntity>,
+
     private _configService: ConfigService,
 
     private _jwtService: JwtService,
@@ -34,10 +37,14 @@ export class AuthService {
     });
 
     if (!user) {
+      const statistics = new StatisticsEntity();
+      await this._statisticsRepository.save(statistics);
+
       user = await this._userRepository.save({
         uid: String(data.id),
         name: data.name,
         email: data.email,
+        statistics,
       });
     }
 

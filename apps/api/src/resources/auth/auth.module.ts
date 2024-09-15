@@ -8,6 +8,7 @@ import {
   AnswerEntity,
   CategoryEntity,
   QuestionEntity,
+  StatisticsEntity,
   UserEntity,
 } from '@common/database/entities';
 import { FacebookStrategy, GoogleStrategy } from '@common/strategies';
@@ -22,6 +23,7 @@ import { AuthService } from './auth.service';
       CategoryEntity,
       QuestionEntity,
       AnswerEntity,
+      StatisticsEntity,
     ]),
 
     PassportModule.register({

@@ -29,4 +29,7 @@ export const QUESTION_ERROR_MESSAGES = {
   TRANSLATED_QUESTIONS_NOT_UNIQUE: {
     message: 'err_translated_questions_not_unique',
   },
+  TRANSLATED_QUESTION_NOT_EXISTS: {
+    message: 'err_translated_question_not_exist',
+  },
 };

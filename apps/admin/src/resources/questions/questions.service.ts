@@ -276,7 +276,7 @@ export class QuestionsService {
       for (const translatedQuestion of body.translatedQuestions) {
         if (!translatedIds.includes(translatedQuestion.id)) {
           throw ResponseManager.buildError(
-            ERROR_MESSAGES.TRANSLATED_CATEGORY_NOT_EXIST,
+            ERROR_MESSAGES.TRANSLATED_QUESTION_NOT_EXISTS,
           );
         }
 

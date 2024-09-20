@@ -15,7 +15,7 @@ export class TranslatedAnswerEntity extends BaseEntity {
   @JoinColumn({ name: 'answer_id' })
   answer: AnswerEntity;
 
-  @ManyToOne(() => LanguageEntity)
+  @ManyToOne(() => LanguageEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'language_id' })
   language: LanguageEntity;
 }

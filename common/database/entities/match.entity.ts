@@ -70,7 +70,7 @@ export class MatchEntity extends BaseEntity {
   categories: MatchCategoryEntity[];
 
   @OneToMany(() => UserAnswerEntity, (answer) => answer.match)
-  userAsnwers: UserAnswerEntity[];
+  userAnswers: UserAnswerEntity[];
 
   @OneToOne(() => MatchEntity, (match) => match.nextMatch)
   @ApiHideProperty()

@@ -85,6 +85,11 @@ export class AuthService {
   ): Promise<IAuthTokens> {
     refreshToken = refreshToken?.replace('Bearer', '')?.trim();
 
+    const existingUser = await this._userRepository.findOne({ where: { id } });
+    if (!existingUser) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.USERS_NOT_EXISTS);
+    }
+
     const accessToken = await this.createAccessToken({ id });
 
     return { accessToken, refreshToken };

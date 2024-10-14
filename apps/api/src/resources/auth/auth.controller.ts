@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiHeader,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -15,6 +16,7 @@ import {
 
 import axios from 'axios';
 import { Request } from 'express';
+import * as jwt from 'jsonwebtoken';
 
 import { AuthToken, AuthUser } from '@common/decorators';
 import { TokenTypes } from '@common/enums';
@@ -24,6 +26,7 @@ import {
   IGoogleProfile,
   IRefreshPayload,
 } from '@common/models';
+import { IAppleProfile } from '@common/models/apple';
 
 import { AuthService } from './auth.service';
 import { AuthTokensDTO } from './dto';
@@ -111,6 +114,45 @@ export class AuthController {
     } catch (error) {
       console.error('Error:', error.response.data.error);
       throw new BadRequestException(error);
+    }
+  }
+
+  @ApiHeader({
+    name: 'user',
+    description: 'appleJWT',
+  })
+  @Get('apple/login')
+  async appleLoginCallback(@Req() req: Request): Promise<AuthTokensDTO> {
+    try {
+      const identityToken = req.headers.user as string;
+
+      if (!identityToken) {
+        throw new BadRequestException('Identity token is missing');
+      }
+
+      const jwtPayload =
+        (jwt.decode(identityToken, { complete: true }) as jwt.JwtPayload) ||
+        null;
+
+      if (!jwtPayload || typeof jwtPayload === 'string') {
+        throw new BadRequestException('Invalid JWT token');
+      }
+
+      const { email, sub: id } = jwtPayload.payload;
+      const name = jwtPayload.payload.name || 'Unknown';
+
+      const profile: IAppleProfile = {
+        id,
+        name,
+        email,
+      };
+
+      const tokens = await this._authService.syncUser(profile);
+
+      return tokens;
+    } catch (error) {
+      console.error('Error:', error);
+      throw new BadRequestException(error.message);
     }
   }
 

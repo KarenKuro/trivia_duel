@@ -53,7 +53,7 @@ export class MatchResponseDTO {
   @Expose()
   @Type(() => UserAnswerResponseDTO)
   @ApiProperty({ nullable: true })
-  userAsnwers: UserAnswerResponseDTO[];
+  userAnswers: UserAnswerResponseDTO[];
 
   @Expose()
   @Type(() => RelatedMatchResponseDTO)

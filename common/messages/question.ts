@@ -32,4 +32,10 @@ export const QUESTION_ERROR_MESSAGES = {
   TRANSLATED_QUESTION_NOT_EXISTS: {
     message: 'err_translated_question_not_exist',
   },
+  INCORRECT_USER_ANSWERS_LENGTH: {
+    message: 'err_incorrect_user_answers_length',
+  },
+  INCORRECT_USER_ANSWER_QUESTION_ID: {
+    message: 'err_incorrect_user_answer_question_id',
+  },
 };

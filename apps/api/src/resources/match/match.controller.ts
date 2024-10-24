@@ -22,7 +22,7 @@ import {
   CategoriesDTO,
   MatchResponseDTO,
   MatchStartResponseDTO,
-  UserAnswerDTO,
+  UserAnswersDTO,
 } from './dto';
 import { MatchService } from './match.service';
 
@@ -97,14 +97,14 @@ export class MatchController {
     });
   }
 
-  @Post(':id/answer')
-  @ApiOperation({ summary: 'Add answer to match questions' })
+  @Post(':id/answers')
+  @ApiOperation({ summary: 'Add answers to match questions' })
   @ApiParam({ name: 'id', description: 'Match Id' })
   @ApiResponse({ type: SuccessDTO })
-  async asnwer(
+  async asnwers(
     @AuthUser() user: TokenPayloadDTO,
     @Param() match: IdDTO,
-    @Body() body: UserAnswerDTO,
+    @Body() body: UserAnswersDTO,
   ) {
     await this._matchService.answer(user, +match.id, body);
 

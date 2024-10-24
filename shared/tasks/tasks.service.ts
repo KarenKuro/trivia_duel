@@ -82,13 +82,13 @@ export class TasksService implements OnModuleInit {
     });
   }
 
-  //TODO 5 second!!!
-  // Force canceled match if the match in status CATEGORY_CHOOSE continious more than 5 second from createdAt
+  //TODO 15 second!!!
+  // Force canceled match if the match in status CATEGORY_CHOOSE continious more than 15 second from createdAt
   @Cron(CronExpression.EVERY_5_SECONDS)
   async canceledMatches(): Promise<void> {
     const matchesToUpdate = await this._matchRepository
       .createQueryBuilder('match')
-      .where('match.createdAt < DATE_SUB(now(), INTERVAL 5 MINUTE)')
+      .where('match.createdAt < DATE_SUB(now(), INTERVAL 15 MINUTE)')
       .andWhere('match.status = :status', {
         status: MatchStatusType.CATEGORY_CHOOSE,
       })
@@ -106,12 +106,13 @@ export class TasksService implements OnModuleInit {
     });
   }
 
+  //TODO  2 MINUTE!!!
   // Change match status to ended if match started more than 2 minute
   @Cron(CronExpression.EVERY_5_SECONDS)
   async endMatches(): Promise<void> {
     const matchesToUpdate = await this._matchRepository
       .createQueryBuilder('match')
-      .where('match.startedAt < DATE_SUB(now(), INTERVAL 2 MINUTE)')
+      .where('match.startedAt < DATE_SUB(now(), INTERVAL 20 MINUTE)')
       .andWhere('match.status = :status', {
         status: MatchStatusType.IN_PROCESS,
       })

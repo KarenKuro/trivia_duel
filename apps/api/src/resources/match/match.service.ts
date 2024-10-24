@@ -33,7 +33,7 @@ import {
   IId,
   IUserAndStatisticsData,
   IUserAndStatisticsMetaData,
-  IUserAnswer,
+  IUserAnswers,
   IUserBonusItems,
   IUserId,
 } from '@common/models';
@@ -314,7 +314,7 @@ export class MatchService {
   async answer(
     userPayload: IUserId,
     matchId: number,
-    body: IUserAnswer,
+    body: IUserAnswers,
   ): Promise<void> {
     const match = await this._matchRepository.findOne({
       where: { id: matchId, status: MatchStatusType.IN_PROCESS },
@@ -337,62 +337,150 @@ export class MatchService {
       throw ResponseManager.buildError(ERROR_MESSAGES.INCORRECT_MATCH_ID);
     }
 
-    const question = match.questions.find(
-      (question) => question.id === body.questionId,
-    );
-
-    if (!question) {
-      throw ResponseManager.buildError(ERROR_MESSAGES.QUESTION_NOT_EXIST);
+    if (body.userAnswers.length !== match.questions.length) {
+      throw ResponseManager.buildError(
+        ERROR_MESSAGES.INCORRECT_USER_ANSWERS_LENGTH,
+      );
     }
 
-    if (body.answerId) {
-      const answer = question.answers.find((item) => item.id === body.answerId);
-      if (!answer) {
-        throw ResponseManager.buildError(ERROR_MESSAGES.ANSWER_NOT_EXISTS);
+    const userAnswersQuestionsIdsSet = new Set(
+      body.userAnswers.map((answer) => answer.questionId),
+    );
+
+    const matchQuestionsIdsSet = new Set(
+      match.questions.map((question) => question.id),
+    );
+
+    if (userAnswersQuestionsIdsSet.size !== matchQuestionsIdsSet.size) {
+      throw ResponseManager.buildError(ERROR_MESSAGES.ANSWERS_NOT_UNIQUE);
+    }
+
+    for (const id of userAnswersQuestionsIdsSet) {
+      if (!matchQuestionsIdsSet.has(id)) {
+        throw ResponseManager.buildError(
+          ERROR_MESSAGES.INCORRECT_USER_ANSWER_QUESTION_ID,
+        );
       }
     }
 
-    const userAnswerExists = await this._userAnswerRepository.findOne({
-      where: {
-        match: { id: match.id },
+    for (const userAnswer of body.userAnswers) {
+      const question = match.questions.find(
+        (question) => question.id === userAnswer.questionId,
+      );
+
+      if (!question) {
+        throw ResponseManager.buildError(ERROR_MESSAGES.QUESTION_NOT_EXIST);
+      }
+
+      if (userAnswer.answerId) {
+        const answer = question.answers.find(
+          (item) => item.id === userAnswer.answerId,
+        );
+        if (!answer) {
+          throw ResponseManager.buildError(ERROR_MESSAGES.ANSWER_NOT_EXISTS);
+        }
+      }
+
+      const userAnswerExists = await this._userAnswerRepository.findOne({
+        where: {
+          match: { id: match.id },
+          question: { id: question.id },
+          user: { id: user.id },
+        },
+      });
+
+      if (userAnswerExists) {
+        throw ResponseManager.buildError(
+          ERROR_MESSAGES.QUESTION_ALREADY_ANSWERED,
+        );
+      }
+
+      let isSingleTypeAnswerCorrect: boolean = false;
+
+      if (userAnswer.answer) {
+        const validatedAnswer = userAnswer.answer.trim().toLowerCase();
+
+        isSingleTypeAnswerCorrect = question.answers.some(
+          (item) => item.text.trim().toLowerCase() === validatedAnswer,
+        );
+      }
+
+      const answer = userAnswer.answerId ? { id: userAnswer.answerId } : null;
+
+      const isCorrect =
+        (answer && answer.id === question.correctAnswer.id) ||
+        isSingleTypeAnswerCorrect;
+
+      const lastAnswer = await this._userAnswerRepository.save({
+        user: { id: userPayload.id },
         question: { id: question.id },
-        user: { id: user.id },
-      },
-    });
+        answer,
+        match: { id: matchId },
+        isCorrect,
+      });
 
-    if (userAnswerExists) {
-      throw ResponseManager.buildError(
-        ERROR_MESSAGES.QUESTION_ALREADY_ANSWERED,
-      );
+      await this._matchRepository.update(matchId, { lastAnswer });
+
+      // const matchData = await this.getMatchDataToSend(matchId);
+      // this._matchGateway.sendMessageToHandlers(matchData);
     }
 
-    let isSingleTypeAnswerCorrect: boolean = false;
-    if (body.answer) {
-      const validatedBodyAnswer = body.answer.trim().toLowerCase();
+    // const question = match.questions.find(
+    //   (question) => question.id === body.questionId,
+    // );
 
-      isSingleTypeAnswerCorrect = question.answers.some(
-        (item) => item.text.trim().toLowerCase() === validatedBodyAnswer,
-      );
-    }
+    // if (!question) {
+    //   throw ResponseManager.buildError(ERROR_MESSAGES.QUESTION_NOT_EXIST);
+    // }
 
-    const userAnswer = body.answerId ? { id: body.answerId } : null;
+    // if (body.answerId) {
+    //   const answer = question.answers.find((item) => item.id === body.answerId);
+    //   if (!answer) {
+    //     throw ResponseManager.buildError(ERROR_MESSAGES.ANSWER_NOT_EXISTS);
+    //   }
+    // }
 
-    const isCorrect =
-      (userAnswer && userAnswer.id === question.correctAnswer.id) ||
-      isSingleTypeAnswerCorrect;
+    // const userAnswerExists = await this._userAnswerRepository.findOne({
+    //   where: {
+    //     match: { id: match.id },
+    //     question: { id: question.id },
+    //     user: { id: user.id },
+    //   },
+    // });
 
-    const lastAnswer = await this._userAnswerRepository.save({
-      user: { id: userPayload.id },
-      question: { id: question.id },
-      answer: userAnswer,
-      match: { id: matchId },
-      isCorrect,
-    });
+    // if (userAnswerExists) {
+    //   throw ResponseManager.buildError(
+    //     ERROR_MESSAGES.QUESTION_ALREADY_ANSWERED,
+    //   );
+    // }
 
-    await this._matchRepository.update(matchId, { lastAnswer });
+    // let isSingleTypeAnswerCorrect: boolean = false;
+    // if (body.answer) {
+    //   const validatedBodyAnswer = body.answer.trim().toLowerCase();
 
-    const matchData = await this.getMatchDataToSend(matchId);
-    this._matchGateway.sendMessageToHandlers(matchData);
+    //   isSingleTypeAnswerCorrect = question.answers.some(
+    //     (item) => item.text.trim().toLowerCase() === validatedBodyAnswer,
+    //   );
+    // }
+
+    // const userAnswer = body.answerId ? { id: body.answerId } : null;
+
+    // const isCorrect =
+    //   (userAnswer && userAnswer.id === question.correctAnswer.id) ||
+    //   isSingleTypeAnswerCorrect;
+
+    // const lastAnswer = await this._userAnswerRepository.save({
+    //   user: { id: userPayload.id },
+    //   question: { id: question.id },
+    //   answer: userAnswer,
+    //   match: { id: matchId },
+    //   isCorrect,
+    // });
+
+    // await this._matchRepository.update(matchId, { lastAnswer });
+
+    // const matchData = await this.getMatchDataToSend(matchId);
+    // this._matchGateway.sendMessageToHandlers(matchData);
 
     const questionsLength: number = match.questions.length;
     const usersLength: number = match.users.length;
@@ -477,10 +565,10 @@ export class MatchService {
       where: { id },
       relations: [
         'users',
-        'lastAnswer',
-        'lastAnswer.user',
-        'lastAnswer.question',
-        'lastAnswer.answer',
+        // 'lastAnswer',
+        // 'lastAnswer.user',
+        // 'lastAnswer.question',
+        // 'lastAnswer.answer',
         'nextMatch',
       ],
     });

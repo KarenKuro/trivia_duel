@@ -1,0 +1,79 @@
+volumes:
+  trivia-seq-data:
+    name: trivia-seq-data
+  trivia-db-data:
+    name: trivia-db-data
+
+services:
+  trivia-seq:
+    image: datalust/seq:2023.4
+    container_name: trivia-seq
+    ports:
+      - 8080:80
+    environment:
+      ACCEPT_EULA: Y
+      SEQ_FIRSTRUN_ADMINUSERNAME: trivia
+      SEQ_FIRSTRUN_ADMINPASSWORDHASH: QNDsng7hSuyW1B1j3qzWrsGuRLYdA6E1WKisVUCjwS2KpVGz7XzdpbZaoWsBW514ZuV9KeTEWMrKNJp40o+rSAYNLQVgV0x70VNJYRR6EXpW
+    volumes:
+      - trivia-seq-data:/data
+    restart: always
+
+
+  trivia-gelf:
+    container_name: trivia-gelf
+    image: datalust/seq-input-gelf:3.0.458
+    ports:
+      - "127.0.0.1:12201:12201/udp"   
+    depends_on:
+      - trivia-seq
+    environment:
+      SEQ_ADDRESS: "http://trivia-seq:5341"
+      GELF_ENABLE_DIAGNOSTICS: true
+    restart: always
+
+
+  trivia-mysql:
+    image: mysql:8.0
+    container_name: trivia-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: trivia_duel
+      MYSQL_USER: trivia
+      MYSQL_PASSWORD: Password123#@!
+    ports:
+      - 3306:3306
+    volumes:
+     - trivia-db-data:/var/lib/mysql
+    restart: always
+
+  trivia-admin:
+    image: admin
+    container_name: trivia-admin
+    ports:
+      - 5007:5007
+    volumes:
+     - ".env.production_admin:/app/.env.production"
+    depends_on:
+      - trivia-mysql
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://127.0.0.1:12201"
+        tag: "trivia-admin"
+    restart: always
+
+  trivia-api:
+    image: api
+    container_name: trivia-api
+    ports:
+      - 5000:5000
+    volumes:
+     - .env.production_api:/app/.env.production
+    depends_on:
+      - trivia-mysql
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://127.0.0.1:12201"
+        tag: "trivia-api"
+    restart: always

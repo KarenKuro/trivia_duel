@@ -23,6 +23,7 @@ import {
 } from '@common/config';
 import { ENV_CONST } from '@common/constants';
 import {
+  LanguageEntity,
   MediaEntity,
   TranslatedAnswerEntity,
   TranslatedCategoryEntity,
@@ -91,6 +92,7 @@ const envFilePath = isProductionMode
             TranslatedCategoryEntity,
             TranslatedQuestionEntity,
             MediaEntity,
+            LanguageEntity,
           ],
         };
       },

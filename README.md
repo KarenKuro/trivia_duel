@@ -27,6 +27,18 @@ $ docker compose -f database.yaml up -d
 $ npm run start
 ```
 
+## Running api in production
+
+```bash
+$ npm run start:api
+```
+
+## Running admin in production
+
+```bash
+$ npm run start:admin
+```
+
 ## Running the app in development
 
 ```bash

@@ -9,6 +9,8 @@
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "build": "NODE_OPTIONS='--max-old-space-size=8192' nest build api && NODE_OPTIONS='--max-old-space-size=8192' nest build admin",
     "start": "NODE_ENV=production concurrently \"npx nest start api\" \"npx nest start admin\"",
+    "start:api": "NODE_ENV=production nest start api",
+    "start:admin": "NODE_ENV=production nest start admin",
     "start:dev": "NODE_ENV=development concurrently \"npx nest start api --watch\" \"npx nest start admin --watch\"",
     "start:api:dev": "NODE_ENV=development nest start api --watch",
     "start:admin:dev": "NODE_ENV=development nest start admin --watch",

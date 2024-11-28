@@ -15,7 +15,7 @@ import { IValidationErrors } from '@common/models';
 
 import { AppModule } from './app.module';
 
-const PORT = process.env.PORT;
+const PORT = process.env.API_PORT;
 
 // process.env.TZ = 'Etc/UTC';
 

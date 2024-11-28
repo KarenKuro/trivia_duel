@@ -15,7 +15,7 @@ import { IValidationErrors } from '@common/models';
 
 import { AdminModule } from './admin.module';
 
-const PORT = process.env.PORT;
+const PORT = process.env.ADMIN_PORT;
 
 process.env.TZ = 'Etc/UTC';
 

@@ -8,6 +8,12 @@
 $ npm install
 ```
 
+## Build
+
+```bash
+$ npm build
+```
+
 ## Running the db
 
 ```bash
@@ -15,24 +21,24 @@ $ docker compose -f database.yaml up -d
 
 ```
 
-## Running the app
+## Running both parts(api and admin) in production
+
+```bash
+$ npm run start
+```
+
+## Running the app in development
 
 ```bash
 # development
 $ npm run start:api:dev
-
-# production mode
-$ npm run start:api
 ```
 
-## Running the admin
+## Running the admin in development
 
 ```bash
 # development
 $ npm run start:admin:dev
-
-# production mode
-$ npm run start:admin
 ```
 
 ## Stay in touch
